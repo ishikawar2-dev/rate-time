@@ -148,6 +148,20 @@ export async function deleteRepayment(repaymentId: string): Promise<void> {
   await getSql()`DELETE FROM repayments WHERE id = ${repaymentId}`;
 }
 
+export async function updateEntry(
+  entryId: string,
+  fields: { name: string | null; principal: number; interest_rate: number; rate_type: 'annual' | 'monthly' | 'daily'; interest_type: 'simple' | 'compound'; started_at: number },
+): Promise<Entry> {
+  await getSql()`
+    UPDATE entries
+    SET name = ${fields.name}, principal = ${fields.principal}, interest_rate = ${fields.interest_rate},
+        rate_type = ${fields.rate_type}, interest_type = ${fields.interest_type}, started_at = ${fields.started_at}
+    WHERE id = ${entryId}
+  `;
+  const rows = await getSql()`SELECT * FROM entries WHERE id = ${entryId}`;
+  return toEntry(rows[0]);
+}
+
 export async function updateRepayment(
   repaymentId: string,
   fields: { amount: number; item_name: string | null; note: string | null; repayment_target: 'interest' | 'principal'; repaid_at: number },

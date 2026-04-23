@@ -120,7 +120,7 @@ export default function HomeClient() {
           </div>
           <h1 className="text-3xl font-black text-zinc-100 mb-2">利息タイマー</h1>
           <p className="text-zinc-500 text-sm">
-            リアルタイムで増える利息を可視化。返済の動機づけに。
+            リアルタイムで増える利息を可視化する借金時計・利息シミュレーター。返済の動機づけに。
           </p>
         </div>
 

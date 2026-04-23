@@ -4,8 +4,9 @@ const jsonLdApp = {
   '@context': 'https://schema.org',
   '@type': 'WebApplication',
   name: '利息タイマー',
+  alternativeName: ['借金時計', '利息時計', '借金タイマー', '利息シミュレーター'],
   description:
-    '借金・カードローン・消費者金融・友人間の貸し借りの利息をリアルタイムで計算・可視化する無料の返済管理ツール。',
+    '借金・カードローン・消費者金融・友人間の貸し借りの利息をリアルタイムで計算・可視化する無料の返済管理ツール。借金時計・利息時計・利息シミュレーターとしても利用可能。',
   url: 'https://rate-time.com',
   applicationCategory: 'FinanceApplication',
   operatingSystem: 'All',
@@ -56,6 +57,22 @@ const jsonLdFaq = {
         text: 'URLを知っている人だけが閲覧できます。URLは十分にランダムな文字列で生成されるため、第三者が推測してアクセスすることはできません。',
       },
     },
+    {
+      '@type': 'Question',
+      name: '「借金時計」「利息時計」「借金タイマー」としても使えますか？',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'はい。利息タイマーは「借金時計」「利息時計」「借金タイマー」とも呼ばれる同種のツールです。借金が秒単位でリアルタイムに増える様子を時計のように可視化します。',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: '利息シミュレーターとして将来の利息を計算できますか？',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'はい。利息シミュレーターとして、開始日・元金・金利を設定することで将来の利息額を事前に確認できます。返済計画を立てるのに役立ちます。',
+      },
+    },
   ],
 };
 
@@ -81,6 +98,7 @@ export default function Page() {
             <p className="text-sm leading-relaxed mb-3">
               利息タイマーは、<strong className="text-zinc-300">借金・カードローン・消費者金融・友人間の貸し借り</strong>
               などの利息をリアルタイムで計算・可視化する無料のWebツールです。
+              「<strong className="text-zinc-300">借金タイマー</strong>」「<strong className="text-zinc-300">利息時計</strong>」「<strong className="text-zinc-300">借金時計</strong>」とも呼ばれており、
               元金と金利を入力するだけで、今この瞬間に積み上がっている利息を秒単位で確認できます。
             </p>
             <p className="text-sm leading-relaxed">
@@ -111,6 +129,24 @@ export default function Page() {
                 </li>
               ))}
             </ol>
+          </section>
+
+          <section className="mb-12">
+            <h2 className="text-xl font-bold text-zinc-200 mb-4">利息シミュレーター・借金時計として使う</h2>
+            <p className="text-sm leading-relaxed mb-3">
+              利息タイマーは<strong className="text-zinc-300">利息シミュレーター</strong>としても利用できます。
+              開始日・元金・金利を入力することで、将来の利息がどのように増加するかを事前にシミュレーションし、
+              返済計画を立てるのに役立てられます。
+            </p>
+            <p className="text-sm leading-relaxed mb-3">
+              また、<strong className="text-zinc-300">借金時計</strong>・<strong className="text-zinc-300">利息時計</strong>として、
+              リアルタイムで増え続ける利息を視覚的に確認できます。返済が遅れるほど利息が積み上がる現実を
+              数値と時間の経過で体感できるため、早期返済の強い動機づけになります。
+            </p>
+            <p className="text-sm leading-relaxed">
+              友人・家族への貸し借りでも使える<strong className="text-zinc-300">借金タイマー</strong>として、
+              URLを共有するだけで双方がリアルタイムの返済額を確認できます。
+            </p>
           </section>
 
           <section className="mb-12">

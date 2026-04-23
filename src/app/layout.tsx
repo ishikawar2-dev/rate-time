@@ -3,9 +3,9 @@ import './globals.css';
 
 const SITE_URL = 'https://rate-time.com';
 const SITE_NAME = '利息タイマー';
-const TITLE = '利息タイマー | リアルタイム利息・借金返済シミュレーター';
+const TITLE = '利息タイマー | 借金時計・利息シミュレーター【無料】';
 const DESCRIPTION =
-  '借金・カードローン・消費者金融・友人間の貸し借りの利息をリアルタイムで計算・可視化。単利・複利に対応した無料の返済管理ツール。URLを共有して返済状況を一目で確認できます。';
+  '借金・カードローン・消費者金融の利息をリアルタイム計算する無料ツール。「借金タイマー」「利息時計」「借金時計」「利息シミュレーター」として利用可能。元金と金利を入力するだけで今この瞬間に増える利息を秒単位で確認できます。';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -15,6 +15,11 @@ export const metadata: Metadata = {
   },
   description: DESCRIPTION,
   keywords: [
+    '利息タイマー',
+    '利息時計',
+    '借金タイマー',
+    '利息シミュレーター',
+    '借金時計',
     '利息計算',
     '借金',
     'ローン',
@@ -24,9 +29,7 @@ export const metadata: Metadata = {
     '返済シミュレーション',
     'カードローン',
     '消費者金融',
-    '利息タイマー',
     'リアルタイム',
-    '利息 計算 ツール',
   ],
   authors: [{ url: SITE_URL }],
   creator: SITE_NAME,

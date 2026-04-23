@@ -405,17 +405,149 @@ function RepaymentForm({
   );
 }
 
+// ─── Edit entry modal ──────────────────────────────────────────────
+function EditEntryModal({
+  slug,
+  editToken,
+  entry,
+  onSaved,
+  onClose,
+}: {
+  slug: string;
+  editToken: string;
+  entry: EntryWithRepayments;
+  onSaved: (updated: Entry) => void;
+  onClose: () => void;
+}) {
+  const toLocalDatetime = (ms: number) => {
+    const d = new Date(ms);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+
+  const [form, setForm] = useState({
+    name: entry.name ?? '',
+    principal: String(entry.principal),
+    interest_rate: String(entry.interest_rate),
+    rate_type: entry.rate_type,
+    interest_type: entry.interest_type,
+    started_at: toLocalDatetime(entry.started_at),
+  });
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState('');
+
+  const update = (f: string, v: string) => { setForm((p) => ({ ...p, [f]: v })); setErr(''); };
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setErr('');
+    try {
+      const res = await fetch(`/api/timers/${slug}/entries/${entry.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'x-edit-token': editToken },
+        body: JSON.stringify({
+          name: form.name,
+          principal: parseFloat(form.principal),
+          interest_rate: parseFloat(form.interest_rate),
+          rate_type: form.rate_type,
+          interest_type: form.interest_type,
+          started_at: form.started_at ? new Date(form.started_at).getTime() : entry.started_at,
+        }),
+      });
+      if (!res.ok) { const d = await res.json(); throw new Error(d.error); }
+      const updated: Entry = await res.json();
+      onSaved(updated);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : 'エラーが発生しました');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-zinc-900 border border-zinc-700 rounded-3xl p-6 max-w-sm w-full shadow-2xl">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-bold text-zinc-200">元金を編集</h2>
+          <button onClick={onClose} className="text-zinc-600 hover:text-zinc-400 text-xl">×</button>
+        </div>
+        <form onSubmit={submit} className="space-y-3">
+          <div>
+            <label className="label">項目名（任意）</label>
+            <input type="text" value={form.name} onChange={(e) => update('name', e.target.value)}
+              placeholder="例：追加借入" className="input-field" maxLength={50} />
+          </div>
+          <div>
+            <label className="label">元金 <span className="text-red-400">*</span></label>
+            <div className="relative">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 font-semibold">¥</span>
+              <input type="number" value={form.principal} onChange={(e) => update('principal', e.target.value)}
+                placeholder="500,000" className="input-field pl-8" required min="1" step="1" />
+            </div>
+          </div>
+          <div>
+            <label className="label">金利 <span className="text-red-400">*</span></label>
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <input type="number" value={form.interest_rate} onChange={(e) => update('interest_rate', e.target.value)}
+                  placeholder="18.0" className="input-field pr-8" required min="0" step="0.01" />
+                <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 font-semibold">%</span>
+              </div>
+              <select value={form.rate_type} onChange={(e) => update('rate_type', e.target.value)}
+                className="input-field w-24 flex-shrink-0">
+                <option value="annual">年利</option>
+                <option value="monthly">月利</option>
+                <option value="daily">日利</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="label">利息タイプ</label>
+            <div className="flex gap-2">
+              {(['compound', 'simple'] as const).map((k) => (
+                <button key={k} type="button" onClick={() => update('interest_type', k)}
+                  className={`flex-1 py-2.5 rounded-xl font-semibold text-sm border transition-all ${
+                    form.interest_type === k
+                      ? 'bg-red-600 text-white border-red-600'
+                      : 'bg-zinc-800 text-zinc-400 border-zinc-700 hover:border-zinc-600'
+                  }`}>
+                  {k === 'compound' ? '複利' : '単利'}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="label">開始日時</label>
+            <input type="datetime-local" value={form.started_at} onChange={(e) => update('started_at', e.target.value)}
+              className="input-field" />
+          </div>
+          {err && <div className="bg-red-950/40 border border-red-800 rounded-xl p-3 text-sm text-red-400">{err}</div>}
+          <div className="flex gap-2">
+            <button type="button" onClick={onClose} className="btn-secondary flex-1">キャンセル</button>
+            <button type="submit" disabled={loading} className="btn-primary flex-1">
+              {loading ? '保存中...' : '保存する'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 // ─── Entry card ────────────────────────────────────────────────────
 function EntryCard({
   entry,
   index,
   canEdit,
   onRepayClick,
+  onEditClick,
 }: {
   entry: EntryWithRepayments;
   index: number;
   canEdit: boolean;
   onRepayClick: (entryId: string) => void;
+  onEditClick: (entry: EntryWithRepayments) => void;
 }) {
   const [balance, setBalance] = useState(0);
   const [interest, setInterest] = useState(0);
@@ -447,11 +579,19 @@ function EntryCard({
             &nbsp;・&nbsp;開始: {formatDate(entry.started_at)}
           </p>
         </div>
-        <div className="text-right flex-shrink-0 ml-3">
+        <div className="flex flex-col items-end gap-1.5 ml-3 flex-shrink-0">
           {isPaid ? (
             <span className="text-emerald-400 font-black text-sm">🏆 完済</span>
           ) : (
             <BalanceTicker balance={balance} />
+          )}
+          {canEdit && (
+            <button
+              onClick={() => onEditClick(entry)}
+              className="text-xs text-zinc-500 hover:text-zinc-300 px-2 py-0.5 rounded-lg border border-zinc-700 hover:border-zinc-500 transition-colors"
+            >
+              編集
+            </button>
           )}
         </div>
       </div>
@@ -629,6 +769,7 @@ export function TimerClient({ timer, initialEntries, editToken }: TimerClientPro
   const [repayTargetId, setRepayTargetId] = useState<string | undefined>(undefined);
   const [copied, setCopied] = useState(false);
   const [editingRepayment, setEditingRepayment] = useState<(Repayment & { entryName: string }) | null>(null);
+  const [editingEntry, setEditingEntry] = useState<EntryWithRepayments | null>(null);
 
   const repayFormRef = useRef<HTMLDivElement>(null);
 
@@ -693,6 +834,13 @@ export function TimerClient({ timer, initialEntries, editToken }: TimerClientPro
     setEditingRepayment(null);
   }, []);
 
+  const handleSaveEntry = useCallback((updated: Entry) => {
+    setEntries((prev) => prev.map((e) =>
+      e.id !== updated.id ? e : { ...e, ...updated }
+    ));
+    setEditingEntry(null);
+  }, []);
+
   const handleCopyUrl = async () => {
     await navigator.clipboard.writeText(window.location.href);
     setCopied(true);
@@ -716,6 +864,15 @@ export function TimerClient({ timer, initialEntries, editToken }: TimerClientPro
 
   return (
     <>
+      {editingEntry && canEdit && (
+        <EditEntryModal
+          slug={timer.slug}
+          editToken={editToken!}
+          entry={editingEntry}
+          onSaved={handleSaveEntry}
+          onClose={() => setEditingEntry(null)}
+        />
+      )}
       {editingRepayment && canEdit && (
         <EditRepaymentModal
           slug={timer.slug}
@@ -803,7 +960,7 @@ export function TimerClient({ timer, initialEntries, editToken }: TimerClientPro
           <div className="space-y-2">
             <h2 className="font-bold text-zinc-500 text-sm px-1">元金一覧</h2>
             {entries.map((entry, idx) => (
-              <EntryCard key={entry.id} entry={entry} index={idx} canEdit={canEdit} onRepayClick={handleRepayClick} />
+              <EntryCard key={entry.id} entry={entry} index={idx} canEdit={canEdit} onRepayClick={handleRepayClick} onEditClick={setEditingEntry} />
             ))}
             {canEdit && (
               <AddEntryForm slug={timer.slug} editToken={editToken!} onAdded={handleEntryAdded} />
