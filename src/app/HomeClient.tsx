@@ -35,10 +35,11 @@ function newEntry(): EntryForm {
 export default function HomeClient() {
   const [timerName, setTimerName] = useState('');
   const [entries, setEntries] = useState<EntryForm[]>([newEntry()]);
-  const [generatedUrl, setGeneratedUrl] = useState('');
+  const [generatedUrls, setGeneratedUrls] = useState<{ viewUrl: string; editUrl: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [copied, setCopied] = useState(false);
+  const [copiedView, setCopiedView] = useState(false);
+  const [copiedEdit, setCopiedEdit] = useState(false);
 
   const updateEntry = (key: number, field: keyof EntryForm, value: string) => {
     setEntries((prev) =>
@@ -83,7 +84,11 @@ export default function HomeClient() {
       }
 
       const data = await res.json();
-      setGeneratedUrl(`${window.location.origin}/timer/${data.slug}`);
+      const base = `${window.location.origin}/timer/${data.slug}`;
+      setGeneratedUrls({
+        viewUrl: base,
+        editUrl: `${base}?e=${data.edit_token}`,
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'エラーが発生しました');
     } finally {
@@ -91,10 +96,18 @@ export default function HomeClient() {
     }
   };
 
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(generatedUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopyView = async () => {
+    if (!generatedUrls) return;
+    await navigator.clipboard.writeText(generatedUrls.viewUrl);
+    setCopiedView(true);
+    setTimeout(() => setCopiedView(false), 2000);
+  };
+
+  const handleCopyEdit = async () => {
+    if (!generatedUrls) return;
+    await navigator.clipboard.writeText(generatedUrls.editUrl);
+    setCopiedEdit(true);
+    setTimeout(() => setCopiedEdit(false), 2000);
   };
 
   return (
@@ -259,26 +272,42 @@ export default function HomeClient() {
           </button>
         </form>
 
-        {/* Generated URL */}
-        {generatedUrl && (
-          <div className="card p-5 border-green-800/60 bg-green-950/30 mt-4 animate-slide-up">
-            <div className="flex items-center gap-2 mb-3">
+        {/* Generated URLs */}
+        {generatedUrls && (
+          <div className="card p-5 border-green-800/60 bg-green-950/30 mt-4 animate-slide-up space-y-4">
+            <div className="flex items-center gap-2">
               <span className="text-green-500 text-lg">✅</span>
               <h3 className="font-bold text-green-400">タイマーが生成されました！</h3>
             </div>
-            <p className="text-xs text-green-600 mb-2">このURLを共有してください：</p>
-            <div className="bg-zinc-900 rounded-xl p-3 border border-zinc-700 mb-3 break-all text-sm text-zinc-300 font-mono">
-              {generatedUrl}
+
+            {/* 閲覧URL */}
+            <div>
+              <p className="text-xs font-bold text-zinc-300 mb-1">📋 閲覧URL <span className="text-zinc-500 font-normal">（相手に共有する）</span></p>
+              <div className="bg-zinc-900 rounded-xl p-3 border border-zinc-700 mb-2 break-all text-xs text-zinc-300 font-mono">
+                {generatedUrls.viewUrl}
+              </div>
+              <div className="flex gap-2">
+                <button onClick={handleCopyView} className="flex-1 btn-secondary text-sm py-2.5">
+                  {copiedView ? '✅ コピーしました' : '📋 閲覧URLをコピー'}
+                </button>
+                <button
+                  onClick={() => window.open(generatedUrls.viewUrl, '_blank')}
+                  className="flex-1 btn-success text-sm py-2.5"
+                >
+                  🔗 開く
+                </button>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <button onClick={handleCopy} className="flex-1 btn-secondary text-sm py-2.5">
-                {copied ? '✅ コピーしました' : '📋 URLをコピー'}
-              </button>
-              <button
-                onClick={() => window.open(generatedUrl, '_blank')}
-                className="flex-1 btn-success text-sm py-2.5"
-              >
-                🔗 タイマーを開く
+
+            {/* 編集URL */}
+            <div className="bg-red-950/30 border border-red-900/50 rounded-xl p-4 space-y-2">
+              <p className="text-xs font-bold text-red-400">🔒 編集URL <span className="text-red-600 font-normal">（自分だけ保存・絶対に共有しない）</span></p>
+              <p className="text-xs text-zinc-500">返済の記録・編集はこのURLからのみ可能です。メモやパスワードマネージャーに保存してください。</p>
+              <div className="bg-zinc-900 rounded-xl p-3 border border-zinc-700 break-all text-xs text-zinc-300 font-mono">
+                {generatedUrls.editUrl}
+              </div>
+              <button onClick={handleCopyEdit} className="w-full btn-secondary text-sm py-2.5">
+                {copiedEdit ? '✅ コピーしました' : '🔒 編集URLをコピー'}
               </button>
             </div>
           </div>

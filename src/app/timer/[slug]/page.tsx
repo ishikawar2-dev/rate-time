@@ -11,12 +11,16 @@ export const metadata: Metadata = {
 
 interface PageProps {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function TimerPage({ params }: PageProps) {
+export default async function TimerPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
+  const sp = await searchParams;
+  const editToken = typeof sp.e === 'string' ? sp.e : null;
+
   const data = await getTimerWithEntries(slug);
   if (!data) notFound();
 
-  return <TimerClient timer={data} initialEntries={data.entries} />;
+  return <TimerClient timer={data} initialEntries={data.entries} editToken={editToken} />;
 }

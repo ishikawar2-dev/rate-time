@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTimerBySlug, getEntryById, deleteRepayment, updateRepayment, getRepaymentsByEntryId } from '@/lib/db';
+import { verifyEditToken } from '@/lib/auth';
 
 export const runtime = 'nodejs';
 
@@ -23,6 +24,9 @@ async function resolveRepayment(slug: string, repaymentId: string) {
 export async function DELETE(req: NextRequest, { params }: Params) {
   try {
     const { slug, id } = await params;
+    if (!verifyEditToken(slug, req.headers.get('x-edit-token'))) {
+      return NextResponse.json({ error: '編集権限がありません' }, { status: 401 });
+    }
     const result = await resolveRepayment(slug, id);
     if ('error' in result) return NextResponse.json({ error: result.error }, { status: result.status });
 
@@ -37,6 +41,9 @@ export async function DELETE(req: NextRequest, { params }: Params) {
 export async function PATCH(req: NextRequest, { params }: Params) {
   try {
     const { slug, id } = await params;
+    if (!verifyEditToken(slug, req.headers.get('x-edit-token'))) {
+      return NextResponse.json({ error: '編集権限がありません' }, { status: 401 });
+    }
     const result = await resolveRepayment(slug, id);
     if ('error' in result) return NextResponse.json({ error: result.error }, { status: result.status });
 

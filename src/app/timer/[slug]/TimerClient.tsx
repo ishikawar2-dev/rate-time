@@ -109,7 +109,7 @@ function BalanceTicker({ balance, large }: { balance: number; large?: boolean })
 }
 
 // ─── Add-entry inline form ─────────────────────────────────────────
-function AddEntryForm({ slug, onAdded }: { slug: string; onAdded: (entry: Entry) => void }) {
+function AddEntryForm({ slug, editToken, onAdded }: { slug: string; editToken: string; onAdded: (entry: Entry) => void }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
     name: '', principal: '', interest_rate: '', rate_type: 'annual',
@@ -127,7 +127,7 @@ function AddEntryForm({ slug, onAdded }: { slug: string; onAdded: (entry: Entry)
     try {
       const res = await fetch(`/api/timers/${slug}/entries`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-edit-token': editToken },
         body: JSON.stringify({
           ...form,
           principal: parseFloat(form.principal),
@@ -226,11 +226,13 @@ function AddEntryForm({ slug, onAdded }: { slug: string; onAdded: (entry: Entry)
 // ─── Repayment form ────────────────────────────────────────────────
 function RepaymentForm({
   slug,
+  editToken,
   entries,
   defaultEntryId,
   onRepaid,
 }: {
   slug: string;
+  editToken: string;
   entries: EntryWithRepayments[];
   defaultEntryId?: string;
   onRepaid: (repayment: Repayment, breakdown: PaymentBreakdown) => void;
@@ -278,7 +280,7 @@ function RepaymentForm({
 
       const res = await fetch(`/api/timers/${slug}/repayments`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-edit-token': editToken },
         body: JSON.stringify({
           entry_id: form.entry_id,
           amount,
@@ -407,10 +409,12 @@ function RepaymentForm({
 function EntryCard({
   entry,
   index,
+  canEdit,
   onRepayClick,
 }: {
   entry: EntryWithRepayments;
   index: number;
+  canEdit: boolean;
   onRepayClick: (entryId: string) => void;
 }) {
   const [balance, setBalance] = useState(0);
@@ -470,12 +474,14 @@ function EntryCard({
               </div>
             )}
           </div>
-          <button
-            onClick={() => onRepayClick(entry.id)}
-            className="w-full py-2 rounded-lg bg-green-950/30 hover:bg-green-950/50 text-green-400 font-semibold text-sm border border-green-800/50 transition-colors"
-          >
-            この項目を返済する
-          </button>
+          {canEdit && (
+            <button
+              onClick={() => onRepayClick(entry.id)}
+              className="w-full py-2 rounded-lg bg-green-950/30 hover:bg-green-950/50 text-green-400 font-semibold text-sm border border-green-800/50 transition-colors"
+            >
+              この項目を返済する
+            </button>
+          )}
         </>
       )}
 
@@ -489,12 +495,14 @@ function EntryCard({
 // ─── Edit repayment modal ──────────────────────────────────────────
 function EditRepaymentModal({
   slug,
+  editToken,
   repayment,
   entryName,
   onSaved,
   onClose,
 }: {
   slug: string;
+  editToken: string;
   repayment: Repayment & { entryName: string };
   entryName: string;
   onSaved: (updated: Repayment) => void;
@@ -525,7 +533,7 @@ function EditRepaymentModal({
     try {
       const res = await fetch(`/api/timers/${slug}/repayments/${repayment.id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-edit-token': editToken },
         body: JSON.stringify({
           amount: parseFloat(form.amount),
           item_name: form.item_name || null,
@@ -608,9 +616,11 @@ function EditRepaymentModal({
 interface TimerClientProps {
   timer: Timer;
   initialEntries: EntryWithRepayments[];
+  editToken: string | null;
 }
 
-export function TimerClient({ timer, initialEntries }: TimerClientProps) {
+export function TimerClient({ timer, initialEntries, editToken }: TimerClientProps) {
+  const canEdit = editToken !== null;
   const [entries, setEntries] = useState<EntryWithRepayments[]>(initialEntries);
   const [totalBalance, setTotalBalance] = useState(0);
   const [celebration, setCelebration] = useState<{
@@ -663,7 +673,10 @@ export function TimerClient({ timer, initialEntries }: TimerClientProps) {
   const handleDeleteRepayment = useCallback(async (repaymentId: string, entryId: string) => {
     if (!confirm('この返済履歴を削除しますか？')) return;
     try {
-      const res = await fetch(`/api/timers/${timer.slug}/repayments/${repaymentId}`, { method: 'DELETE' });
+      const res = await fetch(`/api/timers/${timer.slug}/repayments/${repaymentId}`, {
+        method: 'DELETE',
+        headers: editToken ? { 'x-edit-token': editToken } : {},
+      });
       if (!res.ok) { const d = await res.json(); throw new Error(d.error); }
       setEntries((prev) => prev.map((e) =>
         e.id !== entryId ? e : { ...e, repayments: e.repayments.filter((r) => r.id !== repaymentId) }
@@ -703,9 +716,10 @@ export function TimerClient({ timer, initialEntries }: TimerClientProps) {
 
   return (
     <>
-      {editingRepayment && (
+      {editingRepayment && canEdit && (
         <EditRepaymentModal
           slug={timer.slug}
+          editToken={editToken!}
           repayment={editingRepayment}
           entryName={editingRepayment.entryName}
           onSaved={handleSaveRepayment}
@@ -735,9 +749,18 @@ export function TimerClient({ timer, initialEntries }: TimerClientProps) {
               </h1>
               <p className="text-xs text-zinc-600 mt-0.5">開始: {formatDate(timer.created_at)}</p>
             </div>
-            <button onClick={handleCopyUrl} className="btn-secondary text-xs py-2 px-3 flex-shrink-0">
-              {copied ? '✅ コピー済' : '🔗 URLをコピー'}
-            </button>
+            <div className="flex flex-col items-end gap-2 flex-shrink-0">
+              <button onClick={handleCopyUrl} className="btn-secondary text-xs py-2 px-3">
+                {copied ? '✅ コピー済' : '🔗 URLをコピー'}
+              </button>
+              <span className={`text-xs px-2 py-0.5 rounded-full border ${
+                canEdit
+                  ? 'bg-green-950/40 text-green-400 border-green-800/60'
+                  : 'bg-zinc-900 text-zinc-500 border-zinc-700'
+              }`}>
+                {canEdit ? '🔓 編集モード' : '🔒 閲覧のみ'}
+              </span>
+            </div>
           </div>
 
           {/* Total balance */}
@@ -780,16 +803,19 @@ export function TimerClient({ timer, initialEntries }: TimerClientProps) {
           <div className="space-y-2">
             <h2 className="font-bold text-zinc-500 text-sm px-1">元金一覧</h2>
             {entries.map((entry, idx) => (
-              <EntryCard key={entry.id} entry={entry} index={idx} onRepayClick={handleRepayClick} />
+              <EntryCard key={entry.id} entry={entry} index={idx} canEdit={canEdit} onRepayClick={handleRepayClick} />
             ))}
-            <AddEntryForm slug={timer.slug} onAdded={handleEntryAdded} />
+            {canEdit && (
+              <AddEntryForm slug={timer.slug} editToken={editToken!} onAdded={handleEntryAdded} />
+            )}
           </div>
 
           {/* Repayment form */}
-          {!allPaid && (
+          {!allPaid && canEdit && (
             <div ref={repayFormRef}>
               <RepaymentForm
                 slug={timer.slug}
+                editToken={editToken!}
                 entries={entries}
                 defaultEntryId={repayTargetId}
                 onRepaid={handleRepaid}
@@ -838,20 +864,22 @@ export function TimerClient({ timer, initialEntries }: TimerClientProps) {
                       <p className="font-black text-green-400">
                         {formatCurrency(r.amount)}
                       </p>
-                      <div className="flex gap-1">
-                        <button
-                          onClick={() => setEditingRepayment(r)}
-                          className="text-xs text-zinc-500 hover:text-zinc-300 px-2 py-0.5 rounded-lg border border-zinc-700 hover:border-zinc-500 transition-colors"
-                        >
-                          編集
-                        </button>
-                        <button
-                          onClick={() => handleDeleteRepayment(r.id, r.entry_id)}
-                          className="text-xs text-red-700 hover:text-red-400 px-2 py-0.5 rounded-lg border border-red-900/50 hover:border-red-700 transition-colors"
-                        >
-                          削除
-                        </button>
-                      </div>
+                      {canEdit && (
+                        <div className="flex gap-1">
+                          <button
+                            onClick={() => setEditingRepayment(r)}
+                            className="text-xs text-zinc-500 hover:text-zinc-300 px-2 py-0.5 rounded-lg border border-zinc-700 hover:border-zinc-500 transition-colors"
+                          >
+                            編集
+                          </button>
+                          <button
+                            onClick={() => handleDeleteRepayment(r.id, r.entry_id)}
+                            className="text-xs text-red-700 hover:text-red-400 px-2 py-0.5 rounded-lg border border-red-900/50 hover:border-red-700 transition-colors"
+                          >
+                            削除
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTimerBySlug, getEntryById, createRepayment } from '@/lib/db';
+import { verifyEditToken } from '@/lib/auth';
 import { randomUUID } from 'crypto';
 
 export const runtime = 'nodejs';
@@ -13,6 +14,10 @@ export async function POST(
     const timer = await getTimerBySlug(slug);
     if (!timer) {
       return NextResponse.json({ error: 'タイマーが見つかりません' }, { status: 404 });
+    }
+
+    if (!verifyEditToken(slug, req.headers.get('x-edit-token'))) {
+      return NextResponse.json({ error: '編集権限がありません' }, { status: 401 });
     }
 
     const body = await req.json();

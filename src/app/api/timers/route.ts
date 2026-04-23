@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createTimer } from '@/lib/db';
+import { generateEditToken } from '@/lib/auth';
 import { randomUUID } from 'crypto';
 
 export const runtime = 'nodejs';
@@ -53,8 +54,9 @@ export async function POST(req: NextRequest) {
     }));
 
     const result = await createTimer(timer, entryDefs, randomUUID);
+    const edit_token = generateEditToken(timer.slug);
 
-    return NextResponse.json(result, { status: 201 });
+    return NextResponse.json({ ...result, edit_token }, { status: 201 });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: 'サーバーエラーが発生しました' }, { status: 500 });

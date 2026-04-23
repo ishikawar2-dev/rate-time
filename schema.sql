@@ -2,6 +2,7 @@ CREATE TABLE IF NOT EXISTS timers (
   id TEXT PRIMARY KEY,
   slug TEXT UNIQUE NOT NULL,
   name TEXT,
+  password_hash TEXT,
   created_at BIGINT NOT NULL
 );
 
