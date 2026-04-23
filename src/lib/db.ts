@@ -138,3 +138,26 @@ export async function createRepayment(repayment: Repayment): Promise<Repayment> 
   const rows = await getSql()`SELECT * FROM repayments WHERE id = ${repayment.id}`;
   return toRepayment(rows[0]);
 }
+
+export async function getRepaymentById(repaymentId: string): Promise<Repayment | null> {
+  const rows = await getSql()`SELECT * FROM repayments WHERE id = ${repaymentId}`;
+  return rows.length ? toRepayment(rows[0]) : null;
+}
+
+export async function deleteRepayment(repaymentId: string): Promise<void> {
+  await getSql()`DELETE FROM repayments WHERE id = ${repaymentId}`;
+}
+
+export async function updateRepayment(
+  repaymentId: string,
+  fields: { amount: number; item_name: string | null; note: string | null; repayment_target: 'interest' | 'principal'; repaid_at: number },
+): Promise<Repayment> {
+  await getSql()`
+    UPDATE repayments
+    SET amount = ${fields.amount}, item_name = ${fields.item_name}, note = ${fields.note},
+        repayment_target = ${fields.repayment_target}, repaid_at = ${fields.repaid_at}
+    WHERE id = ${repaymentId}
+  `;
+  const rows = await getSql()`SELECT * FROM repayments WHERE id = ${repaymentId}`;
+  return toRepayment(rows[0]);
+}

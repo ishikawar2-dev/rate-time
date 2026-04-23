@@ -486,6 +486,124 @@ function EntryCard({
   );
 }
 
+// ─── Edit repayment modal ──────────────────────────────────────────
+function EditRepaymentModal({
+  slug,
+  repayment,
+  entryName,
+  onSaved,
+  onClose,
+}: {
+  slug: string;
+  repayment: Repayment & { entryName: string };
+  entryName: string;
+  onSaved: (updated: Repayment) => void;
+  onClose: () => void;
+}) {
+  const toLocalDatetime = (ms: number) => {
+    const d = new Date(ms);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+
+  const [form, setForm] = useState({
+    amount: String(repayment.amount),
+    item_name: repayment.item_name ?? '',
+    note: repayment.note ?? '',
+    repayment_target: repayment.repayment_target,
+    repaid_at: toLocalDatetime(repayment.repaid_at),
+  });
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState('');
+
+  const update = (f: string, v: string) => { setForm((p) => ({ ...p, [f]: v })); setErr(''); };
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setErr('');
+    try {
+      const res = await fetch(`/api/timers/${slug}/repayments/${repayment.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: parseFloat(form.amount),
+          item_name: form.item_name || null,
+          note: form.note || null,
+          repayment_target: form.repayment_target,
+          repaid_at: form.repaid_at ? new Date(form.repaid_at).getTime() : repayment.repaid_at,
+        }),
+      });
+      if (!res.ok) { const d = await res.json(); throw new Error(d.error); }
+      const updated: Repayment = await res.json();
+      onSaved(updated);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : 'エラーが発生しました');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-zinc-900 border border-zinc-700 rounded-3xl p-6 max-w-sm w-full shadow-2xl">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-bold text-zinc-200">返済履歴を編集</h2>
+          <button onClick={onClose} className="text-zinc-600 hover:text-zinc-400 text-xl">×</button>
+        </div>
+        <p className="text-xs text-zinc-500 mb-4">{entryName}</p>
+        <form onSubmit={submit} className="space-y-3">
+          <div>
+            <label className="label">返済金額 <span className="text-red-400">*</span></label>
+            <div className="relative">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 font-semibold">¥</span>
+              <input type="number" value={form.amount} onChange={(e) => update('amount', e.target.value)}
+                className="input-field pl-8" required min="1" step="1" />
+            </div>
+          </div>
+          <div>
+            <label className="label">充当先</label>
+            <div className="flex gap-2">
+              {(['interest', 'principal'] as const).map((t) => (
+                <button key={t} type="button" onClick={() => update('repayment_target', t)}
+                  className={`flex-1 py-2.5 rounded-xl font-semibold text-sm border transition-all duration-150 ${
+                    form.repayment_target === t
+                      ? t === 'interest' ? 'bg-orange-500 text-white border-orange-500' : 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-zinc-800 text-zinc-400 border-zinc-700 hover:border-zinc-600'
+                  }`}>
+                  {t === 'interest' ? '利息から' : '元本から'}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="label">項目名（任意）</label>
+            <input type="text" value={form.item_name} onChange={(e) => update('item_name', e.target.value)}
+              className="input-field" maxLength={50} />
+          </div>
+          <div>
+            <label className="label">メモ（任意）</label>
+            <input type="text" value={form.note} onChange={(e) => update('note', e.target.value)}
+              className="input-field" maxLength={200} />
+          </div>
+          <div>
+            <label className="label">返済日時</label>
+            <input type="datetime-local" value={form.repaid_at} onChange={(e) => update('repaid_at', e.target.value)}
+              className="input-field" />
+          </div>
+          {err && <div className="bg-red-950/40 border border-red-800 rounded-xl p-3 text-sm text-red-400">{err}</div>}
+          <div className="flex gap-2">
+            <button type="button" onClick={onClose} className="btn-secondary flex-1">キャンセル</button>
+            <button type="submit" disabled={loading} className="btn-primary flex-1">
+              {loading ? '保存中...' : '保存する'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main client component ─────────────────────────────────────────
 interface TimerClientProps {
   timer: Timer;
@@ -500,6 +618,7 @@ export function TimerClient({ timer, initialEntries }: TimerClientProps) {
   } | null>(null);
   const [repayTargetId, setRepayTargetId] = useState<string | undefined>(undefined);
   const [copied, setCopied] = useState(false);
+  const [editingRepayment, setEditingRepayment] = useState<(Repayment & { entryName: string }) | null>(null);
 
   const repayFormRef = useRef<HTMLDivElement>(null);
 
@@ -541,6 +660,26 @@ export function TimerClient({ timer, initialEntries }: TimerClientProps) {
     setEntries((prev) => [...prev, { ...newEntry, repayments: [] }]);
   }, []);
 
+  const handleDeleteRepayment = useCallback(async (repaymentId: string, entryId: string) => {
+    if (!confirm('この返済履歴を削除しますか？')) return;
+    try {
+      const res = await fetch(`/api/timers/${timer.slug}/repayments/${repaymentId}`, { method: 'DELETE' });
+      if (!res.ok) { const d = await res.json(); throw new Error(d.error); }
+      setEntries((prev) => prev.map((e) =>
+        e.id !== entryId ? e : { ...e, repayments: e.repayments.filter((r) => r.id !== repaymentId) }
+      ));
+    } catch (e) {
+      alert(e instanceof Error ? e.message : '削除に失敗しました');
+    }
+  }, [timer.slug]);
+
+  const handleSaveRepayment = useCallback((updated: Repayment) => {
+    setEntries((prev) => prev.map((e) =>
+      e.id !== updated.entry_id ? e : { ...e, repayments: e.repayments.map((r) => r.id === updated.id ? updated : r) }
+    ));
+    setEditingRepayment(null);
+  }, []);
+
   const handleCopyUrl = async () => {
     await navigator.clipboard.writeText(window.location.href);
     setCopied(true);
@@ -564,6 +703,15 @@ export function TimerClient({ timer, initialEntries }: TimerClientProps) {
 
   return (
     <>
+      {editingRepayment && (
+        <EditRepaymentModal
+          slug={timer.slug}
+          repayment={editingRepayment}
+          entryName={editingRepayment.entryName}
+          onSaved={handleSaveRepayment}
+          onClose={() => setEditingRepayment(null)}
+        />
+      )}
       {celebration && (
         <CelebrationOverlay
           amount={celebration.amount}
@@ -686,9 +834,25 @@ export function TimerClient({ timer, initialEntries }: TimerClientProps) {
                       {r.note && <p className="text-xs text-zinc-600 mt-0.5 truncate">{r.note}</p>}
                       <p className="text-xs text-zinc-700 mt-0.5">{formatDate(r.repaid_at)}</p>
                     </div>
-                    <p className="font-black text-green-400 ml-3 flex-shrink-0">
-                      {formatCurrency(r.amount)}
-                    </p>
+                    <div className="flex flex-col items-end gap-1.5 ml-3 flex-shrink-0">
+                      <p className="font-black text-green-400">
+                        {formatCurrency(r.amount)}
+                      </p>
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => setEditingRepayment(r)}
+                          className="text-xs text-zinc-500 hover:text-zinc-300 px-2 py-0.5 rounded-lg border border-zinc-700 hover:border-zinc-500 transition-colors"
+                        >
+                          編集
+                        </button>
+                        <button
+                          onClick={() => handleDeleteRepayment(r.id, r.entry_id)}
+                          className="text-xs text-red-700 hover:text-red-400 px-2 py-0.5 rounded-lg border border-red-900/50 hover:border-red-700 transition-colors"
+                        >
+                          削除
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
