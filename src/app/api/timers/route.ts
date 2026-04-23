@@ -5,7 +5,7 @@ import { randomUUID } from 'crypto';
 export const runtime = 'nodejs';
 
 function slug(): string {
-  return randomUUID().replace(/-/g, '').substring(0, 10);
+  return randomUUID().replace(/-/g, '');
 }
 
 const VALID_RATE = ['annual', 'monthly', 'daily'];

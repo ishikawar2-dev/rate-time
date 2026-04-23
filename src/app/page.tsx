@@ -1,293 +1,171 @@
-'use client';
+import HomeClient from './HomeClient';
 
-import { useState } from 'react';
+const jsonLdApp = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: '利息タイマー',
+  description:
+    '借金・カードローン・消費者金融・友人間の貸し借りの利息をリアルタイムで計算・可視化する無料の返済管理ツール。',
+  url: 'https://rate-time.com',
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'All',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'JPY' },
+  inLanguage: 'ja',
+  featureList: [
+    'リアルタイム利息計算',
+    '単利・複利対応',
+    '年利・月利・日利対応',
+    'URL共有機能',
+    '返済履歴管理',
+  ],
+};
 
-type RateType = 'annual' | 'monthly' | 'daily';
-type InterestType = 'simple' | 'compound';
+const jsonLdFaq = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: '利息タイマーは無料ですか？',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'はい、完全無料でご利用いただけます。登録・ログインも不要です。',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'カードローンの利息計算に使えますか？',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'はい。年利を入力し利息タイプを「複利」に設定することで、一般的なカードローン・消費者金融の利息をシミュレーションできます。',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: '複数の借金をまとめて管理できますか？',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: '1つのタイマーに複数の元金を追加できます。カードローン・フリーローン・友人への借金など、種類ごとに項目を分けて一括管理が可能です。',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: '生成したURLは誰でも閲覧できますか？',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'URLを知っている人だけが閲覧できます。URLは十分にランダムな文字列で生成されるため、第三者が推測してアクセスすることはできません。',
+      },
+    },
+  ],
+};
 
-interface EntryForm {
-  _key: number;
-  name: string;
-  principal: string;
-  interest_rate: string;
-  rate_type: RateType;
-  interest_type: InterestType;
-  started_at: string;
-}
-
-const RATE_LABELS: Record<RateType, string> = { annual: '年利', monthly: '月利', daily: '日利' };
-const INTEREST_LABELS: Record<InterestType, string> = { simple: '単利', compound: '複利' };
-
-let nextKey = 1;
-
-function newEntry(): EntryForm {
-  return {
-    _key: nextKey++,
-    name: '',
-    principal: '',
-    interest_rate: '',
-    rate_type: 'annual',
-    interest_type: 'compound',
-    started_at: '',
-  };
-}
-
-export default function HomePage() {
-  const [timerName, setTimerName] = useState('');
-  const [entries, setEntries] = useState<EntryForm[]>([newEntry()]);
-  const [generatedUrl, setGeneratedUrl] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [copied, setCopied] = useState(false);
-
-  const updateEntry = (key: number, field: keyof EntryForm, value: string) => {
-    setEntries((prev) =>
-      prev.map((e) => (e._key === key ? { ...e, [field]: value } : e)),
-    );
-    setError('');
-  };
-
-  const addEntry = () => setEntries((prev) => [...prev, newEntry()]);
-
-  const removeEntry = (key: number) => {
-    if (entries.length <= 1) return;
-    setEntries((prev) => prev.filter((e) => e._key !== key));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
-    try {
-      const payload = {
-        name: timerName,
-        entries: entries.map((e) => ({
-          name: e.name,
-          principal: parseFloat(e.principal),
-          interest_rate: parseFloat(e.interest_rate),
-          rate_type: e.rate_type,
-          interest_type: e.interest_type,
-          started_at: e.started_at ? new Date(e.started_at).getTime() : undefined,
-        })),
-      };
-
-      const res = await fetch('/api/timers', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'エラーが発生しました');
-      }
-
-      const data = await res.json();
-      setGeneratedUrl(`${window.location.origin}/timer/${data.slug}`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'エラーが発生しました');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(generatedUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
+export default function Page() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-4 py-12">
-      <div className="w-full max-w-lg">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-red-950/40 border border-red-900/50 rounded-2xl mb-4">
-            <span className="text-3xl">⏱️</span>
-          </div>
-          <h1 className="text-3xl font-black text-zinc-100 mb-2">利息タイマー</h1>
-          <p className="text-zinc-500 text-sm">
-            リアルタイムで増える利息を可視化。返済の動機づけに。
-          </p>
-        </div>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdApp) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFaq) }}
+      />
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Timer name */}
-          <div className="card p-5">
-            <label className="label">タイマー名（任意）</label>
-            <input
-              type="text"
-              value={timerName}
-              onChange={(e) => setTimerName(e.target.value)}
-              placeholder="例：2024年の借金まとめ"
-              className="input-field"
-              maxLength={50}
-            />
-          </div>
+      <main>
+        <HomeClient />
 
-          {/* Entries */}
-          <div className="space-y-3">
-            {entries.map((entry, idx) => (
-              <div key={entry._key} className="card p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-zinc-400 text-sm">元金 {idx + 1}</h3>
-                  {entries.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeEntry(entry._key)}
-                      className="text-zinc-600 hover:text-red-400 transition-colors text-xl leading-none"
-                      aria-label="削除"
-                    >
-                      ×
-                    </button>
-                  )}
-                </div>
+        {/* SEO コンテンツセクション */}
+        <article className="max-w-2xl mx-auto px-4 pb-24 text-zinc-400">
+          <section className="border-t border-zinc-800 pt-12 mb-12">
+            <h2 className="text-xl font-bold text-zinc-200 mb-4">利息タイマーとは？</h2>
+            <p className="text-sm leading-relaxed mb-3">
+              利息タイマーは、<strong className="text-zinc-300">借金・カードローン・消費者金融・友人間の貸し借り</strong>
+              などの利息をリアルタイムで計算・可視化する無料のWebツールです。
+              元金と金利を入力するだけで、今この瞬間に積み上がっている利息を秒単位で確認できます。
+            </p>
+            <p className="text-sm leading-relaxed">
+              生成されたURLを返済相手と共有することで、返済の動機づけや状況の透明化に役立てられます。
+              年利・月利・日利、単利・複利に対応しており、あらゆる借金の利息計算に対応しています。
+            </p>
+          </section>
 
-                <div className="space-y-3">
+          <section className="mb-12">
+            <h2 className="text-xl font-bold text-zinc-200 mb-4">使い方</h2>
+            <ol className="text-sm space-y-4 list-none">
+              {(
+                [
+                  ['元金を入力', '借入金額を円単位で入力します。複数の借金がある場合は「元金を追加」で項目を増やせます。'],
+                  ['金利を設定', '年利・月利・日利のいずれかで金利を入力します。消費者金融は年利15〜18%が一般的です。'],
+                  ['利息タイプを選択', '単利（元金のみに利息がつく）か複利（利息にも利息がつく）を選びます。カードローンは多くが複利です。'],
+                  ['タイマーを生成・共有', 'ボタンを押すとURLが発行されます。このURLを共有することでリアルタイムの利息を双方で確認できます。'],
+                ] as [string, string][]
+              ).map(([title, desc], i) => (
+                <li key={i} className="flex gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-red-900/60 border border-red-800 text-xs flex items-center justify-center text-red-400 font-bold mt-0.5">
+                    {i + 1}
+                  </span>
                   <div>
-                    <label className="label">項目名（任意）</label>
-                    <input
-                      type="text"
-                      value={entry.name}
-                      onChange={(e) => updateEntry(entry._key, 'name', e.target.value)}
-                      placeholder="例：カードローン、友達への借金"
-                      className="input-field"
-                      maxLength={50}
-                    />
+                    <strong className="text-zinc-300">{title}</strong>
+                    <span className="text-zinc-500"> — {desc}</span>
                   </div>
+                </li>
+              ))}
+            </ol>
+          </section>
 
-                  <div>
-                    <label className="label">
-                      元金 <span className="text-red-400">*</span>
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 font-semibold">¥</span>
-                      <input
-                        type="number"
-                        value={entry.principal}
-                        onChange={(e) => updateEntry(entry._key, 'principal', e.target.value)}
-                        placeholder="1,000,000"
-                        className="input-field pl-8"
-                        required
-                        min="1"
-                        step="1"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="label">
-                      金利 <span className="text-red-400">*</span>
-                    </label>
-                    <div className="flex gap-2">
-                      <div className="relative flex-1">
-                        <input
-                          type="number"
-                          value={entry.interest_rate}
-                          onChange={(e) => updateEntry(entry._key, 'interest_rate', e.target.value)}
-                          placeholder="18.0"
-                          className="input-field pr-8"
-                          required
-                          min="0"
-                          max="9999"
-                          step="0.01"
-                        />
-                        <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 font-semibold">%</span>
-                      </div>
-                      <select
-                        value={entry.rate_type}
-                        onChange={(e) => updateEntry(entry._key, 'rate_type', e.target.value)}
-                        className="input-field w-24 flex-shrink-0"
-                      >
-                        {(Object.keys(RATE_LABELS) as RateType[]).map((k) => (
-                          <option key={k} value={k}>{RATE_LABELS[k]}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="label">利息タイプ</label>
-                    <div className="flex gap-2">
-                      {(Object.keys(INTEREST_LABELS) as InterestType[]).map((k) => (
-                        <button
-                          key={k}
-                          type="button"
-                          onClick={() => updateEntry(entry._key, 'interest_type', k)}
-                          className={`flex-1 py-2.5 rounded-xl font-semibold text-sm border transition-all duration-150 ${
-                            entry.interest_type === k
-                              ? 'bg-red-600 text-white border-red-600'
-                              : 'bg-zinc-800 text-zinc-400 border-zinc-700 hover:border-zinc-600'
-                          }`}
-                        >
-                          {INTEREST_LABELS[k]}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="label">開始日時（空欄で今すぐ）</label>
-                    <input
-                      type="datetime-local"
-                      value={entry.started_at}
-                      onChange={(e) => updateEntry(entry._key, 'started_at', e.target.value)}
-                      className="input-field"
-                    />
-                  </div>
-                </div>
+          <section className="mb-12">
+            <h2 className="text-xl font-bold text-zinc-200 mb-4">単利と複利の違い</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+              <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                <h3 className="font-bold text-zinc-200 mb-2">単利</h3>
+                <p className="text-zinc-500 leading-relaxed">
+                  元金に対してのみ利息が発生します。100万円を年利10%で借りた場合、毎年10万円の利息が一定で発生します。
+                  計算がシンプルで、短期の貸し借りや一部のフリーローンで使われます。
+                </p>
               </div>
-            ))}
-
-            <button
-              type="button"
-              onClick={addEntry}
-              className="w-full py-3 rounded-xl border-2 border-dashed border-zinc-700 text-zinc-500 hover:border-red-700 hover:text-red-400 font-semibold text-sm transition-all duration-150"
-            >
-              + 元金を追加
-            </button>
-          </div>
-
-          {error && (
-            <div className="bg-red-950/40 border border-red-800 rounded-xl p-3 text-sm text-red-400">
-              {error}
+              <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                <h3 className="font-bold text-zinc-200 mb-2">複利</h3>
+                <p className="text-zinc-500 leading-relaxed">
+                  元金と発生した利息の合計に対して利息が発生します。長期になるほど利息が雪だるま式に膨らみます。
+                  カードローン・消費者金融は多くが複利計算です。
+                </p>
+              </div>
             </div>
-          )}
+          </section>
 
-          <button type="submit" disabled={isLoading} className="btn-primary w-full text-base">
-            {isLoading ? '生成中...' : '⏱️ タイマーを生成'}
-          </button>
-        </form>
+          <section className="mb-12">
+            <h2 className="text-xl font-bold text-zinc-200 mb-4">対応している金利タイプ</h2>
+            <dl className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+              {(
+                [
+                  ['年利', '1年間に発生する利息の割合。銀行ローン・消費者金融・カードローンはほぼすべて年利表示です。'],
+                  ['月利', '1ヶ月ごとに発生する利息の割合。友人間の貸し借りや一部の短期ローンで使われます。'],
+                  ['日利', '1日ごとに発生する利息の割合。超短期の借入や一部の商品で使われます。'],
+                ] as [string, string][]
+              ).map(([term, def]) => (
+                <div key={term} className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                  <dt className="font-bold text-zinc-200 mb-1">{term}</dt>
+                  <dd className="text-zinc-500 leading-relaxed">{def}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
 
-        {/* Generated URL */}
-        {generatedUrl && (
-          <div className="card p-5 border-green-800/60 bg-green-950/30 mt-4 animate-slide-up">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-green-500 text-lg">✅</span>
-              <h3 className="font-bold text-green-400">タイマーが生成されました！</h3>
-            </div>
-            <p className="text-xs text-green-600 mb-2">このURLを共有してください：</p>
-            <div className="bg-zinc-900 rounded-xl p-3 border border-zinc-700 mb-3 break-all text-sm text-zinc-300 font-mono">
-              {generatedUrl}
-            </div>
-            <div className="flex gap-2">
-              <button onClick={handleCopy} className="flex-1 btn-secondary text-sm py-2.5">
-                {copied ? '✅ コピーしました' : '📋 URLをコピー'}
-              </button>
-              <button
-                onClick={() => window.open(generatedUrl, '_blank')}
-                className="flex-1 btn-success text-sm py-2.5"
-              >
-                🔗 タイマーを開く
-              </button>
-            </div>
-          </div>
-        )}
-
-        <p className="text-center text-xs text-zinc-600 mt-6">
-          生成されたURLでリアルタイムの返済額が確認できます
-        </p>
-      </div>
-    </main>
+          <section>
+            <h2 className="text-xl font-bold text-zinc-200 mb-6">よくある質問</h2>
+            <dl className="space-y-6 text-sm">
+              {jsonLdFaq.mainEntity.map(({ name, acceptedAnswer }) => (
+                <div key={name}>
+                  <dt className="font-bold text-zinc-300 mb-1">Q. {name}</dt>
+                  <dd className="text-zinc-500 leading-relaxed pl-4 border-l border-zinc-700">
+                    A. {acceptedAnswer.text}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        </article>
+      </main>
+    </>
   );
 }
