@@ -8,3 +8,4 @@ data/
 tsconfig.tsbuildinfo
 .DS_Store
 .claude/
+.claude/
