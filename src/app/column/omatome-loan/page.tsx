@@ -221,11 +221,11 @@ export default async function OmatomeLoanPage() {
           </section>
 
           <AffiliateSection
-            category="loan-consolidation"
-            title="借換え条件を確認する"
-            leadText="複数社の借入を1本化した場合の金利・月々の返済額・総支払額を比較できます。"
+            category="debt-consolidation"
+            title="おまとめでも厳しい段階なら、専門家への相談を"
+            leadText="審査に通らない・金利改善が見込めない場合、弁護士・司法書士の無料相談で状況整理ができます。"
             placement="column-omatome-loan-bottom"
-            motivationText="毎月の返済先が複数あって家計が回りにくくなっているなら、まず借換えで金利がどこまで下がるかを確認してみる価値はある。申込前の試算だけなら信用情報には影響しないため、候補を絞る段階でリスクなく情報を集められる。"
+            motivationText="延滞履歴や他社借入件数の多さでおまとめの審査が通らない、あるいは通っても金利差がほとんど出ないケースでは、返済構造そのものを見直すほうが結果的に早いことがある。任意整理で将来利息をカットする方法は、月々の返済額を元金返済に集中させる効果があり、数年単位では総支払額が大きく下がる。自分のケースで使えるのかどうかは、無料相談で借入総額と収入状況を伝えれば、その場で目安が得られる。"
             experimentId={experimentId}
             variantId={variantId}
           />
