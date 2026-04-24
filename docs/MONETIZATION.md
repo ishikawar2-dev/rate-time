@@ -234,11 +234,11 @@ interface AffiliateSectionProps {
 ```sql
 -- 実験（テスト）定義
 CREATE TABLE experiments (
-  id TEXT PRIMARY KEY,                -- 例: 'timer-placement-202604'
+  id TEXT PRIMARY KEY,                -- 例: 'timer-placement-v1'
   name TEXT NOT NULL,                 -- 人間可読の名前
   description TEXT,
-  status TEXT NOT NULL DEFAULT 'active', -- 'draft' | 'active' | 'paused' | 'completed'
-  started_at BIGINT NOT NULL,         -- UNIXタイムスタンプ（ms）
+  status TEXT NOT NULL DEFAULT 'draft', -- 'draft' | 'active' | 'paused' | 'completed'
+  started_at BIGINT,                  -- 開始時刻（UNIXタイムスタンプ ms）。draft 時は NULL、active 切替時に UPDATE で設定する運用
   ended_at BIGINT,                    -- 終了時刻（完了時のみ）
   created_at BIGINT NOT NULL
 );

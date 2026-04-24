@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { Footer } from '@/components/Footer';
 
 const SITE_URL = 'https://rate-time.com';
 const SITE_NAME = '利息タイマー';
@@ -75,8 +76,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja">
-      <body className="min-h-screen bg-zinc-950 font-sans">
-        {children}
+      <body className="min-h-screen bg-zinc-950 font-sans flex flex-col">
+        <div className="flex-1">{children}</div>
+        <Footer />
       </body>
     </html>
   );
