@@ -4,7 +4,7 @@ import type { Timer, Entry, Repayment, EntryWithRepayments } from './interest';
 
 // リクエスト時まで接続を遅延させる（ビルド時に DATABASE_URL が不要になる）
 let _sql: NeonQueryFunction<false, false> | null = null;
-function getSql(): NeonQueryFunction<false, false> {
+export function getSql(): NeonQueryFunction<false, false> {
   if (!_sql) _sql = neon(process.env.DATABASE_URL!) as NeonQueryFunction<false, false>;
   return _sql;
 }
