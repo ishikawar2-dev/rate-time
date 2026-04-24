@@ -8,7 +8,10 @@ export function Footer() {
   return (
     <footer className="mt-16 border-t border-zinc-800 bg-zinc-950">
       <div className="max-w-2xl mx-auto px-4 py-8 text-xs text-zinc-500">
-        <nav aria-label="サイトポリシー" className="flex flex-wrap gap-x-5 gap-y-2 mb-4">
+        <nav aria-label="サイトナビゲーション" className="flex flex-wrap gap-x-5 gap-y-2 mb-4">
+          <Link href="/" className="text-zinc-400 hover:text-zinc-200 transition-colors">
+            利息タイマー
+          </Link>
           <Link href="/privacy" className="hover:text-zinc-300 transition-colors">
             プライバシーポリシー
           </Link>

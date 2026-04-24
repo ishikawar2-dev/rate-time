@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: '利用規約',
@@ -10,6 +11,9 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <main className="max-w-2xl mx-auto px-4 py-12 text-zinc-300">
+      <Link href="/" className="text-sm text-zinc-400 hover:text-zinc-200 transition-colors inline-block mb-6">
+        ← 利息タイマーに戻る
+      </Link>
       <h1 className="text-2xl font-bold text-zinc-100 mb-2">利用規約</h1>
       <p className="text-xs text-zinc-500 mb-8">最終更新日: 2026-04-24</p>
 
