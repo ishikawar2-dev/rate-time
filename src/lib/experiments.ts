@@ -22,6 +22,8 @@ export interface VariantPayload {
   categoryOrder?: AffiliateCategory[];
   limitByCategory?: Partial<Record<AffiliateCategory, number>>;
   enabledCategories?: AffiliateCategory[];
+  /** 広告フォーマット（ad-format-v1 実験専用） */
+  format?: 'text-only' | 'banner-only' | 'text-and-banner';
 }
 
 export interface VariantConfig {
@@ -113,6 +115,31 @@ export const experiments: ExperimentConfig[] = [
         name: 'single',
         weight: 1,
         config: { limitByCategory: { 'debt-consolidation': 1, 'loan-consolidation': 1 } },
+      },
+    ],
+  },
+  {
+    id: 'ad-format-v1',
+    name: '広告フォーマットテスト',
+    description: 'タイマー画面でテキストカード / スティッキーフッターバナー / 両方の CTR を比較',
+    variants: [
+      {
+        id: 'ad-format-v1__text-only',
+        name: 'text-only',
+        weight: 1,
+        config: { format: 'text-only' },
+      },
+      {
+        id: 'ad-format-v1__banner-only',
+        name: 'banner-only',
+        weight: 1,
+        config: { format: 'banner-only' },
+      },
+      {
+        id: 'ad-format-v1__text-and-banner',
+        name: 'text-and-banner',
+        weight: 1,
+        config: { format: 'text-and-banner' },
       },
     ],
   },

@@ -160,3 +160,40 @@ interface DailyReport {
 ### 3.5 実装詳細（rate-time 固有）
 
 実装詳細は [MONETIZATION.md §12](./MONETIZATION.md#12-claude-routines-連携-api日次レポート) を参照。
+
+---
+
+## 4. バリアント ID と UI 制御の共通仕様
+
+A/B テストで「特定の variantId のとき特定の UI を出す/隠す」制御を行う場合の共通作法。
+
+### 4.1 variantId の構造
+
+全プロジェクト共通で `<experiment_id>__<variant_name>` 形式。
+
+例: `ad-format-v1__text-only`、`timer-placement-v1__control`
+
+### 4.2 variantId による表示制御の置き場
+
+実験が特定のページに限定される場合（例: ad-format-v1 はタイマー画面のみ）、**親ページコンポーネントで条件分岐**して子コンポーネント（AffiliateSection 等）を条件付きレンダリングする。
+
+```tsx
+const adFormatVariant =
+  experimentId === 'ad-format-v1' && variantId?.startsWith('ad-format-v1__')
+    ? variantId.slice('ad-format-v1__'.length)
+    : null;
+
+const showTextCards =
+  adFormatVariant === null ||
+  adFormatVariant === 'text-only' ||
+  adFormatVariant === 'text-and-banner';
+
+{showTextCards && <AffiliateSection ... />}
+```
+
+子コンポーネント内で variantId をパースすると、他ページで同じコンポーネントを使っている場合に副作用が発生する。親側判定にすれば影響範囲を閉じ込められる。
+
+### 4.3 実験未定義時のデフォルト
+
+`variantId === null || undefined` のケースでは、**従来動作 = 安全側**にフォールバック。
+例: ad-format-v1 なら「テキスト表示・バナー非表示」がデフォルト。

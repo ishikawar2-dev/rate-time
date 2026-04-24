@@ -1198,3 +1198,88 @@ impressions テーブルは placement 単位で記録され、offer_id を持た
 | `ROUTINE_API_TOKEN` | `/api/admin/report/*` の Bearer 認証（未設定時は 404） |
 
 本番環境（Vercel）では Project Settings → Environment Variables から設定。ローカル開発では `.env.local` に記載（`.gitignore` 済み）。
+
+---
+
+## 13. 広告フォーマット A/B テスト（ad-format-v1）
+
+現行のテキストカード表示に加えて、タイマー画面限定で **スティッキーフッターバナー**（320×50 の画像広告）を追加し、フォーマット間の CTR を比較する実験。
+
+### 13.1 実験仕様
+
+| 実験 ID | `ad-format-v1` |
+|---|---|
+| 対象ページ | `/timer/[slug]` のみ（コラム・トップ・ポリシーは対象外） |
+| バリアント | `text-only` / `banner-only` / `text-and-banner`（均等割り当て weight 1） |
+| 検証対象 | モバイル中心のサイトでフォーマット別 CTR を計測 |
+| 同時実行ルール | 実験は 1 度に 1 つ active（`timer-category-mix-v1` を paused に切替えてから投入） |
+
+### 13.2 バナーとテキストの URL 分離
+
+`AffiliateOffer` 型にバナー用フィールドを追加:
+
+```ts
+interface AffiliateOffer {
+  // ... 既存フィールド ...
+  href: string;                          // テキストリンク用 URL
+  banner?: {
+    href: string;                        // バナー専用 URL（ASP で別計測）
+    imageUrl: string;                    // 画像 URL（A8.net CDN）
+    width: number;                       // 320
+    height: number;                      // 50
+  };
+}
+```
+
+A8.net のトラッキング上、バナークリックとテキストクリックは**別計測**されるため、各 offer には 2 種類の URL を保持し、クリック経路に応じて使い分ける。
+
+### 13.3 StickyFooterBanner の設計
+
+**ファイル**: `src/components/affiliate/StickyFooterBanner.tsx`
+
+- `position: fixed; bottom: 0; left: 0; right: 0;`、`z-50`
+- 背景は `bg-rt-card` で上辺にシャドウ、`env(safe-area-inset-bottom)` で iOS ホームバー回避
+- PR ラベルを左上に極小（`text-[9px] text-rt-text-muted tracking-wide`）
+- 右上に閉じるボタン（40×40 タップターゲット）
+- インプレッション計測: マウント時に 1 回だけ `/api/affiliates/impression` に `sendBeacon`
+  （画面下部に常時可視のため IntersectionObserver は不要）
+- 閉じるボタン押下時は React state で非表示化。**sessionStorage / localStorage は使わない**
+  （同一マウント内のみ有効、ページ遷移やリロードで再表示される）
+
+### 13.4 表示するバナーオファーの選び方
+
+- タイマー内 `entries.length >= 2` → `loan-consolidation` カテゴリ
+- それ以外 → `debt-consolidation` カテゴリ
+- カテゴリ内から `slug` 由来の決定的ハッシュで 1 offer を選択
+  （同じ slug = 同じバナー、リロードでも安定。異なる slug 間ではローテーション）
+
+### 13.5 TimerClient 側の表示制御
+
+`experimentId === 'ad-format-v1'` の場合のみ variantId を解釈:
+
+| variantId | テキストカード | バナー |
+|---|---|---|
+| `ad-format-v1__text-only` | 表示 | 非表示 |
+| `ad-format-v1__banner-only` | 非表示 | 表示 |
+| `ad-format-v1__text-and-banner` | 表示 | 表示 |
+| 未定義 or 別実験 | 表示（従来通り） | 非表示（安全側） |
+
+`AffiliateSection` コンポーネント本体には変更を加えず、親 `TimerClient` 側で条件付きレンダリングする（コラム側への副作用を避けるため）。
+
+### 13.6 placement 命名規則（バナー計測用）
+
+- テキストカード: 従来通り `timer-<category>` / `column-<slug>-<mid|bottom>`
+- バナー: `timer-footer-banner-<category>` — admin-queries.ts の `placementToCategory` でパース済み
+
+### 13.7 DB 変更
+
+`migrations/004_ad_format_experiment.sql` を適用する:
+1. `timer-category-mix-v1` を `paused` に
+2. `ad-format-v1` を `active` で INSERT
+3. 3 variants を INSERT
+
+マイグレーションは自動適用されない。ユーザーが Neon SQL Editor で手動実行する。
+
+### 13.8 運用切替の反映ラグ
+
+middleware の `getActiveExperiment()` は 30 秒 TTL キャッシュ（§4.5 参照）。DB を切替えてから最大 30 秒でバリアント割当が `ad-format-v1` に切り替わる。
