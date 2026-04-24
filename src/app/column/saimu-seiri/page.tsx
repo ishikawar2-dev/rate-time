@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { AffiliateSection } from '@/components/affiliate/AffiliateSection';
+import { getExperimentContext } from '@/lib/experiment-context';
 
 const TITLE = '債務整理とは？種類・費用・デメリットを解説';
 const DESCRIPTION =
@@ -92,7 +93,8 @@ const jsonLdFaq = {
   ],
 };
 
-export default function SaimuSeiriPage() {
+export default async function SaimuSeiriPage() {
+  const { experimentId, variantId } = await getExperimentContext();
   return (
     <>
       <script
@@ -167,6 +169,8 @@ export default function SaimuSeiriPage() {
             leadText="借入総額と返済状況を伝えるだけで、どの手続きが使えるかの目安が分かります。"
             placement="column-saimu-seiri-mid"
             motivationText="ひとりで抱え込んで毎月利息だけを払い続けるのは、精神面でも金銭面でも消耗が大きい。多くの法律事務所は初回の相談を無料で受け付けており、話を聞くだけなら費用はかからない。借金の総額と返済状況を伝えれば、任意整理で解決できる規模かどうか、その場でおおよその見立てを示してもらえる。相談という選択肢があることを知っておくだけでも、次の一手が見えやすくなる。"
+            experimentId={experimentId}
+            variantId={variantId}
           />
 
           <section className="mb-10">
@@ -234,6 +238,8 @@ export default function SaimuSeiriPage() {
             leadText="秘密保持は徹底されており、相談内容が外に漏れることはありません。"
             placement="column-saimu-seiri-bottom"
             motivationText="債務整理は「返せなくなった人」が最後にやる手続きではない。利息が重くて元金が減らない、延滞まであと一歩、そんな段階から使える選択肢だ。初回無料の相談枠を使って、自分のケースにどの手続きが合うのかを聞いてみる価値はある。法律事務所の多くは守秘義務を徹底しているため、話した内容が外に漏れることはない。"
+            experimentId={experimentId}
+            variantId={variantId}
           />
 
           <section className="mb-10 border-t border-rt-border pt-8">

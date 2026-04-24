@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTimerWithEntries } from '@/lib/db';
+import { getExperimentContext } from '@/lib/experiment-context';
 import { TimerClient } from './TimerClient';
 
 export const dynamic = 'force-dynamic';
@@ -22,5 +23,15 @@ export default async function TimerPage({ params, searchParams }: PageProps) {
   const data = await getTimerWithEntries(slug);
   if (!data) notFound();
 
-  return <TimerClient timer={data} initialEntries={data.entries} editToken={editToken} />;
+  const { experimentId, variantId } = await getExperimentContext();
+
+  return (
+    <TimerClient
+      timer={data}
+      initialEntries={data.entries}
+      editToken={editToken}
+      experimentId={experimentId}
+      variantId={variantId}
+    />
+  );
 }

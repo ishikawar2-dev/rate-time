@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { AffiliateSection } from '@/components/affiliate/AffiliateSection';
+import { getExperimentContext } from '@/lib/experiment-context';
 
 const TITLE = 'カードローン金利の仕組みと利息を減らす方法';
 const DESCRIPTION =
@@ -92,7 +93,8 @@ const jsonLdFaq = {
   ],
 };
 
-export default function KinriHikakuPage() {
+export default async function KinriHikakuPage() {
+  const { experimentId, variantId } = await getExperimentContext();
   return (
     <>
       <script
@@ -192,6 +194,8 @@ export default function KinriHikakuPage() {
             leadText="複数社借入の一本化や、年18%帯から低金利帯への借換えで、月々と総額を見直せます。"
             placement="column-kinri-hikaku-mid"
             motivationText="現在の金利と借換え後の金利で利息の積み上がり方を並べてみると、金利差の威力が数字で見える。年18%と年10%では、100万円残高で1日あたり約220円の差、30日で約6,600円の差になる。この差が毎月・毎年積み上がっていくことを考えると、金利の見直しは早いほど効果が大きい。"
+            experimentId={experimentId}
+            variantId={variantId}
           />
 
           <section className="mb-10">
@@ -243,6 +247,8 @@ export default function KinriHikakuPage() {
             leadText="任意整理・個人再生などの選択肢について、弁護士・司法書士に無料で相談できます。"
             placement="column-kinri-hikaku-bottom"
             motivationText="金利を下げる工夫を重ねても元金が減らない、毎月の返済で生活が回らない、そんな段階では債務整理という選択肢も視野に入れておきたい。法律事務所の無料相談では、借入内容を伝えるだけで、任意整理で解決できる規模なのか、個人再生や自己破産を検討すべき規模なのかの目安が得られる。話した内容は守秘義務で守られるため、情報収集のつもりで聞くだけでも意味がある。"
+            experimentId={experimentId}
+            variantId={variantId}
           />
 
           <section className="mb-10 border-t border-rt-border pt-8">

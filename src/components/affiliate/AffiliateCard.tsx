@@ -78,12 +78,18 @@ export function AffiliateCard({ offer, placement, experimentId, variantId }: Aff
         onClick={handleClick}
         className="mt-1 inline-flex items-center justify-center bg-rt-accent-cta hover:bg-rt-accent-cta-hover text-white font-bold text-sm py-2.5 px-4 rounded-lg transition-colors"
       >
-        詳細を見る
+        {offer.ctaText ?? '詳細を見る'}
       </a>
 
       {highRisk && offer.disclaimer ? (
         <p className="text-[11px] text-rt-text-tertiary leading-relaxed border-t border-rt-border pt-2 mt-1">
           {offer.disclaimer}
+        </p>
+      ) : null}
+
+      {offer.advertiser ? (
+        <p className="text-[10px] text-rt-text-muted mt-1">
+          広告主: {offer.advertiser}
         </p>
       ) : null}
     </article>

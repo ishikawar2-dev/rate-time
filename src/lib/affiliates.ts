@@ -15,18 +15,18 @@ export type AffiliateCategory =
   | 'credit-card';
 
 export interface AffiliateOffer {
-  /** 一意な識別子（例: 'benrikon-law', 'acom'） */
+  /** 一意な識別子（例: 'istowl-nini-seiri'） */
   id: string;
   category: AffiliateCategory;
-  /** 表示名（例: '弁護士法人・響'） */
+  /** サービス/ブランド名（カード上部に表示） */
   name: string;
-  /** 短い訴求コピー */
+  /** 短い訴求コピー（name 直下に表示） */
   tagline: string;
   /** 詳細説明（2〜3行） */
   description: string;
-  /** アフィリエイトリンク（ASP が発行する URL） */
+  /** アフィリエイトリンク（ASP が発行する URL、計測パラメータ含めて一切加工禁止） */
   href: string;
-  /** rel 属性（省略時は 'sponsored nofollow noopener'） */
+  /** rel 属性（省略時は 'sponsored nofollow noopener'、必ず sponsored を含める） */
   rel?: string;
   /** 強調フラグ（一覧で先頭表示されるか） */
   featured?: boolean;
@@ -36,12 +36,107 @@ export interface AffiliateOffer {
   logoSrc?: string;
   /** リスクカテゴリの場合の免責注記（card-loan / consumer-finance / credit-card では必須） */
   disclaimer?: string;
+  /** CTA ボタンの文言。未指定時はカード側で '詳細を見る' にフォールバック */
+  ctaText?: string;
+  /** 広告主の法人名等。ステマ規制対応の補助表示に使う（カード下部に小さく表示） */
+  advertiser?: string;
   /** 有効/無効フラグ（A/Bテストで一時停止したいとき用） */
   active: boolean;
 }
 
-/** すべてのオファー定義。ASP 契約後に追記する。 */
-export const affiliateOffers: AffiliateOffer[] = [];
+/**
+ * ASP（A8.net）で提携中のオファー定義。
+ * href の計測パラメータは一切加工しない（成果トラッキングに影響するため）。
+ */
+export const affiliateOffers: AffiliateOffer[] = [
+  // ─── 債務整理（無料相談系、低リスク） ────────────────────────────
+  {
+    id: 'istowl-nini-seiri',
+    category: 'debt-consolidation',
+    name: 'イストワール法律事務所',
+    tagline: '借金問題の無料相談（弁護士対応）',
+    description:
+      '弁護士による無料相談で、任意整理・個人再生・自己破産など自分の状況に合った手続きの見立てが得られます。相談内容は守秘義務で守られます。',
+    href: 'https://px.a8.net/svt/ejp?a8mat=4B1SPX+325AS2+4FR4+5YRHE',
+    bullets: ['初回相談は無料', '弁護士法人による対応', '全国対応・秘密厳守'],
+    ctaText: '無料で相談する',
+    advertiser: '弁護士法人イストワール法律事務所',
+    active: true,
+  },
+  {
+    id: 'earth-shihoshoshi',
+    category: 'debt-consolidation',
+    name: 'アース司法書士事務所',
+    tagline: '全国対応・無料相談の債務整理',
+    description:
+      '司法書士による無料相談。任意整理を中心に、借金総額と収入状況に応じた現実的な整理方法の目安が分かります。',
+    href: 'https://px.a8.net/svt/ejp?a8mat=4B1SPX+33C5ZM+4LX2+5YRHE',
+    bullets: ['相談無料・秘密厳守', '全国対応', '任意整理の対応実績'],
+    ctaText: '無料で相談する',
+    advertiser: 'アース司法書士事務所',
+    active: true,
+  },
+
+  // ─── おまとめローン（借入整理用途、低リスク） ────────────────────
+  {
+    id: 'daily-cashing',
+    category: 'loan-consolidation',
+    name: 'デイリーキャッシング',
+    tagline: 'おまとめ・借換え目的のフリーローン',
+    description:
+      '複数社の借入を1本化する目的で利用できるフリーローン・おまとめローン。月々の返済整理の検討に活用できます。',
+    href: 'https://px.a8.net/svt/ejp?a8mat=4B1SPX+41VB2Q+4WSG+5YJRM',
+    bullets: ['おまとめ・借換え目的に対応', '来店不要・Web完結', '全国対応'],
+    ctaText: '公式サイトで詳細を見る',
+    advertiser: '株式会社デイリープランニング',
+    active: true,
+  },
+  {
+    id: 'central-personal',
+    category: 'loan-consolidation',
+    name: 'セントラル',
+    tagline: '来店不要・振込型のキャッシング',
+    description:
+      'Web 完結で利用できる個人向けキャッシング。複数社の返済を1本化したい場合のおまとめ用途にも活用できます。',
+    href: 'https://px.a8.net/svt/ejp?a8mat=4B1SPX+36BC0I+363I+5YJRM',
+    bullets: ['来店不要・Web完結', '全国どこからでも利用可', '利息制限法の範囲内で運用'],
+    ctaText: '公式サイトで詳細を見る',
+    advertiser: '株式会社セントラル',
+    active: true,
+  },
+
+  // ─── カードローン（リスク高、免責注記必須） ─────────────────────
+  {
+    id: 'futaba-cashing',
+    category: 'card-loan',
+    name: 'フタバ',
+    tagline: '即日振込型のキャッシング',
+    description:
+      '即日振込に対応する個人向けキャッシング。Web 申込から契約まで完結でき、急な資金需要にも対応します。',
+    href: 'https://px.a8.net/svt/ejp?a8mat=4B1SPX+2Z64R6+38S6+BXQOJ',
+    bullets: ['即日振込対応', 'Web 申込可能', '全国対応'],
+    ctaText: '公式サイトで詳細を見る',
+    advertiser: 'フタバ株式会社',
+    disclaimer:
+      '借入は計画的に。返済が困難になった場合は債務整理もご検討ください。適用金利は利息制限法の範囲内です。',
+    active: true,
+  },
+  {
+    id: 'futaba-ladies',
+    category: 'card-loan',
+    name: 'レディースフタバ',
+    tagline: '女性スタッフ対応・初回30日間無利息',
+    description:
+      '女性スタッフが対応する女性向けキャッシング。初回借入は30日間無利息のキャンペーンが利用できます。',
+    href: 'https://px.a8.net/svt/ejp?a8mat=4B1SPX+2YKP5E+38S6+5ZMCI',
+    bullets: ['女性スタッフが対応', '30日間無利息キャンペーン', 'Web 申込可能'],
+    ctaText: '30日間無利息で相談する',
+    advertiser: 'フタバ株式会社',
+    disclaimer:
+      '借入は計画的に。30日間無利息は初回借入時のみ適用されます。返済が困難になった場合は債務整理もご検討ください。',
+    active: true,
+  },
+];
 
 /** アフィリエイトリンクに必ず付与する rel 属性のデフォルト値 */
 export const DEFAULT_AFFILIATE_REL = 'sponsored nofollow noopener';

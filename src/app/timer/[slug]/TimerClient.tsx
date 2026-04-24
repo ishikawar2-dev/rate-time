@@ -758,9 +758,19 @@ interface TimerClientProps {
   timer: Timer;
   initialEntries: EntryWithRepayments[];
   editToken: string | null;
+  /** アクティブな実験 ID（middleware + cookie 経由、親 page.tsx で取得） */
+  experimentId?: string;
+  /** 割り当てられたバリアント ID */
+  variantId?: string;
 }
 
-export function TimerClient({ timer, initialEntries, editToken }: TimerClientProps) {
+export function TimerClient({
+  timer,
+  initialEntries,
+  editToken,
+  experimentId,
+  variantId,
+}: TimerClientProps) {
   const canEdit = editToken !== null;
   const [entries, setEntries] = useState<EntryWithRepayments[]>(initialEntries);
   const [totalBalance, setTotalBalance] = useState(0);
@@ -1063,6 +1073,8 @@ export function TimerClient({ timer, initialEntries, editToken }: TimerClientPro
             title="複数の借金をまとめて金利を下げる"
             leadText="複数の借金をひとつにまとめることで、月々の返済額・総利息を減らせる可能性があります。"
             placement="timer-loan-consolidation"
+            experimentId={experimentId}
+            variantId={variantId}
           />
         )}
         <AffiliateSection
@@ -1070,6 +1082,8 @@ export function TimerClient({ timer, initialEntries, editToken }: TimerClientPro
           title="返済が厳しい方へ：無料の借金相談"
           leadText="利息が膨らみ返済が困難な場合、弁護士・司法書士への相談で解決できるケースがあります。相談は無料です。"
           placement="timer-debt-consolidation"
+          experimentId={experimentId}
+          variantId={variantId}
         />
       </main>
     </>
