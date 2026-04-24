@@ -233,11 +233,11 @@ export default async function SaimuSeiriPage() {
           </section>
 
           <AffiliateSection
-            category="debt-consolidation"
-            title="まずは無料相談で状況を話してみる"
-            leadText="秘密保持は徹底されており、相談内容が外に漏れることはありません。"
+            category="loan-consolidation"
+            title="債務整理の前に、おまとめで様子を見る選択肢"
+            leadText="複数社の借入を1本化して月々の負担を減らす方法もあります。債務整理に踏み切る前の比較材料として。"
             placement="column-saimu-seiri-bottom"
-            motivationText="債務整理は「返せなくなった人」が最後にやる手続きではない。利息が重くて元金が減らない、延滞まであと一歩、そんな段階から使える選択肢だ。初回無料の相談枠を使って、自分のケースにどの手続きが合うのかを聞いてみる価値はある。法律事務所の多くは守秘義務を徹底しているため、話した内容が外に漏れることはない。"
+            motivationText="債務整理はいざというときの強力な選択肢だが、現時点で延滞もなく毎月なんとか返済できている段階なら、まずはおまとめで金利と月々の負担を下げる道もある。金利が数ポイント下がるだけでも、数年単位で見ると総支払額は大きく変わる。自分がどの段階にいるかを見極めるための一つの比較軸として、借換えの条件を確認してみる価値はある。"
             experimentId={experimentId}
             variantId={variantId}
           />
