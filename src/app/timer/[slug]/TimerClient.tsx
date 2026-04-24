@@ -905,7 +905,7 @@ export function TimerClient({
       )}
 
       <main className="min-h-screen p-4 py-8">
-        <div className="max-w-lg mx-auto space-y-4">
+        <div className="max-w-2xl mx-auto space-y-4">
           {/* Header */}
           <div className="flex items-start justify-between">
             <div>
