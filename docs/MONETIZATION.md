@@ -1199,6 +1199,51 @@ impressions テーブルは placement 単位で記録され、offer_id を持た
 
 本番環境（Vercel）では Project Settings → Environment Variables から設定。ローカル開発では `.env.local` に記載（`.gitignore` 済み）。
 
+### 12.9 日次レポート履歴の永続化
+
+Routines が日次生成したレポートは以下の仕組みで DB に保存し、管理画面で長期観測できるようにする。
+
+**保存 API**:
+
+```
+POST /api/admin/report/save
+Authorization: Bearer <ROUTINE_API_TOKEN>
+Content-Type: application/json
+
+{ "project": "rate-time", "date": "YYYY-MM-DD", ... /api/admin/report/daily と同じ JSON ... }
+```
+
+- middleware で `/api/admin/report/*` は Basic 認証をバイパス（ルート側で Bearer 検証）
+- 成功時 `201 { id, saved_at }`、エラー時は §12.3 のパターンと同様
+- `ON CONFLICT (project, date) DO UPDATE` により同日 2 回目以降は**上書き**
+
+**DB スキーマ** (`migrations/005_daily_reports.sql`):
+
+```sql
+CREATE TABLE daily_reports (
+  id SERIAL PRIMARY KEY,
+  project VARCHAR(50) NOT NULL DEFAULT 'rate-time',
+  date DATE NOT NULL,
+  generated_at TIMESTAMPTZ NOT NULL,
+  report_json JSONB NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(project, date)
+);
+```
+
+**管理画面**:
+
+| URL | 内容 |
+|---|---|
+| `/admin/reports` | 一覧。期間プリセット（7/30/90 日）+ カスタム範囲、KPI サマリカード、impressions/clicks/CTR の折れ線（CTR は右軸）、日別テーブル（前日比・active 実験・anomaly バッジ・詳細リンク）。anomaly のある日は左ボーダー赤 + チャートに赤マーカー |
+| `/admin/reports/[date]` | 詳細。KPI カード（前日比付き）、実験ブロック（バリアント別表）、オファーテーブル（ctr/clicks/impressions でソート切替）、異常値パネル、Raw Data の開閉表示 |
+
+**運用フロー**:
+
+1. Claude Routines が毎朝 `GET /api/admin/report/daily?date=<JST昨日>` でレポートを取得
+2. 同じ JSON を `POST /api/admin/report/save` に投げて DB に永続化
+3. 管理画面で履歴を目視確認・異常値検知
+
 ---
 
 ## 13. 広告フォーマット A/B テスト（ad-format-v1）

@@ -161,6 +161,32 @@ interface DailyReport {
 
 実装詳細は [MONETIZATION.md §12](./MONETIZATION.md#12-claude-routines-連携-api日次レポート) を参照。
 
+### 3.6 日次レポートの永続化（共通スキーマ）
+
+Routines が生成した `DailyReport` を DB に保存するための共通契約:
+
+**POST /api/admin/report/save**:
+- 認証: `Authorization: Bearer <ROUTINE_API_TOKEN>`（GET /daily と同じ）
+- リクエストボディ: `ReportPayload`（§3.2 と同スキーマ）
+- レスポンス: `201 { id: number, saved_at: string }`
+- DB: `daily_reports (project, date)` を一意キーとし UPSERT
+
+**DB テーブル** `daily_reports`:
+
+| カラム | 型 | 説明 |
+|---|---|---|
+| id | SERIAL | PK |
+| project | VARCHAR(50) | プロジェクト識別子 |
+| date | DATE | JST 日付 |
+| generated_at | TIMESTAMPTZ | Routines 生成時刻 |
+| report_json | JSONB | ReportPayload 全体 |
+| created_at | TIMESTAMPTZ | 保存時刻 |
+
+UNIQUE(project, date) で同日 2 回目以降は上書き。
+
+**管理画面**:
+各プロジェクトで `/admin/reports` と `/admin/reports/[date]` を提供し、履歴の可視化・異常値確認を行う。チャート・テーブル形式はプロジェクト共通の UX とする。
+
 ---
 
 ## 4. バリアント ID と UI 制御の共通仕様
