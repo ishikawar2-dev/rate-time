@@ -189,11 +189,11 @@ export default async function KinriHikakuPage() {
           </section>
 
           <AffiliateSection
-            category="loan-consolidation"
-            title="金利を下げて利息を圧縮する"
-            leadText="複数社借入の一本化や、年18%帯から低金利帯への借換えで、月々と総額を見直せます。"
+            category="card-loan"
+            title="条件の良いカードローンを比較する"
+            leadText="金利帯・振込スピード・無利息期間といった実務的な条件で比較できるカードローンをまとめました。"
             placement="column-kinri-hikaku-mid"
-            motivationText="現在の金利と借換え後の金利で利息の積み上がり方を並べてみると、金利差の威力が数字で見える。年18%と年10%では、100万円残高で1日あたり約220円の差、30日で約6,600円の差になる。この差が毎月・毎年積み上がっていくことを考えると、金利の見直しは早いほど効果が大きい。"
+            motivationText="カードローンは日割りで利息が積み上がる仕組みのため、借入期間を短くできる見込みがあるほど総支払額を抑えやすい。短期で確実に返済できるなら初回無利息期間のある商品が有利になり、長期で利用するなら金利そのものが低い商品が合う。商品ごとの条件を並べて見てから申込先を決めるのが、負担を最小にする近道になる。借入は計画的に、無理のない返済額の範囲で検討してほしい。"
             experimentId={experimentId}
             variantId={variantId}
           />
@@ -242,11 +242,11 @@ export default async function KinriHikakuPage() {
           </section>
 
           <AffiliateSection
-            category="debt-consolidation"
-            title="返済が厳しい段階での無料相談"
-            leadText="任意整理・個人再生などの選択肢について、弁護士・司法書士に無料で相談できます。"
+            category="loan-consolidation"
+            title="すでに複数借入があるなら、おまとめで整理する"
+            leadText="年18%帯で複数社から借りている状態なら、低金利帯への借換えで月々と総額を大きく改善できる可能性があります。"
             placement="column-kinri-hikaku-bottom"
-            motivationText="金利を下げる工夫を重ねても元金が減らない、毎月の返済で生活が回らない、そんな段階では債務整理という選択肢も視野に入れておきたい。法律事務所の無料相談では、借入内容を伝えるだけで、任意整理で解決できる規模なのか、個人再生や自己破産を検討すべき規模なのかの目安が得られる。話した内容は守秘義務で守られるため、情報収集のつもりで聞くだけでも意味がある。"
+            motivationText="すでにカードローンを複数持っていて毎月の返済が重い状況なら、新規借入より先に借換え・おまとめを検討するほうが合理的だ。年18%帯から年10%前後への借換えは、100万円の残高で月々数千円、年単位では数万円規模で総支払額が下がる。申込前の試算だけなら信用情報には影響しないため、候補を絞る段階ではリスクなく情報を集められる。"
             experimentId={experimentId}
             variantId={variantId}
           />
