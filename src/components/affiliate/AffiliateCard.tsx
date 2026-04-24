@@ -46,9 +46,9 @@ export function AffiliateCard({ offer, placement, experimentId, variantId }: Aff
     <article className="relative bg-rt-card border border-rt-border rounded-xl p-5 flex flex-col gap-3">
       <span
         aria-label="広告"
-        className="absolute top-2 right-2 text-[10px] font-semibold text-rt-text-tertiary border border-rt-border-strong rounded px-1.5 py-0.5"
+        className="absolute top-2 right-3 text-[10px] text-rt-text-muted tracking-wide"
       >
-        広告
+        PR
       </span>
 
       <header className="pr-10">
@@ -87,11 +87,11 @@ export function AffiliateCard({ offer, placement, experimentId, variantId }: Aff
         </p>
       ) : null}
 
-      {offer.advertiser ? (
-        <p className="text-[10px] text-rt-text-muted mt-1">
-          広告主: {offer.advertiser}
-        </p>
-      ) : null}
+      {/*
+        広告主の法人名はカード上には表示しない。
+        提携情報の包括的な開示は /disclosure ページに集約している（ステマ規制対応）。
+        AffiliateOffer.advertiser プロパティは内部メタデータとして受け取るのみ。
+      */}
     </article>
   );
 }
