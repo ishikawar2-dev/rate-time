@@ -7,100 +7,194 @@
 /**
  * テーマ用 CSS 変数（docs/MONETIZATION.md §5）
  *
- * ライトは「落ち着いた弁護士・司法書士サイト風」のプロフェッショナル配色。
- *   - 温かみのあるオフホワイト背景（長時間読んでも疲れない）
- *   - 本文・見出しは深めの墨に近いトーン、WCAG AA/AAA 準拠のコントラスト
- *   - アクセントは「派手な赤」ではなく深紅（red-800）で重要性と節度を両立
- *   - 元本・利息の意味色は semantic な principal / interest 変数として定義
+ * ライトテーマは「弁護士・司法書士サイト風」配色:
+ *   - 本体: 温かみのあるオフホワイト背景、墨色の本文、深紅のアクセント
+ *   - カード: 深いネイビー (slate-800) で本体との階層を明確化
  *
- * ダークは既存の zinc-950 ベース基調を維持（Phase 6 からの変更なし）。
+ * ダークテーマは Phase 6 から変更なし。
  *
- * 使用範囲:
- *   テーマ切替対象 — トップページ / タイマー表示画面 / コラム / ポリシー / Footer / アフィリエイト部品
- *   テーマ切替対象外 — 管理画面（/admin/*）のみ既存の bg-zinc-* をそのまま使用
+ * カード内部の色域は CSS 変数のスコープ再定義で自動切替する。
+ * `.card` または `.bg-rt-card` 要素の内側では、`--text-primary` や
+ * `--accent-text` などの意味論トークンが `--text-on-card` 系に差し替わるため、
+ * 既存の `text-rt-text-primary` 等の Tailwind クラスをそのままにしても
+ * カード内で適切な色に解決される。
+ *
+ * 管理画面 /admin/* は本体でもダーク基調を維持（既存 zinc-* クラス）。
  */
 :root,
 [data-theme="light"] {
+  /* ── ページ本体（オフホワイト基調）──────────────────────────── */
   --bg-base: #faf8f4;          /* 温かみのあるオフホワイト */
-  --bg-card: #ffffff;          /* カード=白紙 */
-  --bg-elevated: #f2ede2;      /* 入力欄・段差のあるサーフェス */
-  --bg-subtle: #f5f1e8;        /* 控えめな区画背景 */
+  --bg-elevated: #f2ede2;      /* 段差のあるサーフェス（入力欄など） */
+  --bg-subtle: #f5f1e8;
 
-  --border-default: #e2dccf;   /* 柔らかい暖色グレー */
-  --border-strong: #cec7b7;    /* 強調ボーダー */
+  --border-default: #e2dccf;   /* 暖色グレー */
+  --border-strong: #cec7b7;
 
-  --text-primary: #1a1815;     /* 見出し・強調（ほぼ墨） */
-  --text-secondary: #3f3c36;   /* 本文（長文で疲れない） */
-  --text-tertiary: #6b6860;    /* 補助テキスト */
-  --text-muted: #96928a;       /* 装飾・コピーライト */
+  --text-primary: #1a1815;     /* 見出し（ほぼ墨） */
+  --text-secondary: #3f3c36;   /* 本文 */
+  --text-tertiary: #6b6860;    /* 補助 */
+  --text-muted: #96928a;
 
-  /* アクセント（深紅）: 派手さを抑えた信頼感のある赤 */
-  --accent-bg: #fbeaea;        /* 薄い赤背景 */
-  --accent-border: #e5c4c2;    /* 赤ボーダー */
-  --accent-text: #991b1b;      /* red-800（本文中の赤テキスト） */
-  --accent-cta: #991b1b;       /* CTA 深紅 */
-  --accent-cta-hover: #7f1d1d; /* red-900（ホバー時さらに深く） */
+  --accent-bg: #fbeaea;        /* 薄紅タイル */
+  --accent-border: #e5c4c2;
+  --accent-text: #991b1b;      /* red-800 深紅 */
+  --accent-cta: #991b1b;
+  --accent-cta-hover: #7f1d1d;
 
-  /* 成功（落ち着いた深緑） */
   --success-bg: #ecf4ef;
   --success-border: #c4dfcc;
   --success-text: #15803d;     /* green-700 */
   --success-cta: #15803d;
   --success-cta-hover: #166534;
 
-  /* 元本 = 権威的なネイビーブルー */
   --principal-bg: #eff2fa;
   --principal-border: #c7d2fa;
   --principal-text: #1d4ed8;   /* blue-700 */
   --principal-cta: #1d4ed8;
   --principal-cta-hover: #1e40af;
 
-  /* 利息 = 落ち着いた深アンバー */
   --interest-bg: #fdf6e8;
   --interest-border: #f0d98a;
   --interest-text: #92400e;    /* amber-800 */
-  --interest-cta: #b45309;     /* amber-700 */
+  --interest-cta: #b45309;
   --interest-cta-hover: #92400e;
+
+  /* ── カード（ネイビー）──────────────────────────────────────── */
+  --bg-card: #1e293b;          /* slate-800 深いネイビー */
+  --bg-card-elevated: #334155; /* slate-700 カード内の段差 */
+
+  /* カード内テキスト（slate ライトトーン） */
+  --text-on-card: #f1f5f9;           /* slate-100 */
+  --text-on-card-secondary: #cbd5e1; /* slate-300 */
+  --text-on-card-tertiary: #94a3b8;  /* slate-400 */
+  --text-on-card-muted: #64748b;     /* slate-500 */
+
+  --border-on-card: #475569;         /* slate-600 */
+  --border-on-card-strong: #64748b;  /* slate-500 */
+
+  /* カード上のアクセント（深紅はカード上で見にくいため明るい赤に） */
+  --accent-on-card: #fca5a5;          /* red-300 */
+  --accent-cta-on-card: #dc2626;      /* red-600 */
+  --accent-cta-on-card-hover: #b91c1c;
+  --accent-bg-on-card: rgba(127, 29, 29, 0.4);
+  --accent-border-on-card: rgba(153, 27, 27, 0.5);
+
+  /* カード上の成功 */
+  --success-on-card: #4ade80;         /* green-400 */
+  --success-bg-on-card: rgba(22, 101, 52, 0.4);
+  --success-border-on-card: #16a34a;
+  --success-cta-on-card: #16a34a;
+  --success-cta-on-card-hover: #15803d;
+
+  /* カード上の元本（明るい青でネイビーから分離） */
+  --principal-on-card: #60a5fa;       /* blue-400 */
+  --principal-bg-on-card: rgba(30, 58, 138, 0.3);
+  --principal-border-on-card: rgba(30, 64, 175, 0.5);
+
+  /* カード上の利息（明るい琥珀） */
+  --interest-on-card: #fbbf24;        /* amber-400 */
+  --interest-bg-on-card: rgba(124, 45, 18, 0.3);
+  --interest-border-on-card: rgba(180, 83, 9, 0.5);
 }
 
 [data-theme="dark"] {
   --bg-base: #09090b;           /* zinc-950 */
-  --bg-card: #18181b;           /* zinc-900 */
   --bg-elevated: #27272a;       /* zinc-800 */
   --bg-subtle: #18181b;
-  --border-default: #27272a;    /* zinc-800 */
+  --border-default: #27272a;
   --border-strong: #3f3f46;     /* zinc-700 */
   --text-primary: #f4f4f5;      /* zinc-100 */
   --text-secondary: #a1a1aa;    /* zinc-400 */
   --text-tertiary: #71717a;     /* zinc-500 */
-  --text-muted: #52525b;        /* zinc-600 */
+  --text-muted: #52525b;
 
   --accent-bg: rgba(127, 29, 29, 0.4);
   --accent-border: rgba(153, 27, 27, 0.5);
   --accent-text: #f87171;       /* red-400 */
+  --accent-cta: #dc2626;
+  --accent-cta-hover: #b91c1c;
 
   --success-bg: rgba(22, 101, 52, 0.4);
   --success-border: #16a34a;
   --success-text: #4ade80;      /* green-400 */
-
-  /* CTA はテーマに依らず同一（ブランド色として固定） */
-  --accent-cta: #dc2626;
-  --accent-cta-hover: #b91c1c;
   --success-cta: #16a34a;
   --success-cta-hover: #15803d;
 
-  /* 元本・利息（ダーク） — Phase 6 以前の blue / orange ハードコードと視覚互換 */
-  --principal-bg: rgba(30, 58, 138, 0.3);    /* blue-900/30 */
-  --principal-border: rgba(30, 64, 175, 0.5); /* blue-800/50 */
-  --principal-text: #60a5fa;                  /* blue-400 */
-  --principal-cta: #2563eb;                   /* blue-600 */
+  --principal-bg: rgba(30, 58, 138, 0.3);
+  --principal-border: rgba(30, 64, 175, 0.5);
+  --principal-text: #60a5fa;
+  --principal-cta: #2563eb;
   --principal-cta-hover: #1d4ed8;
 
-  --interest-bg: rgba(124, 45, 18, 0.3);     /* orange-900/30 */
-  --interest-border: rgba(154, 52, 18, 0.5);  /* orange-800/50 */
-  --interest-text: #fb923c;                   /* orange-400 */
-  --interest-cta: #f97316;                    /* orange-500 */
+  --interest-bg: rgba(124, 45, 18, 0.3);
+  --interest-border: rgba(154, 52, 18, 0.5);
+  --interest-text: #fb923c;
+  --interest-cta: #f97316;
   --interest-cta-hover: #ea580c;
+
+  /* ダークテーマではカードも本体と同階層（zinc-900）。
+     on-card 変数は本体と同じ値に揃えることで、カード内外の見た目差分を Phase 6 と一致させる。 */
+  --bg-card: #18181b;           /* zinc-900 */
+  --bg-card-elevated: #27272a;
+  --text-on-card: #f4f4f5;
+  --text-on-card-secondary: #a1a1aa;
+  --text-on-card-tertiary: #71717a;
+  --text-on-card-muted: #52525b;
+  --border-on-card: #27272a;
+  --border-on-card-strong: #3f3f46;
+  --accent-on-card: #f87171;
+  --accent-cta-on-card: #dc2626;
+  --accent-cta-on-card-hover: #b91c1c;
+  --accent-bg-on-card: rgba(127, 29, 29, 0.4);
+  --accent-border-on-card: rgba(153, 27, 27, 0.5);
+  --success-on-card: #4ade80;
+  --success-bg-on-card: rgba(22, 101, 52, 0.4);
+  --success-border-on-card: #16a34a;
+  --success-cta-on-card: #16a34a;
+  --success-cta-on-card-hover: #15803d;
+  --principal-on-card: #60a5fa;
+  --principal-bg-on-card: rgba(30, 58, 138, 0.3);
+  --principal-border-on-card: rgba(30, 64, 175, 0.5);
+  --interest-on-card: #fb923c;
+  --interest-bg-on-card: rgba(124, 45, 18, 0.3);
+  --interest-border-on-card: rgba(154, 52, 18, 0.5);
+}
+
+/**
+ * カード内スコープの変数再定義。
+ * .card / .bg-rt-card のどちらの書き方でも同じスコープが適用される。
+ *
+ * これにより、カード内部で `text-rt-text-primary` のような既存クラスを
+ * 書き換えなくても、CSS 変数の値が on-card 系に差し替わるため
+ * 結果的にカード上で可読なテキスト・アクセントに解決される。
+ */
+.card,
+.bg-rt-card {
+  --text-primary: var(--text-on-card);
+  --text-secondary: var(--text-on-card-secondary);
+  --text-tertiary: var(--text-on-card-tertiary);
+  --text-muted: var(--text-on-card-muted);
+  --border-default: var(--border-on-card);
+  --border-strong: var(--border-on-card-strong);
+  --accent-text: var(--accent-on-card);
+  --accent-cta: var(--accent-cta-on-card);
+  --accent-cta-hover: var(--accent-cta-on-card-hover);
+  --accent-bg: var(--accent-bg-on-card);
+  --accent-border: var(--accent-border-on-card);
+  --principal-text: var(--principal-on-card);
+  --principal-bg: var(--principal-bg-on-card);
+  --principal-border: var(--principal-border-on-card);
+  --interest-text: var(--interest-on-card);
+  --interest-bg: var(--interest-bg-on-card);
+  --interest-border: var(--interest-border-on-card);
+  --success-text: var(--success-on-card);
+  --success-bg: var(--success-bg-on-card);
+  --success-border: var(--success-border-on-card);
+  --success-cta: var(--success-cta-on-card);
+  --success-cta-hover: var(--success-cta-on-card-hover);
+  --bg-elevated: var(--bg-card-elevated);
+  color: var(--text-primary);
 }
 
 @layer base {

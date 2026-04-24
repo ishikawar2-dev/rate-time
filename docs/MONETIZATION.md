@@ -697,47 +697,80 @@ export interface Timer {
 - または、トップページ `/` は動的レンダリングとし、ページ内でテーマを管理
 - 具体的な実装パターンは Claude Code の判断に委ねるが、**トップページでの状態変化をDOM反映する仕組み**が必要
 
-### 5.4 実装方式（推奨）
+### 5.4 実装方式（採用済み）
 
-Claude Code 側の判断に委ねるが、以下を**強く推奨**:
+CSS 変数方式を採用。既存の Tailwind クラスを大幅書き換えせずに、`<html data-theme="...">` の付与だけでテーマ切替が反映される。
 
-**CSS変数方式を推奨する理由**:
-- 既存の Tailwind クラスを大幅書き換えせずに済む
-- SSR で `<html data-theme="dark">` を付与するだけで適用できるのでFOUC回避が容易
-- コンポーネント側のコード変更が最小限
-- トップページでのクライアント側プレビュー（`data-theme` 属性をJSで書き換え）にも対応しやすい
+**ライトテーマの配色コンセプト**: 落ち着いた弁護士・司法書士サイト風。温かみのあるオフホワイト本体 + 深紅アクセント + カードは深いネイビー。長文読み物で疲れず、ブランドの厳格さを保つ。
 
-**実装例**（ライトをデフォルト、ダークをオーバーライド）:
+**カード階層の扱い（重要）**:
+ライトテーマではカードが深いネイビー (`slate-800`) になるため、カード内部のテキスト・アクセントは本体とは別の配色を使う必要がある。これを **CSS 変数のスコープ再定義** で自動化する:
 
 ```css
-/* globals.css */
+.card,
+.bg-rt-card {
+  --text-primary: var(--text-on-card);       /* 本体=墨 → カード内=slate-100 */
+  --accent-cta: var(--accent-cta-on-card);   /* 本体=red-800 → カード内=red-600 */
+  --principal-text: var(--principal-on-card);/* 本体=blue-700 → カード内=blue-400 */
+  --interest-text: var(--interest-on-card);  /* 本体=amber-800 → カード内=amber-400 */
+  /* ... 他の意味論トークンも同様に差し替え ... */
+  color: var(--text-primary);
+}
+```
+
+この結果、カード内部で `text-rt-text-primary` などの既存 Tailwind クラスを書き換えなくても、CSS 変数の値が on-card 系に差し替わるため、可読なテキスト・視認できるアクセントに自動解決される。
+
+**実装例**:
+
+```css
+/* globals.css (抜粋) */
 :root,
 [data-theme="light"] {
-  --bg-base: #fafafa;          /* zinc-50 */
-  --bg-card: #ffffff;
-  --border-default: #e4e4e7;   /* zinc-200 */
-  --text-primary: #18181b;     /* zinc-900 */
-  --text-secondary: #52525b;   /* zinc-600 */
-  --text-tertiary: #71717a;    /* zinc-500 */
-  --accent-bg: #fef2f2;         /* red-50 */
-  --accent-border: #fecaca;     /* red-200 */
-  --accent-text: #dc2626;       /* red-600 */
-  --accent-cta: #dc2626;        /* red-600 */
-  --accent-cta-hover: #b91c1c;  /* red-700 */
+  /* 本体（オフホワイト基調） */
+  --bg-base: #faf8f4;          /* 温かみのあるオフホワイト */
+  --bg-elevated: #f2ede2;
+  --border-default: #e2dccf;
+  --text-primary: #1a1815;     /* 見出し（ほぼ墨） */
+  --text-secondary: #3f3c36;   /* 本文（長文で疲れない、AAA 10:1） */
+  --text-tertiary: #6b6860;
+  --accent-text: #991b1b;      /* red-800 深紅（AA 9.4:1 on #ffffff） */
+  --accent-cta: #991b1b;
+  --accent-cta-hover: #7f1d1d; /* red-900 */
+  --principal-text: #1d4ed8;   /* 元本=blue-700 */
+  --interest-text: #92400e;    /* 利息=amber-800 */
+  --success-text: #15803d;     /* green-700 */
+
+  /* カード（ネイビー） */
+  --bg-card: #1e293b;          /* slate-800 */
+  --bg-card-elevated: #334155; /* slate-700 */
+  --text-on-card: #f1f5f9;           /* slate-100 */
+  --text-on-card-secondary: #cbd5e1; /* slate-300 */
+  --text-on-card-tertiary: #94a3b8;  /* slate-400 */
+  --border-on-card: #475569;         /* slate-600 */
+  --accent-cta-on-card: #dc2626;     /* red-600（深紅よりカード上で映える） */
+  --principal-on-card: #60a5fa;      /* blue-400 */
+  --interest-on-card: #fbbf24;       /* amber-400 */
+  --success-on-card: #4ade80;        /* green-400 */
 }
 
 [data-theme="dark"] {
-  --bg-base: #09090b;           /* zinc-950 */
-  --bg-card: #18181b;           /* zinc-900 */
-  --border-default: #27272a;    /* zinc-800 */
-  --text-primary: #f4f4f5;      /* zinc-100 */
-  --text-secondary: #a1a1aa;    /* zinc-400 */
-  --text-tertiary: #71717a;     /* zinc-500 */
-  --accent-bg: rgba(127, 29, 29, 0.4);    /* red-950/40 */
-  --accent-border: rgba(153, 27, 27, 0.5); /* red-900/50 */
+  /* 本体=zinc-950、カード=zinc-900 */
+  --bg-base: #09090b;
+  --bg-card: #18181b;
+  --border-default: #27272a;
+  --text-primary: #f4f4f5;
+  --text-secondary: #a1a1aa;
   --accent-text: #f87171;       /* red-400 */
-  --accent-cta: #dc2626;        /* red-600 */
-  --accent-cta-hover: #b91c1c;  /* red-700 */
+  --accent-cta: #dc2626;
+  --accent-cta-hover: #b91c1c;
+  /* ダークではカードも本体と同階層のため on-card 変数は本体と同値に揃える */
+  --text-on-card: #f4f4f5;
+  --text-on-card-secondary: #a1a1aa;
+  --border-on-card: #27272a;
+  --accent-cta-on-card: #dc2626;
+  --principal-on-card: #60a5fa;
+  --interest-on-card: #fb923c;
+  /* ... */
 }
 
 body {
