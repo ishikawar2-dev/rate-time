@@ -86,14 +86,16 @@ export default function PrivacyPage() {
         <p className="text-sm leading-relaxed text-rt-text-tertiary mb-3">
           本サイトの運営・プライバシーに関するお問い合わせは、以下のメールアドレスまでご連絡ください。
         </p>
-        <p className="text-sm leading-relaxed text-rt-text-secondary">
+        <p className="text-sm leading-relaxed text-rt-text-secondary mb-2">
           メールアドレス:{' '}
-          <a
-            href="mailto:investuberri@gmail.com"
-            className="text-rt-accent-text hover:text-rt-accent-cta-hover underline underline-offset-4 decoration-rt-accent-border"
-          >
-            investuberri@gmail.com
-          </a>
+          <span className="font-mono text-rt-text-primary bg-rt-elevated border border-rt-border rounded px-2 py-0.5 select-all">
+            investuberri [at] gmail [dot] com
+          </span>
+        </p>
+        <p className="text-xs leading-relaxed text-rt-text-tertiary">
+          ※スパム対策のため表記を変えています。
+          メール送信時は <span className="font-mono">[at]</span> を <span className="font-mono">@</span> に、
+          <span className="font-mono">[dot]</span> を <span className="font-mono">.</span> に置き換えてください。
         </p>
       </section>
     </main>
