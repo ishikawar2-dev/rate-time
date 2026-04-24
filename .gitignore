@@ -7,3 +7,4 @@ data/
 .env.*.local
 tsconfig.tsbuildinfo
 .DS_Store
+.claude/
