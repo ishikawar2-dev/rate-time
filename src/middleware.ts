@@ -1,25 +1,62 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { assignVariant, getActiveExperiment, isValidVariant } from '@/lib/experiments';
+import { ADMIN_WWW_AUTHENTICATE, verifyAdminBasicAuth } from '@/lib/admin-auth';
 
 /**
- * 訪問者 Cookie の発行と A/B テストのバリアント割当。
- * docs/MONETIZATION.md §4.5 に基づく。
+ * パス別ミドルウェア。
  *
- * - `rt_vid`: 訪問者識別用 UUID（1年保持、クライアントからも読める）
- * - `rt_exp_<experimentId>`: 割り当てられたバリアント ID（90日保持）
+ * 1. /admin/* および /api/admin/*:
+ *    - 環境変数 ADMIN_USER / ADMIN_PASSWORD が未設定なら 404（フェイルセーフ）
+ *    - Basic 認証を要求し、失敗時は 401 + WWW-Authenticate を返す
  *
- * バリアント割当はハッシュベースの決定的関数（experiments.ts の `assignVariant`）で行うため、
- * 同一 visitor は同一 experiment に対して常に同じバリアントを引く。
+ * 2. それ以外（/ , /timer/* , /column/*）:
+ *    - rt_vid Cookie を発行（訪問者識別用 UUID、1年保持）
+ *    - DB から現在アクティブな実験を取得（experiments.ts 内で 30秒 TTL キャッシュ）
+ *    - アクティブな実験があり、かつ有効な variant Cookie が無ければ割当て
+ *
+ * 実験 Cookie（rt_exp_*）の寿命挙動:
+ *   - 実験が active → paused: Cookie はそのまま残るが middleware から触られない
+ *   - paused → active に戻る: 既存 Cookie が有効 variantId ならそのまま維持（同一訪問者の一貫性）
+ *   - 別の実験が active になる: 新しい Cookie 名（rt_exp_<新ID>）で別途発行
+ *   - completed: キャッシュ失効後は Cookie は無視される
  */
 
 const VISITOR_COOKIE = 'rt_vid';
-const VISITOR_MAX_AGE_SEC = 60 * 60 * 24 * 365;         // 1年
-const EXPERIMENT_MAX_AGE_SEC = 60 * 60 * 24 * 90;        // 90日
+const VISITOR_MAX_AGE_SEC = 60 * 60 * 24 * 365; // 1年
+const EXPERIMENT_MAX_AGE_SEC = 60 * 60 * 24 * 90; // 90日
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
+  const path = req.nextUrl.pathname;
+
+  if (path.startsWith('/admin') || path.startsWith('/api/admin')) {
+    return handleAdminAuth(req);
+  }
+
+  return await handlePublicPaths(req);
+}
+
+function handleAdminAuth(req: NextRequest): NextResponse {
+  const user = process.env.ADMIN_USER;
+  const pass = process.env.ADMIN_PASSWORD;
+
+  // 環境変数未設定時は存在自体を隠す（404）
+  if (!user || !pass) {
+    return new NextResponse('Not Found', { status: 404 });
+  }
+
+  if (verifyAdminBasicAuth(req.headers.get('authorization'), user, pass)) {
+    return NextResponse.next();
+  }
+
+  return new NextResponse('Unauthorized', {
+    status: 401,
+    headers: { 'WWW-Authenticate': ADMIN_WWW_AUTHENTICATE },
+  });
+}
+
+async function handlePublicPaths(req: NextRequest): Promise<NextResponse> {
   const res = NextResponse.next();
 
-  // visitor_id Cookie の発行
   let visitorId = req.cookies.get(VISITOR_COOKIE)?.value;
   if (!visitorId) {
     visitorId = crypto.randomUUID();
@@ -27,18 +64,15 @@ export function middleware(req: NextRequest) {
       maxAge: VISITOR_MAX_AGE_SEC,
       sameSite: 'lax',
       secure: true,
-      // 計測ビーコン用にクライアント JS からも読めるようにする
-      httpOnly: false,
+      httpOnly: false, // 計測ビーコン用にクライアント JS からも読めるように
       path: '/',
     });
   }
 
-  // アクティブな実験のバリアント割当
-  const activeExperiment = getActiveExperiment();
+  const activeExperiment = await getActiveExperiment();
   if (activeExperiment) {
     const cookieKey = `rt_exp_${activeExperiment.id}`;
     const existing = req.cookies.get(cookieKey)?.value;
-
     if (!existing || !isValidVariant(activeExperiment, existing)) {
       const variantId = assignVariant(visitorId, activeExperiment);
       res.cookies.set(cookieKey, variantId, {
@@ -55,6 +89,11 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  // タイマー画面・コラム・トップページのみ対象（API・管理画面・静的アセットは除外）
-  matcher: ['/', '/timer/:path*', '/column/:path*'],
+  matcher: [
+    '/',
+    '/timer/:path*',
+    '/column/:path*',
+    '/admin/:path*',
+    '/api/admin/:path*',
+  ],
 };

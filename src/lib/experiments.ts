@@ -1,23 +1,26 @@
 /**
- * A/Bテストの実験定義。
- * docs/MONETIZATION.md §4.3 / §4.4 に基づく。
+ * A/Bテストの実験定義と割当ロジック。
+ * docs/MONETIZATION.md §4.3 / §4.4 / §4.5 に基づく。
  *
- * 同時実行ルール: 原則として1度に1つのみ `status: 'active'` にする（交互作用を避けるため）。
- * 実験5（timer-default-theme-v1）は Phase 7 でテーマ機能実装後に追加する。
+ * このファイルは実験の「設計図」:
+ *   - 実験のID、説明、variants（id / name / weight / config）
+ *   - バリアント割当アルゴリズム
+ *
+ * 運用状態（status / started_at / ended_at）は DB が唯一の真実。
+ * 管理画面 /admin/experiments から操作され、middleware は DB を参照する。
+ *
+ * 同時実行ルール: 原則として1度に1つのみ status='active'（交互作用を避ける）。
  */
 
 import type { AffiliateCategory } from './affiliates';
+import { getSql } from './db';
 
 export type ExperimentStatus = 'draft' | 'active' | 'paused' | 'completed';
 
 export interface VariantPayload {
-  /** 配置位置（タイマー画面） */
   placement?: 'top' | 'bottom' | 'both';
-  /** カテゴリの表示順 */
   categoryOrder?: AffiliateCategory[];
-  /** カテゴリごとの表示件数 */
   limitByCategory?: Partial<Record<AffiliateCategory, number>>;
-  /** このバリアントで表示するカテゴリ */
   enabledCategories?: AffiliateCategory[];
 }
 
@@ -33,17 +36,15 @@ export interface ExperimentConfig {
   id: string;
   name: string;
   description: string;
-  status: ExperimentStatus;
   variants: VariantConfig[];
 }
 
-/** 実験定義（Phase 1 時点ではすべて draft） */
+/** 実験の構造定義。status は DB 側に持つため、ここには含めない。 */
 export const experiments: ExperimentConfig[] = [
   {
     id: 'timer-placement-v1',
     name: '配置位置テスト',
     description: 'タイマー画面でのアフィリエイトセクション配置位置を上部/下部/両方で比較',
-    status: 'draft',
     variants: [
       {
         id: 'timer-placement-v1__control',
@@ -81,23 +82,18 @@ export const experiments: ExperimentConfig[] = [
     id: 'timer-category-order-v1',
     name: 'カテゴリ順序テスト',
     description: '債務整理とおまとめローンの表示順を入れ替えて比較（実験1の勝ちバリアント固定後）',
-    status: 'draft',
     variants: [
       {
         id: 'timer-category-order-v1__control',
         name: 'control',
         weight: 1,
-        config: {
-          categoryOrder: ['debt-consolidation', 'loan-consolidation'],
-        },
+        config: { categoryOrder: ['debt-consolidation', 'loan-consolidation'] },
       },
       {
         id: 'timer-category-order-v1__swapped',
         name: 'swapped',
         weight: 1,
-        config: {
-          categoryOrder: ['loan-consolidation', 'debt-consolidation'],
-        },
+        config: { categoryOrder: ['loan-consolidation', 'debt-consolidation'] },
       },
     ],
   },
@@ -105,23 +101,18 @@ export const experiments: ExperimentConfig[] = [
     id: 'timer-limit-v1',
     name: '表示件数テスト',
     description: '各カテゴリの表示件数を3件と1件で比較',
-    status: 'draft',
     variants: [
       {
         id: 'timer-limit-v1__control',
         name: 'control',
         weight: 1,
-        config: {
-          limitByCategory: { 'debt-consolidation': 3, 'loan-consolidation': 3 },
-        },
+        config: { limitByCategory: { 'debt-consolidation': 3, 'loan-consolidation': 3 } },
       },
       {
         id: 'timer-limit-v1__single',
         name: 'single',
         weight: 1,
-        config: {
-          limitByCategory: { 'debt-consolidation': 1, 'loan-consolidation': 1 },
-        },
+        config: { limitByCategory: { 'debt-consolidation': 1, 'loan-consolidation': 1 } },
       },
     ],
   },
@@ -129,15 +120,12 @@ export const experiments: ExperimentConfig[] = [
     id: 'timer-category-mix-v1',
     name: 'カテゴリ種類テスト',
     description: '扱うカテゴリの組合せを比較（リスク高のため実験1〜3の後に実施）',
-    status: 'draft',
     variants: [
       {
         id: 'timer-category-mix-v1__safe-only',
         name: 'safe-only',
         weight: 1,
-        config: {
-          enabledCategories: ['debt-consolidation', 'loan-consolidation'],
-        },
+        config: { enabledCategories: ['debt-consolidation', 'loan-consolidation'] },
       },
       {
         id: 'timer-category-mix-v1__with-card-loan',
@@ -177,21 +165,9 @@ export const experiments: ExperimentConfig[] = [
   },
 ];
 
-/**
- * 現在アクティブな実験を返す。
- * 原則として1つのみアクティブにする運用。複数 active があった場合は最初の1つのみ採用し、警告ログを出す。
- */
-export function getActiveExperiment(): ExperimentConfig | null {
-  const actives = experiments.filter((e) => e.status === 'active');
-  if (actives.length === 0) return null;
-  if (actives.length > 1) {
-    console.warn(
-      `[experiments] multiple active experiments detected: ${actives
-        .map((e) => e.id)
-        .join(', ')}. Using first one.`,
-    );
-  }
-  return actives[0];
+/** コード側の設計図から experiment を引く */
+export function getExperimentById(id: string): ExperimentConfig | null {
+  return experiments.find((e) => e.id === id) ?? null;
 }
 
 /** 指定された variantId が experiment に属する有効なバリアントか検証 */
@@ -224,4 +200,57 @@ function hashString(input: string): number {
     h = Math.imul(h, 0x01000193);
   }
   return h >>> 0;
+}
+
+// ─── アクティブ実験の取得（DB + インメモリキャッシュ）──────────────────
+
+const CACHE_TTL_MS = 30_000;
+let activeCache: { exp: ExperimentConfig | null; fetchedAt: number } | null = null;
+
+/** 主にテスト・管理画面の mutation 後に明示的に失効させたいとき用 */
+export function invalidateActiveExperimentCache(): void {
+  activeCache = null;
+}
+
+/**
+ * 現在 status='active' な実験を返す。
+ *
+ * DB を source of truth とし、モジュールスコープの 30 秒 TTL キャッシュを挟む。
+ * 管理画面から status を変更した場合、最大 30 秒でインスタンスに反映される。
+ * DB 到達不能時はフェイルオープン（null を返し、バリアント割当を行わない）。
+ */
+export async function getActiveExperiment(): Promise<ExperimentConfig | null> {
+  const now = Date.now();
+  if (activeCache && now - activeCache.fetchedAt < CACHE_TTL_MS) {
+    return activeCache.exp;
+  }
+
+  let exp: ExperimentConfig | null = null;
+  try {
+    const rows = await getSql()`
+      SELECT id FROM experiments WHERE status = 'active' ORDER BY id LIMIT 2
+    `;
+    if (rows.length >= 2) {
+      console.warn(
+        `[experiments] multiple active experiments in DB: ${rows
+          .map((r) => r.id)
+          .join(', ')}. Using first.`,
+      );
+    }
+    if (rows.length >= 1) {
+      const dbId = rows[0].id as string;
+      exp = getExperimentById(dbId);
+      if (!exp) {
+        console.warn(
+          `[experiments] DB has active experiment '${dbId}' but no matching config in experiments.ts`,
+        );
+      }
+    }
+  } catch (err) {
+    console.error('[experiments] failed to load active experiment from DB:', err);
+    exp = null;
+  }
+
+  activeCache = { exp, fetchedAt: now };
+  return exp;
 }
