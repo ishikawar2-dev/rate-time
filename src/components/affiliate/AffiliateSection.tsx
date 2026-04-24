@@ -9,6 +9,11 @@ interface AffiliateSectionProps {
   category: AffiliateCategory;
   title: string;
   leadText?: string;
+  /**
+   * セクション直前に表示する動機づけ文（記事本文の終盤段落として自立させる想定）。
+   * オファー0件時はセクションごと非表示になるため、この文言も表示されない。
+   */
+  motivationText?: string;
   /** 表示件数の上限 */
   limit?: number;
   /** 計測用識別子（例: 'timer-debt-consolidation'） */
@@ -30,6 +35,7 @@ export function AffiliateSection({
   category,
   title,
   leadText,
+  motivationText,
   limit,
   placement,
   experimentId,
@@ -81,6 +87,10 @@ export function AffiliateSection({
 
   return (
     <section ref={ref} aria-label={`${title}（広告）`} className="max-w-2xl mx-auto px-4 my-10">
+      {motivationText ? (
+        <p className="text-sm text-zinc-300 leading-relaxed mb-5">{motivationText}</p>
+      ) : null}
+
       {/* セクション直前の「広告」ラベル（ステマ規制対応） */}
       <div className="flex items-center gap-2 mb-2">
         <span className="text-[11px] font-semibold text-zinc-500 border border-zinc-700 rounded px-1.5 py-0.5">

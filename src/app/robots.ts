@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/timer/', '/api/'],
+        disallow: ['/timer/', '/api/', '/admin/'],
       },
     ],
     sitemap: 'https://rate-time.com/sitemap.xml',

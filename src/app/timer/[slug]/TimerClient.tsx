@@ -17,6 +17,7 @@ import {
   rateTypeLabel,
   interestTypeLabel,
 } from '@/lib/interest';
+import { AffiliateSection } from '@/components/affiliate/AffiliateSection';
 
 // ─── Celebration overlay ───────────────────────────────────────────
 function CelebrationOverlay({
@@ -1054,6 +1055,22 @@ export function TimerClient({ timer, initialEntries, editToken }: TimerClientPro
             </div>
           )}
         </div>
+
+        {/* アフィリエイトセクション（docs/MONETIZATION.md §6.1） */}
+        {entries.length >= 2 && (
+          <AffiliateSection
+            category="loan-consolidation"
+            title="複数の借金をまとめて金利を下げる"
+            leadText="複数の借金をひとつにまとめることで、月々の返済額・総利息を減らせる可能性があります。"
+            placement="timer-loan-consolidation"
+          />
+        )}
+        <AffiliateSection
+          category="debt-consolidation"
+          title="返済が厳しい方へ：無料の借金相談"
+          leadText="利息が膨らみ返済が困難な場合、弁護士・司法書士への相談で解決できるケースがあります。相談は無料です。"
+          placement="timer-debt-consolidation"
+        />
       </main>
     </>
   );
