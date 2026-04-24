@@ -91,14 +91,10 @@ export function AffiliateSection({
         <p className="text-sm text-rt-text-secondary leading-relaxed mb-5">{motivationText}</p>
       ) : null}
 
-      {/* セクション直前の「広告」ラベル（ステマ規制対応） */}
-      <div className="flex items-center gap-2 mb-2">
-        <span className="text-[11px] font-semibold text-rt-text-tertiary border border-rt-border-strong rounded px-1.5 py-0.5">
-          広告
-        </span>
-        <span className="text-[11px] text-rt-text-muted">当サイトはアフィリエイトプログラムに参加しています</span>
-      </div>
-
+      {/*
+        ステマ規制対応の「広告」明示は各 AffiliateCard 右上のラベル 1 箇所に集約する。
+        セクション全体での「アフィリエイト参加」表示は冗長のため /privacy / /disclosure に集約。
+      */}
       <header className="mb-4">
         <h2 className="text-lg font-bold text-rt-text-primary">{title}</h2>
         {leadText ? (

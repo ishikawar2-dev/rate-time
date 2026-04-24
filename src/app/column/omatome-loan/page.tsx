@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { AffiliateSection } from '@/components/affiliate/AffiliateSection';
+import { getExperimentContext } from '@/lib/experiment-context';
 
 const TITLE = 'おまとめローンの仕組みとメリット・デメリット';
 const DESCRIPTION =
@@ -92,7 +93,8 @@ const jsonLdFaq = {
   ],
 };
 
-export default function OmatomeLoanPage() {
+export default async function OmatomeLoanPage() {
+  const { experimentId, variantId } = await getExperimentContext();
   return (
     <>
       <script
@@ -161,6 +163,8 @@ export default function OmatomeLoanPage() {
             leadText="借入内容を入力するだけで、金利と返済期間から月々と総額の目安を確認できます。"
             placement="column-omatome-loan-mid"
             motivationText="複数社への返済が毎月の生活を圧迫しているなら、まず現在の金利と借換え後の金利の差を数字で見てみるところから始めるのが現実的だ。審査に申し込む前に、借入内容と希望条件を入れるだけで試算できるサービスを使えば、ペースと総額のイメージがつかみやすい。"
+            experimentId={experimentId}
+            variantId={variantId}
           />
 
           <section className="mb-10">
@@ -222,6 +226,8 @@ export default function OmatomeLoanPage() {
             leadText="複数社の借入を1本化した場合の金利・月々の返済額・総支払額を比較できます。"
             placement="column-omatome-loan-bottom"
             motivationText="毎月の返済先が複数あって家計が回りにくくなっているなら、まず借換えで金利がどこまで下がるかを確認してみる価値はある。申込前の試算だけなら信用情報には影響しないため、候補を絞る段階でリスクなく情報を集められる。"
+            experimentId={experimentId}
+            variantId={variantId}
           />
 
           <section className="mb-10 border-t border-rt-border pt-8">

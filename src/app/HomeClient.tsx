@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import type { TimerTheme } from '@/lib/interest';
+import { toLocalDateString } from '@/lib/interest';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 type RateType = 'annual' | 'monthly' | 'daily';
@@ -14,7 +15,10 @@ interface EntryForm {
   interest_rate: string;
   rate_type: RateType;
   interest_type: InterestType;
-  started_at: string;
+  /** 開始日（YYYY-MM-DD）。空欄だとバリデーションエラー */
+  start_date: string;
+  /** true のとき送信時に new Date().getTime() を使う（現在時刻スタート） */
+  start_now: boolean;
 }
 
 const RATE_LABELS: Record<RateType, string> = { annual: '年利', monthly: '月利', daily: '日利' };
@@ -30,7 +34,8 @@ function newEntry(): EntryForm {
     interest_rate: '',
     rate_type: 'annual',
     interest_type: 'compound',
-    started_at: '',
+    start_date: '',
+    start_now: false,
   };
 }
 
@@ -57,6 +62,23 @@ export default function HomeClient() {
     setError('');
   };
 
+  /** date input の変更（手動で日付を選ぶと start_now は解除） */
+  const setEntryDate = (key: number, date: string) => {
+    setEntries((prev) =>
+      prev.map((e) => (e._key === key ? { ...e, start_date: date, start_now: false } : e)),
+    );
+    setError('');
+  };
+
+  /** 「今すぐ」ボタン: start_now=true + date input には今日を表示 */
+  const setEntryStartNow = (key: number) => {
+    const today = toLocalDateString(Date.now());
+    setEntries((prev) =>
+      prev.map((e) => (e._key === key ? { ...e, start_date: today, start_now: true } : e)),
+    );
+    setError('');
+  };
+
   const addEntry = () => setEntries((prev) => [...prev, newEntry()]);
 
   const removeEntry = (key: number) => {
@@ -66,6 +88,15 @@ export default function HomeClient() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 開始日のバリデーション: 「今すぐ」または日付入力のどちらかが必須
+    for (const entry of entries) {
+      if (!entry.start_now && !entry.start_date) {
+        setError('開始日を選択するか「今すぐ」を押してください');
+        return;
+      }
+    }
+
     setIsLoading(true);
     setError('');
     try {
@@ -78,7 +109,10 @@ export default function HomeClient() {
           interest_rate: parseFloat(e.interest_rate),
           rate_type: e.rate_type,
           interest_type: e.interest_type,
-          started_at: e.started_at ? new Date(e.started_at).getTime() : undefined,
+          // 「今すぐ」は現在時刻、日付指定は当日の 00:00（ローカルタイムゾーン）
+          started_at: e.start_now
+            ? Date.now()
+            : new Date(`${e.start_date}T00:00:00`).getTime(),
         })),
       };
 
@@ -122,7 +156,7 @@ export default function HomeClient() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 py-12">
-      <div className="w-full max-w-lg">
+      <div className="w-full max-w-2xl">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-rt-accent-bg border border-rt-accent-border rounded-2xl mb-4">
@@ -261,13 +295,33 @@ export default function HomeClient() {
                   </div>
 
                   <div>
-                    <label className="label">開始日時（空欄で今すぐ）</label>
-                    <input
-                      type="datetime-local"
-                      value={entry.started_at}
-                      onChange={(e) => updateEntry(entry._key, 'started_at', e.target.value)}
-                      className="input-field"
-                    />
+                    <label className="label">
+                      開始日 <span className="text-rt-accent-text">*</span>
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="date"
+                        value={entry.start_date}
+                        onChange={(e) => setEntryDate(entry._key, e.target.value)}
+                        className="input-field flex-1"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setEntryStartNow(entry._key)}
+                        aria-pressed={entry.start_now}
+                        className={`px-4 py-2.5 rounded-xl font-semibold text-sm border transition-all whitespace-nowrap ${
+                          entry.start_now
+                            ? 'bg-rt-accent-cta text-white border-rt-accent-cta'
+                            : 'bg-rt-elevated text-rt-text-secondary border-rt-border-strong hover:border-rt-text-tertiary'
+                        }`}
+                      >
+                        ⚡ 今すぐ
+                      </button>
+                    </div>
+                    <p className="text-xs text-rt-text-tertiary mt-1">
+                      いつから借りましたか？「今すぐ」は現在時刻でスタートします。
+                    </p>
                   </div>
                 </div>
               </div>

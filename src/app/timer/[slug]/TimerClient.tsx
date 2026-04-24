@@ -18,6 +18,7 @@ import {
   interestTypeLabel,
 } from '@/lib/interest';
 import { AffiliateSection } from '@/components/affiliate/AffiliateSection';
+import { formatDateOnly, toLocalDateString } from '@/lib/interest';
 
 // ─── Celebration overlay ───────────────────────────────────────────
 function CelebrationOverlay({
@@ -114,15 +115,27 @@ function AddEntryForm({ slug, editToken, onAdded }: { slug: string; editToken: s
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
     name: '', principal: '', interest_rate: '', rate_type: 'annual',
-    interest_type: 'compound', started_at: '',
+    interest_type: 'compound', start_date: '', start_now: false,
   });
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState('');
 
   const update = (f: string, v: string) => { setForm((p) => ({ ...p, [f]: v })); setErr(''); };
+  const setStartDate = (date: string) => {
+    setForm((p) => ({ ...p, start_date: date, start_now: false }));
+    setErr('');
+  };
+  const setStartNow = () => {
+    setForm((p) => ({ ...p, start_date: toLocalDateString(Date.now()), start_now: true }));
+    setErr('');
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form.start_now && !form.start_date) {
+      setErr('開始日を選択するか「今すぐ」を押してください');
+      return;
+    }
     setLoading(true);
     setErr('');
     try {
@@ -130,16 +143,23 @@ function AddEntryForm({ slug, editToken, onAdded }: { slug: string; editToken: s
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-edit-token': editToken },
         body: JSON.stringify({
-          ...form,
+          name: form.name,
           principal: parseFloat(form.principal),
           interest_rate: parseFloat(form.interest_rate),
-          started_at: form.started_at ? new Date(form.started_at).getTime() : undefined,
+          rate_type: form.rate_type,
+          interest_type: form.interest_type,
+          started_at: form.start_now
+            ? Date.now()
+            : new Date(`${form.start_date}T00:00:00`).getTime(),
         }),
       });
       if (!res.ok) { const d = await res.json(); throw new Error(d.error); }
       const entry: Entry = await res.json();
       onAdded(entry);
-      setForm({ name: '', principal: '', interest_rate: '', rate_type: 'annual', interest_type: 'compound', started_at: '' });
+      setForm({
+        name: '', principal: '', interest_rate: '', rate_type: 'annual',
+        interest_type: 'compound', start_date: '', start_now: false,
+      });
       setOpen(false);
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'エラーが発生しました');
@@ -211,9 +231,28 @@ function AddEntryForm({ slug, editToken, onAdded }: { slug: string; editToken: s
           </div>
         </div>
         <div>
-          <label className="label">開始日時（空欄で今すぐ）</label>
-          <input type="datetime-local" value={form.started_at} onChange={(e) => update('started_at', e.target.value)}
-            className="input-field" />
+          <label className="label">開始日 <span className="text-rt-accent-text">*</span></label>
+          <div className="flex gap-2">
+            <input
+              type="date"
+              value={form.start_date}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="input-field flex-1"
+              required
+            />
+            <button
+              type="button"
+              onClick={setStartNow}
+              aria-pressed={form.start_now}
+              className={`px-4 py-2.5 rounded-xl font-semibold text-sm border transition-all whitespace-nowrap ${
+                form.start_now
+                  ? 'bg-rt-accent-cta text-white border-rt-accent-cta'
+                  : 'bg-rt-elevated text-rt-text-secondary border-rt-border-strong hover:border-rt-text-tertiary'
+              }`}
+            >
+              ⚡ 今すぐ
+            </button>
+          </div>
         </div>
         {err && <div className="bg-rt-accent-bg border border-rt-accent-border rounded-xl p-3 text-sm text-rt-accent-text">{err}</div>}
         <button type="submit" disabled={loading} className="btn-primary w-full">
@@ -420,27 +459,34 @@ function EditEntryModal({
   onSaved: (updated: Entry) => void;
   onClose: () => void;
 }) {
-  const toLocalDatetime = (ms: number) => {
-    const d = new Date(ms);
-    const pad = (n: number) => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  };
-
   const [form, setForm] = useState({
     name: entry.name ?? '',
     principal: String(entry.principal),
     interest_rate: String(entry.interest_rate),
     rate_type: entry.rate_type,
     interest_type: entry.interest_type,
-    started_at: toLocalDatetime(entry.started_at),
+    start_date: toLocalDateString(entry.started_at),
+    start_now: false,
   });
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState('');
 
   const update = (f: string, v: string) => { setForm((p) => ({ ...p, [f]: v })); setErr(''); };
+  const setStartDate = (date: string) => {
+    setForm((p) => ({ ...p, start_date: date, start_now: false }));
+    setErr('');
+  };
+  const setStartNow = () => {
+    setForm((p) => ({ ...p, start_date: toLocalDateString(Date.now()), start_now: true }));
+    setErr('');
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form.start_now && !form.start_date) {
+      setErr('開始日を選択するか「今すぐ」を押してください');
+      return;
+    }
     setLoading(true);
     setErr('');
     try {
@@ -453,7 +499,9 @@ function EditEntryModal({
           interest_rate: parseFloat(form.interest_rate),
           rate_type: form.rate_type,
           interest_type: form.interest_type,
-          started_at: form.started_at ? new Date(form.started_at).getTime() : entry.started_at,
+          started_at: form.start_now
+            ? Date.now()
+            : new Date(`${form.start_date}T00:00:00`).getTime(),
         }),
       });
       if (!res.ok) { const d = await res.json(); throw new Error(d.error); }
@@ -519,9 +567,28 @@ function EditEntryModal({
             </div>
           </div>
           <div>
-            <label className="label">開始日時</label>
-            <input type="datetime-local" value={form.started_at} onChange={(e) => update('started_at', e.target.value)}
-              className="input-field" />
+            <label className="label">開始日 <span className="text-rt-accent-text">*</span></label>
+            <div className="flex gap-2">
+              <input
+                type="date"
+                value={form.start_date}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="input-field flex-1"
+                required
+              />
+              <button
+                type="button"
+                onClick={setStartNow}
+                aria-pressed={form.start_now}
+                className={`px-4 py-2.5 rounded-xl font-semibold text-sm border transition-all whitespace-nowrap ${
+                  form.start_now
+                    ? 'bg-rt-accent-cta text-white border-rt-accent-cta'
+                    : 'bg-rt-elevated text-rt-text-secondary border-rt-border-strong hover:border-rt-text-tertiary'
+                }`}
+              >
+                ⚡ 今すぐ
+              </button>
+            </div>
           </div>
           {err && <div className="bg-rt-accent-bg border border-rt-accent-border rounded-xl p-3 text-sm text-rt-accent-text">{err}</div>}
           <div className="flex gap-2">
@@ -577,7 +644,7 @@ function EntryCard({
           <p className="text-xs text-rt-text-muted mt-0.5">
             {entry.interest_rate}%&nbsp;{rateTypeLabel(entry.rate_type)}&nbsp;/&nbsp;
             {interestTypeLabel(entry.interest_type)}
-            &nbsp;・&nbsp;開始: {formatDate(entry.started_at)}
+            &nbsp;・&nbsp;開始: {formatDateOnly(entry.started_at)}
           </p>
         </div>
         <div className="flex flex-col items-end gap-1.5 ml-3 flex-shrink-0">
@@ -758,9 +825,19 @@ interface TimerClientProps {
   timer: Timer;
   initialEntries: EntryWithRepayments[];
   editToken: string | null;
+  /** アクティブな実験 ID（middleware + cookie 経由、親 page.tsx で取得） */
+  experimentId?: string;
+  /** 割り当てられたバリアント ID */
+  variantId?: string;
 }
 
-export function TimerClient({ timer, initialEntries, editToken }: TimerClientProps) {
+export function TimerClient({
+  timer,
+  initialEntries,
+  editToken,
+  experimentId,
+  variantId,
+}: TimerClientProps) {
   const canEdit = editToken !== null;
   const [entries, setEntries] = useState<EntryWithRepayments[]>(initialEntries);
   const [totalBalance, setTotalBalance] = useState(0);
@@ -895,7 +972,7 @@ export function TimerClient({ timer, initialEntries, editToken }: TimerClientPro
       )}
 
       <main className="min-h-screen p-4 py-8">
-        <div className="max-w-lg mx-auto space-y-4">
+        <div className="max-w-2xl mx-auto space-y-4">
           {/* Header */}
           <div className="flex items-start justify-between">
             <div>
@@ -905,7 +982,7 @@ export function TimerClient({ timer, initialEntries, editToken }: TimerClientPro
               <h1 className="text-xl font-black text-rt-text-primary">
                 {timer.name || '利息タイマー'}
               </h1>
-              <p className="text-xs text-rt-text-muted mt-0.5">開始: {formatDate(timer.created_at)}</p>
+              <p className="text-xs text-rt-text-muted mt-0.5">開始: {formatDateOnly(timer.created_at)}</p>
             </div>
             <div className="flex flex-col items-end gap-2 flex-shrink-0">
               <button onClick={handleCopyUrl} className="btn-secondary text-xs py-2 px-3">
@@ -1063,6 +1140,8 @@ export function TimerClient({ timer, initialEntries, editToken }: TimerClientPro
             title="複数の借金をまとめて金利を下げる"
             leadText="複数の借金をひとつにまとめることで、月々の返済額・総利息を減らせる可能性があります。"
             placement="timer-loan-consolidation"
+            experimentId={experimentId}
+            variantId={variantId}
           />
         )}
         <AffiliateSection
@@ -1070,6 +1149,8 @@ export function TimerClient({ timer, initialEntries, editToken }: TimerClientPro
           title="返済が厳しい方へ：無料の借金相談"
           leadText="利息が膨らみ返済が困難な場合、弁護士・司法書士への相談で解決できるケースがあります。相談は無料です。"
           placement="timer-debt-consolidation"
+          experimentId={experimentId}
+          variantId={variantId}
         />
       </main>
     </>
