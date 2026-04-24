@@ -23,6 +23,7 @@
 
 import { getSql } from './db';
 import type { ExperimentStatus } from './experiments';
+import type { AffiliateCategory } from './affiliates';
 
 export interface ExperimentSummary {
   id: string;
@@ -314,6 +315,181 @@ export async function activateExperiment(id: string): Promise<MutationResult> {
     return { ok: false, reason: 'not_found', message: `実験 '${id}' が見つかりません。` };
   }
   return { ok: true };
+}
+
+// ─── 日次レポート用集計（Claude Routines 連携 API 用） ────────────
+
+export interface DateRangeMs {
+  /** 期間開始（UNIX ms、inclusive） */
+  from: number;
+  /** 期間終了（UNIX ms、inclusive） */
+  to: number;
+}
+
+export interface DayTotals {
+  impressions: number;
+  clicks: number;
+  unique_visitors: number;
+}
+
+/**
+ * 指定期間の全体集計（インプレッション・クリック・ユニークビジタ）。
+ * ユニークビジタはインプレッションテーブルの DISTINCT visitor_id を使う。
+ */
+export async function getDayTotals(range: DateRangeMs): Promise<DayTotals> {
+  const rows = await getSql()`
+    WITH imp AS (
+      SELECT COUNT(*) AS cnt, COUNT(DISTINCT visitor_id) AS uniq
+      FROM impressions
+      WHERE recorded_at >= ${range.from} AND recorded_at <= ${range.to}
+    ),
+    clk AS (
+      SELECT COUNT(*) AS cnt
+      FROM clicks
+      WHERE recorded_at >= ${range.from} AND recorded_at <= ${range.to}
+    )
+    SELECT
+      (SELECT cnt FROM imp) AS impressions,
+      (SELECT uniq FROM imp) AS unique_visitors,
+      (SELECT cnt FROM clk) AS clicks
+  `;
+  const r = rows[0] ?? {};
+  return {
+    impressions: Number(r.impressions ?? 0),
+    clicks: Number(r.clicks ?? 0),
+    unique_visitors: Number(r.unique_visitors ?? 0),
+  };
+}
+
+export interface DailyVariantRow {
+  experiment_id: string;
+  experiment_name: string;
+  experiment_status: ExperimentStatus;
+  variant_id: string;
+  variant_name: string;
+  weight: number;
+  impressions: number;
+  clicks: number;
+  unique_visitors: number;
+}
+
+/**
+ * 期間内の全実験×全バリアントの集計。活動が無かったバリアントも 0 で返す（anomaly 検知用）。
+ */
+export async function getDailyExperimentVariantStats(
+  range: DateRangeMs,
+): Promise<DailyVariantRow[]> {
+  const rows = await getSql()`
+    WITH imp AS (
+      SELECT variant_id,
+        COUNT(*) AS cnt,
+        COUNT(DISTINCT visitor_id) AS uniq
+      FROM impressions
+      WHERE recorded_at >= ${range.from} AND recorded_at <= ${range.to}
+      GROUP BY variant_id
+    ),
+    clk AS (
+      SELECT variant_id, COUNT(*) AS cnt
+      FROM clicks
+      WHERE recorded_at >= ${range.from} AND recorded_at <= ${range.to}
+      GROUP BY variant_id
+    )
+    SELECT
+      e.id AS experiment_id,
+      e.name AS experiment_name,
+      e.status AS experiment_status,
+      v.id AS variant_id,
+      v.name AS variant_name,
+      v.weight,
+      COALESCE(imp.cnt, 0) AS impressions,
+      COALESCE(imp.uniq, 0) AS unique_visitors,
+      COALESCE(clk.cnt, 0) AS clicks
+    FROM experiments e
+    JOIN variants v ON v.experiment_id = e.id
+    LEFT JOIN imp ON imp.variant_id = v.id
+    LEFT JOIN clk ON clk.variant_id = v.id
+    ORDER BY e.id, v.name
+  `;
+  return rows.map((r) => ({
+    experiment_id: r.experiment_id,
+    experiment_name: r.experiment_name,
+    experiment_status: r.experiment_status as ExperimentStatus,
+    variant_id: r.variant_id,
+    variant_name: r.variant_name,
+    weight: Number(r.weight),
+    impressions: Number(r.impressions),
+    clicks: Number(r.clicks),
+    unique_visitors: Number(r.unique_visitors),
+  }));
+}
+
+/** 期間内の placement 別インプレッション数（offer ごとのインプレッション推定に使う） */
+export async function getDailyPlacementImpressions(
+  range: DateRangeMs,
+): Promise<Array<{ placement: string; impressions: number }>> {
+  const rows = await getSql()`
+    SELECT placement, COUNT(*) AS cnt
+    FROM impressions
+    WHERE recorded_at >= ${range.from} AND recorded_at <= ${range.to}
+    GROUP BY placement
+  `;
+  return rows.map((r) => ({
+    placement: r.placement,
+    impressions: Number(r.cnt),
+  }));
+}
+
+/** 期間内の offer_id 別クリック数 */
+export async function getDailyOfferClicks(
+  range: DateRangeMs,
+): Promise<Array<{ offer_id: string; clicks: number }>> {
+  const rows = await getSql()`
+    SELECT offer_id, COUNT(*) AS cnt
+    FROM clicks
+    WHERE recorded_at >= ${range.from} AND recorded_at <= ${range.to}
+    GROUP BY offer_id
+  `;
+  return rows.map((r) => ({
+    offer_id: r.offer_id,
+    clicks: Number(r.cnt),
+  }));
+}
+
+/**
+ * placement 文字列から AffiliateCategory を推定する。
+ * - `timer-<category>` は suffix がそのままカテゴリ
+ * - コラム（column-<slug>-<mid|bottom>）は記事とカテゴリの手動マッピング
+ * 将来 impressions テーブルに category カラムを追加すれば不要になる。
+ */
+const COLUMN_PLACEMENT_TO_CATEGORY: Record<string, AffiliateCategory> = {
+  'column-saimu-seiri-mid': 'debt-consolidation',
+  'column-saimu-seiri-bottom': 'loan-consolidation',
+  'column-omatome-loan-mid': 'loan-consolidation',
+  'column-omatome-loan-bottom': 'debt-consolidation',
+  'column-kinri-hikaku-mid': 'card-loan',
+  'column-kinri-hikaku-bottom': 'loan-consolidation',
+};
+
+const VALID_CATEGORIES: AffiliateCategory[] = [
+  'debt-consolidation',
+  'loan-consolidation',
+  'card-loan',
+  'consumer-finance',
+  'credit-card',
+];
+
+export function placementToCategory(placement: string): AffiliateCategory | null {
+  if (COLUMN_PLACEMENT_TO_CATEGORY[placement]) {
+    return COLUMN_PLACEMENT_TO_CATEGORY[placement];
+  }
+  // 対応する prefix:
+  //   'timer-<category>' （タイマー画面のテキストカード）
+  //   'timer-footer-banner-<category>' （§13 スティッキーフッターバナー）
+  const stripped = placement.replace(/^timer-(?:footer-banner-)?/, '');
+  if (VALID_CATEGORIES.includes(stripped as AffiliateCategory)) {
+    return stripped as AffiliateCategory;
+  }
+  return null;
 }
 
 /**

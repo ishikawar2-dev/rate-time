@@ -54,3 +54,17 @@ export function verifyAdminBasicAuth(
 
 /** 401 Unauthorized レスポンス用のヘッダ */
 export const ADMIN_WWW_AUTHENTICATE = 'Basic realm="rate-time admin", charset="UTF-8"';
+
+/**
+ * Bearer Token 認証（定数時間比較）。
+ * Claude Routines 等の外部サービスから /api/admin/report/* を叩く際の認証に使う。
+ * 環境変数 ROUTINE_API_TOKEN と Authorization: Bearer ヘッダを比較。
+ */
+export function verifyBearerToken(authHeader: string | null, expectedToken: string): boolean {
+  if (!authHeader) return false;
+  const trimmed = authHeader.trim();
+  if (!trimmed.toLowerCase().startsWith('bearer ')) return false;
+  const token = trimmed.slice(7).trim();
+  if (token.length === 0) return false;
+  return timingSafeEqual(token, expectedToken);
+}

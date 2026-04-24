@@ -1074,3 +1074,212 @@ disallow: ['/timer/', '/api/', '/admin/'], // /admin/ を追加
 | リスクカテゴリ対応 | - | 免責注記・訴求コピー制約を追加 | v2と同じ | v2と同じ |
 | 配置 | タイマー画面下部固定 | A/Bテストで上部・両方も検証 | v2と同じ | v2と同じ |
 | テーマ | ダーク固定 | - | ダーク/ライト選択可、デフォルト dark | **デフォルトをlightに変更、トグルスイッチ、トップでプレビュー可** |
+
+---
+
+## 12. Claude Routines 連携 API（日次レポート）
+
+Claude Routines 等の外部サービスから日次 KPI を取得するための読取り専用 API。
+将来的に複数プロジェクト（rate-time 以外）でも同じスキーマを使うため、汎用的な JSON スキーマとして設計。
+
+### 12.1 エンドポイント
+
+```
+GET /api/admin/report/daily?date=YYYY-MM-DD
+Authorization: Bearer <ROUTINE_API_TOKEN>
+```
+
+- `date`: 集計対象日（JST）。省略時は JST 前日
+- 認証: `Authorization: Bearer <ROUTINE_API_TOKEN>` ヘッダ必須（定数時間比較）
+
+### 12.2 認証方式
+
+- 環境変数 `ROUTINE_API_TOKEN` が未設定の場合 → `404 Not Found`（存在自体を隠す）
+- Bearer Token が一致しない場合 → `401 Unauthorized`
+- 既存の `/admin/*` / `/api/admin/*` は Basic 認証のまま。`/api/admin/report/*` のみ Bearer に分離（middleware で判定）
+
+### 12.3 レスポンス JSON スキーマ
+
+```json
+{
+  "project": "rate-time",
+  "date": "2026-04-24",
+  "generated_at": "2026-04-25T00:05:12.345Z",
+  "kpis": {
+    "impressions": 1234,
+    "clicks": 24,
+    "ctr": 0.0195,
+    "unique_visitors": 987
+  },
+  "experiments": [
+    {
+      "id": "timer-placement-v1",
+      "name": "配置位置テスト",
+      "status": "active",
+      "variants": [
+        {
+          "id": "timer-placement-v1__control",
+          "weight": 1,
+          "impressions": 410,
+          "clicks": 8,
+          "ctr": 0.0195,
+          "unique_visitors": 330
+        }
+      ]
+    }
+  ],
+  "offers": [
+    {
+      "id": "istowl-nini-seiri",
+      "category": "debt-consolidation",
+      "advertiser": "弁護士法人イストワール法律事務所",
+      "impressions": 650,
+      "clicks": 12,
+      "ctr": 0.0185
+    }
+  ],
+  "anomalies": [
+    {
+      "type": "impressions_drop",
+      "severity": "high",
+      "message": "インプレッション数が前日比で 58% 減少しました",
+      "context": { "yesterday": 2000, "today": 840, "drop_pct": 58 }
+    }
+  ],
+  "comparison_to_yesterday": {
+    "impressions_delta_pct": -58.0,
+    "clicks_delta_pct": -45.2,
+    "ctr_delta_pct": 28.7
+  }
+}
+```
+
+**エラーレスポンス**:
+
+| ステータス | `{ error }` | 条件 |
+|---|---|---|
+| 404 | - | `ROUTINE_API_TOKEN` 未設定 |
+| 401 | `unauthorized` | Bearer Token 不一致 |
+| 400 | `invalid_date` | date が YYYY-MM-DD 形式でない |
+| 500 | `database_error` | DB クエリ失敗 |
+
+### 12.4 CTR・比較値の精度
+
+- `ctr`: `clicks / impressions`。impressions=0 なら 0。精度は 0.0001（=0.01%）
+- `*_delta_pct`: `(today - yesterday) / yesterday * 100`。yesterday=0 なら 0。小数 2 桁
+
+### 12.5 異常値検知ルール
+
+1. **`impressions_drop`** (severity: high): インプレッション数が前日比 50% 以上減少
+2. **`no_clicks`** (severity: medium): その日 impressions ≥ 10 で clicks = 0
+3. **`variant_no_impressions`** (severity: high): active 実験で合計 impressions ≥ 10 かつ特定バリアント = 0
+   （割当ロジックのバグ検知）
+
+### 12.6 per-offer インプレッションの計算方法
+
+impressions テーブルは placement 単位で記録され、offer_id を持たない。per-offer の impressions は以下の方法で推定:
+
+- `placementToCategory(placement)` で placement を category に変換（`timer-<category>` はパターンマッチ、コラム placement は手動マップ）
+- 各 offer の impressions = その offer の category と一致する全 placement の impressions 合計
+- 1 セクション表示はそのカテゴリの全 offer に 1 インプレッションずつ、という現行の表示仕様に一致
+
+将来 impressions テーブルに `category` カラムを追加すればこのマッピングは不要になる。
+
+### 12.7 将来の複数プロジェクト展開
+
+`project` フィールドで識別、他フィールドは共通スキーマ。Routines 側は project ごとに表示フォーマットを切り替えなくてもよい設計。異常値検知ルールはプロジェクト共通でよいが、閾値調整が必要なら severity の基準をプロジェクトごとに上書きする。
+
+### 12.8 必要な環境変数
+
+| 変数 | 用途 |
+|---|---|
+| `DATABASE_URL` | Neon Postgres 接続（既存、必須） |
+| `ADMIN_USER` / `ADMIN_PASSWORD` | `/admin/*` と `/api/admin/*`（レポート API を除く）の Basic 認証 |
+| `ROUTINE_API_TOKEN` | `/api/admin/report/*` の Bearer 認証（未設定時は 404） |
+
+本番環境（Vercel）では Project Settings → Environment Variables から設定。ローカル開発では `.env.local` に記載（`.gitignore` 済み）。
+
+---
+
+## 13. 広告フォーマット A/B テスト（ad-format-v1）
+
+現行のテキストカード表示に加えて、タイマー画面限定で **スティッキーフッターバナー**（320×50 の画像広告）を追加し、フォーマット間の CTR を比較する実験。
+
+### 13.1 実験仕様
+
+| 実験 ID | `ad-format-v1` |
+|---|---|
+| 対象ページ | `/timer/[slug]` のみ（コラム・トップ・ポリシーは対象外） |
+| バリアント | `text-only` / `banner-only` / `text-and-banner`（均等割り当て weight 1） |
+| 検証対象 | モバイル中心のサイトでフォーマット別 CTR を計測 |
+| 同時実行ルール | 実験は 1 度に 1 つ active（`timer-category-mix-v1` を paused に切替えてから投入） |
+
+### 13.2 バナーとテキストの URL 分離
+
+`AffiliateOffer` 型にバナー用フィールドを追加:
+
+```ts
+interface AffiliateOffer {
+  // ... 既存フィールド ...
+  href: string;                          // テキストリンク用 URL
+  banner?: {
+    href: string;                        // バナー専用 URL（ASP で別計測）
+    imageUrl: string;                    // 画像 URL（A8.net CDN）
+    width: number;                       // 320
+    height: number;                      // 50
+  };
+}
+```
+
+A8.net のトラッキング上、バナークリックとテキストクリックは**別計測**されるため、各 offer には 2 種類の URL を保持し、クリック経路に応じて使い分ける。
+
+### 13.3 StickyFooterBanner の設計
+
+**ファイル**: `src/components/affiliate/StickyFooterBanner.tsx`
+
+- `position: fixed; bottom: 0; left: 0; right: 0;`、`z-50`
+- 背景は `bg-rt-card` で上辺にシャドウ、`env(safe-area-inset-bottom)` で iOS ホームバー回避
+- PR ラベルを左上に極小（`text-[9px] text-rt-text-muted tracking-wide`）
+- 右上に閉じるボタン（40×40 タップターゲット）
+- インプレッション計測: マウント時に 1 回だけ `/api/affiliates/impression` に `sendBeacon`
+  （画面下部に常時可視のため IntersectionObserver は不要）
+- 閉じるボタン押下時は React state で非表示化。**sessionStorage / localStorage は使わない**
+  （同一マウント内のみ有効、ページ遷移やリロードで再表示される）
+
+### 13.4 表示するバナーオファーの選び方
+
+- タイマー内 `entries.length >= 2` → `loan-consolidation` カテゴリ
+- それ以外 → `debt-consolidation` カテゴリ
+- カテゴリ内から `slug` 由来の決定的ハッシュで 1 offer を選択
+  （同じ slug = 同じバナー、リロードでも安定。異なる slug 間ではローテーション）
+
+### 13.5 TimerClient 側の表示制御
+
+`experimentId === 'ad-format-v1'` の場合のみ variantId を解釈:
+
+| variantId | テキストカード | バナー |
+|---|---|---|
+| `ad-format-v1__text-only` | 表示 | 非表示 |
+| `ad-format-v1__banner-only` | 非表示 | 表示 |
+| `ad-format-v1__text-and-banner` | 表示 | 表示 |
+| 未定義 or 別実験 | 表示（従来通り） | 非表示（安全側） |
+
+`AffiliateSection` コンポーネント本体には変更を加えず、親 `TimerClient` 側で条件付きレンダリングする（コラム側への副作用を避けるため）。
+
+### 13.6 placement 命名規則（バナー計測用）
+
+- テキストカード: 従来通り `timer-<category>` / `column-<slug>-<mid|bottom>`
+- バナー: `timer-footer-banner-<category>` — admin-queries.ts の `placementToCategory` でパース済み
+
+### 13.7 DB 変更
+
+`migrations/004_ad_format_experiment.sql` を適用する:
+1. `timer-category-mix-v1` を `paused` に
+2. `ad-format-v1` を `active` で INSERT
+3. 3 variants を INSERT
+
+マイグレーションは自動適用されない。ユーザーが Neon SQL Editor で手動実行する。
+
+### 13.8 運用切替の反映ラグ
+
+middleware の `getActiveExperiment()` は 30 秒 TTL キャッシュ（§4.5 参照）。DB を切替えてから最大 30 秒でバリアント割当が `ad-format-v1` に切り替わる。

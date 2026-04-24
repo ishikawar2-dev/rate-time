@@ -28,6 +28,13 @@ const EXPERIMENT_MAX_AGE_SEC = 60 * 60 * 24 * 90; // 90日
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
 
+  // /api/admin/report/* は外部サービス（Claude Routines 等）から叩かれる API。
+  // Basic 認証ではなく Bearer Token 認証を使うため、middleware のログインチェックはスキップし
+  // ルートハンドラ側で Authorization: Bearer を検証する。
+  if (path.startsWith('/api/admin/report/')) {
+    return NextResponse.next({ request: { headers: withPathnameHeader(req) } });
+  }
+
   if (path.startsWith('/admin') || path.startsWith('/api/admin')) {
     return handleAdminAuth(req);
   }

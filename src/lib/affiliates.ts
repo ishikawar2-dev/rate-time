@@ -40,6 +40,16 @@ export interface AffiliateOffer {
   ctaText?: string;
   /** 広告主の法人名等。ステマ規制対応の補助表示に使う（カード下部に小さく表示） */
   advertiser?: string;
+  /**
+   * バナー広告用の素材（スティッキーフッターバナー等で使う）。
+   * href は必ずバナー専用の ASP 発行 URL を使い、テキストクリックと別計測する。
+   */
+  banner?: {
+    href: string;
+    imageUrl: string;
+    width: number;
+    height: number;
+  };
   /** 有効/無効フラグ（A/Bテストで一時停止したいとき用） */
   active: boolean;
 }
@@ -61,6 +71,12 @@ export const affiliateOffers: AffiliateOffer[] = [
     bullets: ['初回相談は無料', '弁護士法人による対応', '全国対応・秘密厳守'],
     ctaText: '無料で相談する',
     advertiser: '弁護士法人イストワール法律事務所',
+    banner: {
+      href: 'https://px.a8.net/svt/ejp?a8mat=4B1SPX+325AS2+4FR4+639IP',
+      imageUrl: 'https://www22.a8.net/svt/bgt?aid=260424357185&wid=005&eno=01&mid=s00000020704001023000&mc=1',
+      width: 320,
+      height: 50,
+    },
     active: true,
   },
   {
@@ -74,6 +90,12 @@ export const affiliateOffers: AffiliateOffer[] = [
     bullets: ['相談無料・秘密厳守', '全国対応', '任意整理の対応実績'],
     ctaText: '無料で相談する',
     advertiser: 'アース司法書士事務所',
+    banner: {
+      href: 'https://px.a8.net/svt/ejp?a8mat=4B1SPX+33C5ZM+4LX2+601S1',
+      imageUrl: 'https://www26.a8.net/svt/bgt?aid=260424357187&wid=005&eno=01&mid=s00000021503001008000&mc=1',
+      width: 320,
+      height: 50,
+    },
     active: true,
   },
 
@@ -89,6 +111,12 @@ export const affiliateOffers: AffiliateOffer[] = [
     bullets: ['おまとめ・借換え目的に対応', '来店不要・Web完結', '全国対応'],
     ctaText: '公式サイトで詳細を見る',
     advertiser: '株式会社デイリープランニング',
+    banner: {
+      href: 'https://px.a8.net/svt/ejp?a8mat=4B1SPX+41VB2Q+4WSG+5ZEMP',
+      imageUrl: 'https://www29.a8.net/svt/bgt?aid=260424357245&wid=005&eno=01&mid=s00000022912001005000&mc=1',
+      width: 320,
+      height: 50,
+    },
     active: true,
   },
   {
@@ -102,6 +130,12 @@ export const affiliateOffers: AffiliateOffer[] = [
     bullets: ['来店不要・Web完結', '全国どこからでも利用可', '利息制限法の範囲内で運用'],
     ctaText: '公式サイトで詳細を見る',
     advertiser: '株式会社セントラル',
+    banner: {
+      href: 'https://px.a8.net/svt/ejp?a8mat=4B1SPX+36BC0I+363I+62U35',
+      imageUrl: 'https://www20.a8.net/svt/bgt?aid=260424357192&wid=005&eno=01&mid=s00000014787001021000&mc=1',
+      width: 320,
+      height: 50,
+    },
     active: true,
   },
 
@@ -117,6 +151,12 @@ export const affiliateOffers: AffiliateOffer[] = [
     bullets: ['即日振込対応', 'Web 申込可能', '全国対応'],
     ctaText: '公式サイトで詳細を見る',
     advertiser: 'フタバ株式会社',
+    banner: {
+      href: 'https://px.a8.net/svt/ejp?a8mat=4B1SPX+2Z64R6+38S6+BYLJL',
+      imageUrl: 'https://www28.a8.net/svt/bgt?aid=260424357180&wid=005&eno=01&mid=s00000015135002009000&mc=1',
+      width: 320,
+      height: 50,
+    },
     disclaimer:
       '借入は計画的に。返済が困難になった場合は債務整理もご検討ください。適用金利は利息制限法の範囲内です。',
     active: true,
@@ -132,6 +172,12 @@ export const affiliateOffers: AffiliateOffer[] = [
     bullets: ['女性スタッフが対応', '30日間無利息キャンペーン', 'Web 申込可能'],
     ctaText: '30日間無利息で相談する',
     advertiser: 'フタバ株式会社',
+    banner: {
+      href: 'https://px.a8.net/svt/ejp?a8mat=4B1SPX+2YKP5E+38S6+609HT',
+      imageUrl: 'https://www25.a8.net/svt/bgt?aid=260424357179&wid=005&eno=01&mid=s00000015135001009000&mc=1',
+      width: 320,
+      height: 50,
+    },
     disclaimer:
       '借入は計画的に。30日間無利息は初回借入時のみ適用されます。返済が困難になった場合は債務整理もご検討ください。',
     active: true,
