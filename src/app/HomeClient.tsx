@@ -122,7 +122,7 @@ export default function HomeClient() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 py-12">
-      <div className="w-full max-w-lg">
+      <div className="w-full max-w-2xl">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-rt-accent-bg border border-rt-accent-border rounded-2xl mb-4">
