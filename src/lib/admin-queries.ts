@@ -23,8 +23,9 @@
 
 import { getSql } from './db';
 import type { ExperimentStatus } from './experiments';
-import type { AffiliateCategory } from './affiliates';
-import type { DailyReportRow, ReportPayload } from '@/types/report';
+import { affiliateOffers, type AffiliateCategory } from './affiliates';
+import type { DailyReportRow, ReportAnomaly, ReportExperiment, ReportPayload } from '@/types/report';
+import { jstDateToRange, subtractJSTDay } from './date-utils';
 
 export interface ExperimentSummary {
   id: string;
@@ -597,6 +598,177 @@ export async function getReportSummary(
     averageCtr,
     anomalyDays,
     reportCount: reports.length,
+  };
+}
+
+// ─── 日次レポートペイロード構築（Cron / Routines 共通） ───────────────
+
+const PROJECT_NAME = 'rate-time';
+
+function calcCtr(clicks: number, impressions: number): number {
+  if (impressions === 0) return 0;
+  return Math.round((clicks / impressions) * 10000) / 10000;
+}
+
+function deltaPct(today: number, yesterday: number): number {
+  if (yesterday === 0) return 0;
+  return Math.round(((today - yesterday) / yesterday) * 10000) / 100;
+}
+
+function buildExperimentsReport(rows: DailyVariantRow[]): ReportExperiment[] {
+  const map = new Map<string, ReportExperiment>();
+  for (const r of rows) {
+    if (!map.has(r.experiment_id)) {
+      map.set(r.experiment_id, {
+        id: r.experiment_id,
+        name: r.experiment_name,
+        status: r.experiment_status,
+        variants: [],
+      });
+    }
+    map.get(r.experiment_id)!.variants.push({
+      id: r.variant_id,
+      weight: r.weight,
+      impressions: r.impressions,
+      clicks: r.clicks,
+      ctr: calcCtr(r.clicks, r.impressions),
+      unique_visitors: r.unique_visitors,
+    });
+  }
+  return Array.from(map.values());
+}
+
+function impressionsByCategory(
+  placementStats: Array<{ placement: string; impressions: number }>,
+): Record<string, number> {
+  const result: Record<string, number> = {};
+  for (const p of placementStats) {
+    const cat = placementToCategory(p.placement);
+    if (!cat) continue;
+    result[cat] = (result[cat] ?? 0) + p.impressions;
+  }
+  return result;
+}
+
+function buildOffersReport(
+  placementStats: Array<{ placement: string; impressions: number }>,
+  offerClicks: Array<{ offer_id: string; clicks: number }>,
+): ReportPayload['offers'] {
+  const impsByCat = impressionsByCategory(placementStats);
+  const clicksByOffer = new Map(offerClicks.map((c) => [c.offer_id, c.clicks]));
+  return affiliateOffers
+    .filter((o) => o.active)
+    .map((o) => {
+      const imps = impsByCat[o.category] ?? 0;
+      const clicks = clicksByOffer.get(o.id) ?? 0;
+      return {
+        id: o.id,
+        category: o.category,
+        advertiser: o.advertiser ?? null,
+        impressions: imps,
+        clicks,
+        ctr: calcCtr(clicks, imps),
+      };
+    });
+}
+
+function detectAnomalies(
+  today: DayTotals,
+  yesterday: DayTotals,
+  experiments: ReportExperiment[],
+): ReportAnomaly[] {
+  const anomalies: ReportAnomaly[] = [];
+
+  if (yesterday.impressions > 0) {
+    const dropPct = ((yesterday.impressions - today.impressions) / yesterday.impressions) * 100;
+    if (dropPct >= 50) {
+      anomalies.push({
+        type: 'impressions_drop',
+        severity: 'high',
+        message: `インプレッション数が前日比で ${Math.round(dropPct)}% 減少しました`,
+        context: {
+          yesterday: yesterday.impressions,
+          today: today.impressions,
+          drop_pct: Math.round(dropPct * 100) / 100,
+        },
+      });
+    }
+  }
+
+  if (today.impressions >= 10 && today.clicks === 0) {
+    anomalies.push({
+      type: 'no_clicks',
+      severity: 'medium',
+      message: `クリックが 0 件です（インプレッション ${today.impressions} 件）`,
+      context: { impressions: today.impressions, clicks: 0 },
+    });
+  }
+
+  for (const exp of experiments) {
+    if (exp.status !== 'active') continue;
+    const total = exp.variants.reduce((s, v) => s + v.impressions, 0);
+    if (total < 10) continue;
+    for (const v of exp.variants) {
+      if (v.impressions === 0) {
+        anomalies.push({
+          type: 'variant_no_impressions',
+          severity: 'high',
+          message: `実験 ${exp.id} のバリアント ${v.id} がインプレッション 0 です（割り当てバグの可能性）`,
+          context: {
+            experiment_id: exp.id,
+            variant_id: v.id,
+            experiment_total_impressions: total,
+          },
+        });
+      }
+    }
+  }
+
+  return anomalies;
+}
+
+/**
+ * 指定 JST 日付のレポートペイロードを構築して返す。
+ * /api/admin/report/daily（Routines 用）と /api/cron/daily-report（Vercel Cron 用）で共用。
+ */
+export async function getDailyReportPayload(date: string): Promise<ReportPayload> {
+  const todayRange = jstDateToRange(date);
+  const yesterdayRange = jstDateToRange(subtractJSTDay(date));
+
+  const [todayTotals, yesterdayTotals, variantStats, placementStats, offerClicks] =
+    await Promise.all([
+      getDayTotals(todayRange),
+      getDayTotals(yesterdayRange),
+      getDailyExperimentVariantStats(todayRange),
+      getDailyPlacementImpressions(todayRange),
+      getDailyOfferClicks(todayRange),
+    ]);
+
+  const experiments = buildExperimentsReport(variantStats);
+  const offers = buildOffersReport(placementStats, offerClicks);
+  const anomalies = detectAnomalies(todayTotals, yesterdayTotals, experiments);
+
+  const todayCtr = calcCtr(todayTotals.clicks, todayTotals.impressions);
+  const yesterdayCtr = calcCtr(yesterdayTotals.clicks, yesterdayTotals.impressions);
+
+  return {
+    project: PROJECT_NAME,
+    date,
+    generated_at: new Date().toISOString(),
+    kpis: {
+      impressions: todayTotals.impressions,
+      clicks: todayTotals.clicks,
+      ctr: todayCtr,
+      unique_visitors: todayTotals.unique_visitors,
+    },
+    experiments,
+    offers,
+    anomalies,
+    comparison_to_yesterday: {
+      impressions_delta_pct: deltaPct(todayTotals.impressions, yesterdayTotals.impressions),
+      clicks_delta_pct: deltaPct(todayTotals.clicks, yesterdayTotals.clicks),
+      ctr_delta_pct: deltaPct(todayCtr, yesterdayCtr),
+    },
   };
 }
 
