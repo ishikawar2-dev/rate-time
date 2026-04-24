@@ -1,4 +1,26 @@
+import Link from 'next/link';
 import HomeClient from './HomeClient';
+
+const RELATED_ARTICLES: { href: string; title: string; description: string }[] = [
+  {
+    href: '/column/saimu-seiri',
+    title: '債務整理とは？種類・費用・デメリットを解説',
+    description:
+      '任意整理・個人再生・自己破産の特徴と費用相場を比較。信用情報への影響やブラック期間、家族への影響まで実務ベースで解説します。',
+  },
+  {
+    href: '/column/omatome-loan',
+    title: 'おまとめローンの仕組みとメリット・デメリット',
+    description:
+      '複数社の借入を1本化する仕組み、金利が下がる理由、銀行系と消費者金融系の違い、審査で見られるポイントを具体的な数字で整理。',
+  },
+  {
+    href: '/column/kinri-hikaku',
+    title: 'カードローン金利の仕組みと利息を減らす方法',
+    description:
+      '実質年率と金利の違い、日割り利息の計算式、単利と複利、繰上返済・借換え・無利息期間など、利息を減らす実務を整理します。',
+  },
+];
 
 const jsonLdApp = {
   '@context': 'https://schema.org',
@@ -187,7 +209,7 @@ export default function Page() {
             </dl>
           </section>
 
-          <section>
+          <section className="mb-12">
             <h2 className="text-xl font-bold text-rt-text-primary mb-6">よくある質問</h2>
             <dl className="space-y-6 text-sm">
               {jsonLdFaq.mainEntity.map(({ name, acceptedAnswer }) => (
@@ -199,6 +221,34 @@ export default function Page() {
                 </div>
               ))}
             </dl>
+          </section>
+
+          <section aria-labelledby="related-articles-heading">
+            <h2 id="related-articles-heading" className="text-xl font-bold text-rt-text-primary mb-2">
+              借金・利息について詳しく知る
+            </h2>
+            <p className="text-sm text-rt-text-tertiary mb-6 leading-relaxed">
+              計算結果を踏まえて、返済の選択肢や金利の仕組みをさらに整理したい方へ。
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {RELATED_ARTICLES.map((a) => (
+                <Link
+                  key={a.href}
+                  href={a.href}
+                  className="group flex flex-col bg-rt-card border border-rt-border rounded-xl p-4 hover:border-rt-border-strong hover:shadow-sm transition-all"
+                >
+                  <h3 className="font-bold text-rt-text-primary text-sm mb-2 leading-snug group-hover:text-rt-accent-text transition-colors">
+                    {a.title}
+                  </h3>
+                  <p className="text-xs text-rt-text-tertiary leading-relaxed mb-3 flex-1">
+                    {a.description}
+                  </p>
+                  <span className="text-xs font-semibold text-rt-accent-text">
+                    続きを読む →
+                  </span>
+                </Link>
+              ))}
+            </div>
           </section>
         </article>
       </main>
