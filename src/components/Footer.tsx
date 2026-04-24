@@ -8,7 +8,7 @@ export function Footer() {
   return (
     <footer className="mt-16 border-t border-rt-border bg-rt-bg">
       <div className="max-w-2xl mx-auto px-4 py-8 text-xs text-rt-text-tertiary">
-        <nav aria-label="サイトナビゲーション" className="flex flex-wrap gap-x-5 gap-y-2 mb-4">
+        <nav aria-label="サイトナビゲーション" className="flex flex-wrap gap-x-5 gap-y-2 mb-3">
           <Link href="/" className="text-rt-text-secondary hover:text-rt-text-primary transition-colors">
             利息タイマー
           </Link>
@@ -20,6 +20,26 @@ export function Footer() {
           </Link>
           <Link href="/disclosure" className="hover:text-rt-text-secondary transition-colors">
             広告に関する表示
+          </Link>
+        </nav>
+        <nav aria-label="コラム" className="flex flex-wrap gap-x-5 gap-y-2 mb-4">
+          <Link
+            href="/column/saimu-seiri"
+            className="hover:text-rt-text-secondary transition-colors"
+          >
+            債務整理とは？
+          </Link>
+          <Link
+            href="/column/omatome-loan"
+            className="hover:text-rt-text-secondary transition-colors"
+          >
+            おまとめローン
+          </Link>
+          <Link
+            href="/column/kinri-hikaku"
+            className="hover:text-rt-text-secondary transition-colors"
+          >
+            カードローン金利
           </Link>
         </nav>
         <p className="leading-relaxed">
