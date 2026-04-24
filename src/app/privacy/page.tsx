@@ -83,8 +83,17 @@ export default function PrivacyPage() {
 
       <section>
         <h2 className="text-lg font-bold text-rt-text-primary mb-3">7. お問い合わせ</h2>
-        <p className="text-sm leading-relaxed text-rt-text-tertiary">
-          本ポリシーに関するお問い合わせは、サイト運営者までご連絡ください。
+        <p className="text-sm leading-relaxed text-rt-text-tertiary mb-3">
+          本サイトの運営・プライバシーに関するお問い合わせは、以下のメールアドレスまでご連絡ください。
+        </p>
+        <p className="text-sm leading-relaxed text-rt-text-secondary">
+          メールアドレス:{' '}
+          <a
+            href="mailto:investuberri@gmail.com"
+            className="text-rt-accent-text hover:text-rt-accent-cta-hover underline underline-offset-4 decoration-rt-accent-border"
+          >
+            investuberri@gmail.com
+          </a>
         </p>
       </section>
     </main>
