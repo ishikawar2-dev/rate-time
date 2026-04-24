@@ -104,18 +104,18 @@ export default function SaimuSeiriPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFaq) }}
       />
 
-      <article className="text-zinc-300">
+      <article className="text-rt-text-secondary">
         <div className="max-w-2xl mx-auto px-4 py-12">
           <Link
             href="/"
-            className="text-sm text-zinc-400 hover:text-zinc-200 transition-colors inline-block mb-6"
+            className="text-sm text-rt-text-tertiary hover:text-rt-text-primary transition-colors inline-block mb-6"
           >
             ← 利息タイマーに戻る
           </Link>
-          <h1 className="text-2xl sm:text-3xl font-bold text-zinc-100 mb-3 leading-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-rt-text-primary mb-3 leading-tight">
             債務整理とは？種類・費用・デメリットを解説
           </h1>
-          <p className="text-xs text-zinc-500 mb-8">
+          <p className="text-xs text-rt-text-muted mb-8">
             本ページにはプロモーションが含まれます / 最終更新: 2026-04-24
           </p>
 
@@ -130,7 +130,7 @@ export default function SaimuSeiriPage() {
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-bold text-zinc-100 mb-3">債務整理には3つの道がある</h2>
+            <h2 className="text-xl font-bold text-rt-text-primary mb-3">債務整理には3つの道がある</h2>
             <p className="text-sm leading-relaxed mb-3">
               債務整理には大きく「任意整理」「個人再生」「自己破産」の3つがある。どれを選ぶかは、借金の総額と、今の収入で返済を続けられるかどうかで決まってくる。順番としては、返済が続けられるなら任意整理、総額が大きくて住宅を残したいなら個人再生、収入から見てどうしても返せないなら自己破産、というのが実務的な使い分けだ。
             </p>
@@ -146,7 +146,7 @@ export default function SaimuSeiriPage() {
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-bold text-zinc-100 mb-3">任意整理って、具体的に何が減るの？</h2>
+            <h2 className="text-xl font-bold text-rt-text-primary mb-3">任意整理って、具体的に何が減るの？</h2>
             <p className="text-sm leading-relaxed mb-3">
               任意整理は実務上、もっともよく選ばれる方法だ。減らすのは主に「将来の利息」で、残っている元金に対する今後の利息を原則ゼロにしてもらい、元金を分割で返していく。利息制限法の上限は元金10万円未満で年20%、10万〜100万円で年18%、100万円以上で年15%だが、カードローン金利はこの上限近くに張り付いているのが普通だ。
             </p>
@@ -170,7 +170,7 @@ export default function SaimuSeiriPage() {
           />
 
           <section className="mb-10">
-            <h2 className="text-xl font-bold text-zinc-100 mb-3">自己破産はやっぱり避けたい — 他の道はある？</h2>
+            <h2 className="text-xl font-bold text-rt-text-primary mb-3">自己破産はやっぱり避けたい — 他の道はある？</h2>
             <p className="text-sm leading-relaxed mb-3">
               任意整理では返済しきれない、でも自己破産は避けたい。そのあいだに位置するのが個人再生だ。裁判所を通じた手続きで、借金を大幅に圧縮できる。
             </p>
@@ -186,7 +186,7 @@ export default function SaimuSeiriPage() {
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-bold text-zinc-100 mb-3">自己破産で誤解されがちなこと</h2>
+            <h2 className="text-xl font-bold text-rt-text-primary mb-3">自己破産で誤解されがちなこと</h2>
             <p className="text-sm leading-relaxed mb-3">
               借金が収入から見てどう考えても返せない水準まで膨らんでいる場合、最後の選択肢が自己破産になる。裁判所に破産を申し立て、免責が認められれば、税金や養育費など一部を除いた借金の支払い義務が消える。
             </p>
@@ -202,7 +202,7 @@ export default function SaimuSeiriPage() {
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-bold text-zinc-100 mb-3">ブラックリストって実際どれくらい影響するの？</h2>
+            <h2 className="text-xl font-bold text-rt-text-primary mb-3">ブラックリストって実際どれくらい影響するの？</h2>
             <p className="text-sm leading-relaxed mb-3">
               債務整理をすると信用情報機関に事故情報が登録される。登録期間は手続きと機関によって異なり、任意整理は和解成立から約5年、個人再生と自己破産は手続き開始から5〜10年。この期間中は、新規のクレジットカード発行、各種ローン審査、携帯電話本体の分割購入などで影響が出る。
             </p>
@@ -215,12 +215,12 @@ export default function SaimuSeiriPage() {
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-bold text-zinc-100 mb-6">よくある質問</h2>
+            <h2 className="text-xl font-bold text-rt-text-primary mb-6">よくある質問</h2>
             <dl className="space-y-5 text-sm">
               {jsonLdFaq.mainEntity.map(({ name, acceptedAnswer }) => (
                 <div key={name}>
-                  <dt className="font-bold text-zinc-200 mb-1.5">Q. {name}</dt>
-                  <dd className="text-zinc-400 leading-relaxed pl-4 border-l border-zinc-700">
+                  <dt className="font-bold text-rt-text-primary mb-1.5">Q. {name}</dt>
+                  <dd className="text-rt-text-tertiary leading-relaxed pl-4 border-l border-rt-border-strong">
                     A. {acceptedAnswer.text}
                   </dd>
                 </div>
@@ -236,32 +236,32 @@ export default function SaimuSeiriPage() {
             motivationText="債務整理は「返せなくなった人」が最後にやる手続きではない。利息が重くて元金が減らない、延滞まであと一歩、そんな段階から使える選択肢だ。初回無料の相談枠を使って、自分のケースにどの手続きが合うのかを聞いてみる価値はある。法律事務所の多くは守秘義務を徹底しているため、話した内容が外に漏れることはない。"
           />
 
-          <section className="mb-10 border-t border-zinc-800 pt-8">
-            <h2 className="text-lg font-bold text-zinc-100 mb-4">関連記事</h2>
+          <section className="mb-10 border-t border-rt-border pt-8">
+            <h2 className="text-lg font-bold text-rt-text-primary mb-4">関連記事</h2>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/column/omatome-loan" className="text-zinc-300 hover:text-zinc-100 underline underline-offset-4 decoration-zinc-600">
+                <Link href="/column/omatome-loan" className="text-rt-text-secondary hover:text-rt-text-primary underline underline-offset-4 decoration-rt-border-strong">
                   おまとめローンの仕組みとメリット・デメリット
                 </Link>
-                <span className="text-zinc-500"> — 複数社の借金を1本にまとめて金利を下げる方法</span>
+                <span className="text-rt-text-muted"> — 複数社の借金を1本にまとめて金利を下げる方法</span>
               </li>
               <li>
-                <Link href="/column/kinri-hikaku" className="text-zinc-300 hover:text-zinc-100 underline underline-offset-4 decoration-zinc-600">
+                <Link href="/column/kinri-hikaku" className="text-rt-text-secondary hover:text-rt-text-primary underline underline-offset-4 decoration-rt-border-strong">
                   カードローン金利の仕組みと利息を減らす方法
                 </Link>
-                <span className="text-zinc-500"> — 利息の計算式と返済を早めるための実務</span>
+                <span className="text-rt-text-muted"> — 利息の計算式と返済を早めるための実務</span>
               </li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-zinc-100 mb-3">実際に利息を計算してみる</h2>
-            <p className="text-sm leading-relaxed mb-4 text-zinc-400">
+            <h2 className="text-lg font-bold text-rt-text-primary mb-3">実際に利息を計算してみる</h2>
+            <p className="text-sm leading-relaxed mb-4 text-rt-text-tertiary">
               自分の借入で今この瞬間にも膨らんでいる利息を数字で見ると、返済の優先順位を立て直しやすい。元金と金利を入力するだけで、秒単位の利息をリアルタイム表示できる。
             </p>
             <Link
               href="/"
-              className="inline-block bg-red-600 hover:bg-red-500 text-white font-bold text-sm py-2.5 px-5 rounded-lg transition-colors"
+              className="inline-block bg-rt-accent-cta hover:bg-rt-accent-cta-hover text-white font-bold text-sm py-2.5 px-5 rounded-lg transition-colors"
             >
               利息タイマーを使ってみる →
             </Link>

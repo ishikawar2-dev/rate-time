@@ -104,18 +104,18 @@ export default function OmatomeLoanPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFaq) }}
       />
 
-      <article className="text-zinc-300">
+      <article className="text-rt-text-secondary">
         <div className="max-w-2xl mx-auto px-4 py-12">
           <Link
             href="/"
-            className="text-sm text-zinc-400 hover:text-zinc-200 transition-colors inline-block mb-6"
+            className="text-sm text-rt-text-tertiary hover:text-rt-text-primary transition-colors inline-block mb-6"
           >
             ← 利息タイマーに戻る
           </Link>
-          <h1 className="text-2xl sm:text-3xl font-bold text-zinc-100 mb-3 leading-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-rt-text-primary mb-3 leading-tight">
             おまとめローンの仕組みとメリット・デメリット
           </h1>
-          <p className="text-xs text-zinc-500 mb-8">
+          <p className="text-xs text-rt-text-muted mb-8">
             本ページにはプロモーションが含まれます / 最終更新: 2026-04-24
           </p>
 
@@ -130,7 +130,7 @@ export default function OmatomeLoanPage() {
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-bold text-zinc-100 mb-3">なぜ金利が下がるのか</h2>
+            <h2 className="text-xl font-bold text-rt-text-primary mb-3">なぜ金利が下がるのか</h2>
             <p className="text-sm leading-relaxed mb-3">
               おまとめローンで金利が下がる理由は、主に2つある。1つ目は、利息制限法の仕組み上、借入総額が大きくなると上限金利が下がることだ。元金10万円未満で年20%、10万〜100万円で年18%、100万円以上で年15%、という段階になっている。たとえば30万円×3社を借りている人が90万円を1本化すると、90万円なので上限金利は18%のままだが、これを大きい元金の1本化（たとえば250万円の借り換え）まで持っていけると、法的な上限金利が15%まで下がる。
             </p>
@@ -143,7 +143,7 @@ export default function OmatomeLoanPage() {
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-bold text-zinc-100 mb-3">実際、どれくらい減るのか</h2>
+            <h2 className="text-xl font-bold text-rt-text-primary mb-3">実際、どれくらい減るのか</h2>
             <p className="text-sm leading-relaxed mb-3">
               数字で見たほうが早い。カードローン3社から合計150万円を年18%で借りていて、月々の返済が約5万円というケースを考える。この状態を続けると、利息だけで毎月約2.2万円が出ていき、元金の減りは月2.8万円ペース。完済まで約55ヶ月、総支払額は約277万円になる。
             </p>
@@ -164,7 +164,7 @@ export default function OmatomeLoanPage() {
           />
 
           <section className="mb-10">
-            <h2 className="text-xl font-bold text-zinc-100 mb-3">銀行系 vs 消費者金融系 — どちらを選ぶべきか</h2>
+            <h2 className="text-xl font-bold text-rt-text-primary mb-3">銀行系 vs 消費者金融系 — どちらを選ぶべきか</h2>
             <p className="text-sm leading-relaxed mb-3">
               おまとめローンは、銀行が提供するものと、消費者金融が提供する「おまとめ専用商品」の2系統に大きく分かれる。金利と審査基準、そして総量規制との関係で性格が異なる。
             </p>
@@ -177,7 +177,7 @@ export default function OmatomeLoanPage() {
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-bold text-zinc-100 mb-3">審査で実際に見られる点</h2>
+            <h2 className="text-xl font-bold text-rt-text-primary mb-3">審査で実際に見られる点</h2>
             <p className="text-sm leading-relaxed mb-3">
               各社とも審査基準を公開していないが、信用情報と属性情報から総合的に判断されている。属性情報としてよく重視されるのが、年収・勤続年数・雇用形態・居住形態・他社借入件数と残高だ。実務上の目安として、勤続1年以上・年収200万円以上・他社借入件数が5件未満、あたりが最低ラインとして語られることが多い。
             </p>
@@ -190,7 +190,7 @@ export default function OmatomeLoanPage() {
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-bold text-zinc-100 mb-3">おまとめローンが向かない人</h2>
+            <h2 className="text-xl font-bold text-rt-text-primary mb-3">おまとめローンが向かない人</h2>
             <p className="text-sm leading-relaxed mb-3">
               すべての多重債務者にとっておまとめローンが最適解というわけではない。向かないケースがいくつかある。
             </p>
@@ -203,12 +203,12 @@ export default function OmatomeLoanPage() {
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-bold text-zinc-100 mb-6">よくある質問</h2>
+            <h2 className="text-xl font-bold text-rt-text-primary mb-6">よくある質問</h2>
             <dl className="space-y-5 text-sm">
               {jsonLdFaq.mainEntity.map(({ name, acceptedAnswer }) => (
                 <div key={name}>
-                  <dt className="font-bold text-zinc-200 mb-1.5">Q. {name}</dt>
-                  <dd className="text-zinc-400 leading-relaxed pl-4 border-l border-zinc-700">
+                  <dt className="font-bold text-rt-text-primary mb-1.5">Q. {name}</dt>
+                  <dd className="text-rt-text-tertiary leading-relaxed pl-4 border-l border-rt-border-strong">
                     A. {acceptedAnswer.text}
                   </dd>
                 </div>
@@ -224,32 +224,32 @@ export default function OmatomeLoanPage() {
             motivationText="毎月の返済先が複数あって家計が回りにくくなっているなら、まず借換えで金利がどこまで下がるかを確認してみる価値はある。申込前の試算だけなら信用情報には影響しないため、候補を絞る段階でリスクなく情報を集められる。"
           />
 
-          <section className="mb-10 border-t border-zinc-800 pt-8">
-            <h2 className="text-lg font-bold text-zinc-100 mb-4">関連記事</h2>
+          <section className="mb-10 border-t border-rt-border pt-8">
+            <h2 className="text-lg font-bold text-rt-text-primary mb-4">関連記事</h2>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/column/saimu-seiri" className="text-zinc-300 hover:text-zinc-100 underline underline-offset-4 decoration-zinc-600">
+                <Link href="/column/saimu-seiri" className="text-rt-text-secondary hover:text-rt-text-primary underline underline-offset-4 decoration-rt-border-strong">
                   債務整理とは？種類・費用・デメリットを解説
                 </Link>
-                <span className="text-zinc-500"> — 任意整理・個人再生・自己破産の使い分け</span>
+                <span className="text-rt-text-muted"> — 任意整理・個人再生・自己破産の使い分け</span>
               </li>
               <li>
-                <Link href="/column/kinri-hikaku" className="text-zinc-300 hover:text-zinc-100 underline underline-offset-4 decoration-zinc-600">
+                <Link href="/column/kinri-hikaku" className="text-rt-text-secondary hover:text-rt-text-primary underline underline-offset-4 decoration-rt-border-strong">
                   カードローン金利の仕組みと利息を減らす方法
                 </Link>
-                <span className="text-zinc-500"> — 利息計算の基本と返済を早めるための実務</span>
+                <span className="text-rt-text-muted"> — 利息計算の基本と返済を早めるための実務</span>
               </li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-zinc-100 mb-3">借換え効果を数字で確認する</h2>
-            <p className="text-sm leading-relaxed mb-4 text-zinc-400">
+            <h2 className="text-lg font-bold text-rt-text-primary mb-3">借換え効果を数字で確認する</h2>
+            <p className="text-sm leading-relaxed mb-4 text-rt-text-tertiary">
               現在の金利と借換え後の金利でそれぞれ利息がどう増えるかを並べて見ると、本当に得になるかどうかが一目で分かる。元金・金利・期間を入力するだけでシミュレーションできる。
             </p>
             <Link
               href="/"
-              className="inline-block bg-red-600 hover:bg-red-500 text-white font-bold text-sm py-2.5 px-5 rounded-lg transition-colors"
+              className="inline-block bg-rt-accent-cta hover:bg-rt-accent-cta-hover text-white font-bold text-sm py-2.5 px-5 rounded-lg transition-colors"
             >
               利息タイマーで試算する →
             </Link>

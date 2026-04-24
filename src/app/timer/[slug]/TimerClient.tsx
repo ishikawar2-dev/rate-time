@@ -61,10 +61,10 @@ function CelebrationOverlay({
           {(breakdown.interest_paid > 0 || breakdown.principal_paid > 0) && (
             <div className="flex justify-center gap-4 mt-2 text-xs">
               {breakdown.interest_paid > 0 && (
-                <span className="text-orange-400">利息 {formatCurrency(breakdown.interest_paid)}</span>
+                <span className="text-rt-interest-text">利息 {formatCurrency(breakdown.interest_paid)}</span>
               )}
               {breakdown.principal_paid > 0 && (
-                <span className="text-blue-400">元本 {formatCurrency(breakdown.principal_paid)}</span>
+                <span className="text-rt-principal-text">元本 {formatCurrency(breakdown.principal_paid)}</span>
               )}
             </div>
           )}
@@ -334,8 +334,8 @@ function RepaymentForm({
                 className={`flex-1 py-2.5 rounded-xl font-semibold text-sm border transition-all duration-150 ${
                   form.repayment_target === t
                     ? t === 'interest'
-                      ? 'bg-orange-500 text-white border-orange-500'
-                      : 'bg-blue-600 text-white border-blue-600'
+                      ? 'bg-rt-interest-cta text-white border-rt-interest-cta'
+                      : 'bg-rt-principal-cta text-white border-rt-principal-cta'
                     : 'bg-rt-elevated text-rt-text-secondary border-rt-border-strong hover:border-rt-border-strong'
                 }`}>
                 {t === 'interest' ? '利息から（推奨）' : '元本から'}
@@ -369,10 +369,10 @@ function RepaymentForm({
             <div className="mt-2 flex gap-3 text-xs bg-rt-elevated rounded-lg px-3 py-2 border border-rt-border-strong">
               <span className="text-rt-text-tertiary">充当内訳:</span>
               {previewBreakdown.interest_paid > 0 && (
-                <span className="text-orange-400 font-semibold">利息 {formatCurrency(previewBreakdown.interest_paid)}</span>
+                <span className="text-rt-interest-text font-semibold">利息 {formatCurrency(previewBreakdown.interest_paid)}</span>
               )}
               {previewBreakdown.principal_paid > 0 && (
-                <span className="text-blue-400 font-semibold">元本 {formatCurrency(previewBreakdown.principal_paid)}</span>
+                <span className="text-rt-principal-text font-semibold">元本 {formatCurrency(previewBreakdown.principal_paid)}</span>
               )}
             </div>
           )}
@@ -606,7 +606,7 @@ function EntryCard({
             </div>
             <div>
               <span className="text-rt-text-muted">利息</span>{' '}
-              <span className="font-bold text-orange-400">{formatCurrency(interest)}</span>
+              <span className="font-bold text-rt-interest-text">{formatCurrency(interest)}</span>
             </div>
             {totalRepaid > 0 && (
               <div>
@@ -717,7 +717,7 @@ function EditRepaymentModal({
                 <button key={t} type="button" onClick={() => update('repayment_target', t)}
                   className={`flex-1 py-2.5 rounded-xl font-semibold text-sm border transition-all duration-150 ${
                     form.repayment_target === t
-                      ? t === 'interest' ? 'bg-orange-500 text-white border-orange-500' : 'bg-blue-600 text-white border-blue-600'
+                      ? t === 'interest' ? 'bg-rt-interest-cta text-white border-rt-interest-cta' : 'bg-rt-principal-cta text-white border-rt-principal-cta'
                       : 'bg-rt-elevated text-rt-text-secondary border-rt-border-strong hover:border-rt-border-strong'
                   }`}>
                   {t === 'interest' ? '利息から' : '元本から'}
@@ -1001,18 +1001,18 @@ export function TimerClient({ timer, initialEntries, editToken }: TimerClientPro
                         </span>
                         <span className={`text-xs px-1.5 py-0.5 rounded-full border ${
                           r.repayment_target === 'interest'
-                            ? 'bg-orange-950/30 text-orange-400 border-orange-800/50'
-                            : 'bg-blue-950/30 text-blue-400 border-blue-800/50'
+                            ? 'bg-rt-interest-bg text-rt-interest-text border-rt-interest-border'
+                            : 'bg-rt-principal-bg text-rt-principal-text border-rt-principal-border'
                         }`}>
                           {r.repayment_target === 'interest' ? '利息優先' : '元本優先'}
                         </span>
                       </div>
                       <div className="flex gap-2 mt-0.5">
                         {r.breakdown.interest_paid > 0 && (
-                          <span className="text-xs text-orange-500">利息 {formatCurrency(r.breakdown.interest_paid)}</span>
+                          <span className="text-xs text-rt-interest-text">利息 {formatCurrency(r.breakdown.interest_paid)}</span>
                         )}
                         {r.breakdown.principal_paid > 0 && (
-                          <span className="text-xs text-blue-500">元本 {formatCurrency(r.breakdown.principal_paid)}</span>
+                          <span className="text-xs text-rt-principal-text">元本 {formatCurrency(r.breakdown.principal_paid)}</span>
                         )}
                       </div>
                       {r.note && <p className="text-xs text-rt-text-muted mt-0.5 truncate">{r.note}</p>}
