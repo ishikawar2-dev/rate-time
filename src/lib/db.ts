@@ -17,6 +17,8 @@ function toTimer(r: Row): Timer {
     id: r.id,
     slug: r.slug,
     name: r.name ?? null,
+    // DB 未移行環境で theme カラムが無い場合のデフォルト（migrations/003 適用後は必ず値が入る）
+    theme: (r.theme as 'light' | 'dark') ?? 'light',
     created_at: Number(r.created_at),
   };
 }
@@ -106,8 +108,8 @@ export async function createTimer(
 
   const sql = getSql();
   await sql.transaction([
-    sql`INSERT INTO timers (id, slug, name, created_at)
-        VALUES (${timer.id}, ${timer.slug}, ${timer.name}, ${timer.created_at})`,
+    sql`INSERT INTO timers (id, slug, name, theme, created_at)
+        VALUES (${timer.id}, ${timer.slug}, ${timer.name}, ${timer.theme}, ${timer.created_at})`,
     ...entryData.map(
       (e) =>
         sql`INSERT INTO entries (id, timer_id, name, principal, interest_rate, rate_type, interest_type, started_at, created_at)

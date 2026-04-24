@@ -14,6 +14,7 @@ interface AffiliateCardProps {
 
 /**
  * 単一案件を表示するカード（docs/MONETIZATION.md §3.1）。
+ * rt-* クラスで両テーマに対応。
  *
  * - 「広告」ラベル必須（ステマ規制対応）
  * - リンクには rel="sponsored nofollow noopener" / target="_blank" 必須
@@ -42,29 +43,28 @@ export function AffiliateCard({ offer, placement, experimentId, variantId }: Aff
   };
 
   return (
-    <article className="relative bg-zinc-900 border border-zinc-800 rounded-xl p-5 flex flex-col gap-3">
-      {/* 「広告」ラベル（ステマ規制対応） */}
+    <article className="relative bg-rt-card border border-rt-border rounded-xl p-5 flex flex-col gap-3">
       <span
         aria-label="広告"
-        className="absolute top-2 right-2 text-[10px] font-semibold text-zinc-500 border border-zinc-700 rounded px-1.5 py-0.5"
+        className="absolute top-2 right-2 text-[10px] font-semibold text-rt-text-tertiary border border-rt-border-strong rounded px-1.5 py-0.5"
       >
         広告
       </span>
 
       <header className="pr-10">
-        <h3 className="text-base font-bold text-zinc-100">{offer.name}</h3>
-        <p className="text-sm text-zinc-400 mt-1">{offer.tagline}</p>
+        <h3 className="text-base font-bold text-rt-text-primary">{offer.name}</h3>
+        <p className="text-sm text-rt-text-secondary mt-1">{offer.tagline}</p>
       </header>
 
       {offer.description ? (
-        <p className="text-xs text-zinc-500 leading-relaxed">{offer.description}</p>
+        <p className="text-xs text-rt-text-tertiary leading-relaxed">{offer.description}</p>
       ) : null}
 
       {offer.bullets && offer.bullets.length > 0 ? (
-        <ul className="text-xs text-zinc-300 space-y-1">
+        <ul className="text-xs text-rt-text-secondary space-y-1">
           {offer.bullets.map((b, i) => (
             <li key={i} className="flex gap-2">
-              <span className="text-red-400 flex-shrink-0">・</span>
+              <span className="text-rt-accent-text flex-shrink-0">・</span>
               <span>{b}</span>
             </li>
           ))}
@@ -76,13 +76,13 @@ export function AffiliateCard({ offer, placement, experimentId, variantId }: Aff
         target="_blank"
         rel={rel}
         onClick={handleClick}
-        className="mt-1 inline-flex items-center justify-center bg-red-600 hover:bg-red-500 active:bg-red-700 text-white font-bold text-sm py-2.5 px-4 rounded-lg transition-colors"
+        className="mt-1 inline-flex items-center justify-center bg-rt-accent-cta hover:bg-rt-accent-cta-hover text-white font-bold text-sm py-2.5 px-4 rounded-lg transition-colors"
       >
         詳細を見る
       </a>
 
       {highRisk && offer.disclaimer ? (
-        <p className="text-[11px] text-zinc-500 leading-relaxed border-t border-zinc-800 pt-2 mt-1">
+        <p className="text-[11px] text-rt-text-tertiary leading-relaxed border-t border-rt-border pt-2 mt-1">
           {offer.disclaimer}
         </p>
       ) : null}

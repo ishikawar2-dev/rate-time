@@ -88,21 +88,21 @@ export function AffiliateSection({
   return (
     <section ref={ref} aria-label={`${title}（広告）`} className="max-w-2xl mx-auto px-4 my-10">
       {motivationText ? (
-        <p className="text-sm text-zinc-300 leading-relaxed mb-5">{motivationText}</p>
+        <p className="text-sm text-rt-text-secondary leading-relaxed mb-5">{motivationText}</p>
       ) : null}
 
       {/* セクション直前の「広告」ラベル（ステマ規制対応） */}
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-[11px] font-semibold text-zinc-500 border border-zinc-700 rounded px-1.5 py-0.5">
+        <span className="text-[11px] font-semibold text-rt-text-tertiary border border-rt-border-strong rounded px-1.5 py-0.5">
           広告
         </span>
-        <span className="text-[11px] text-zinc-600">当サイトはアフィリエイトプログラムに参加しています</span>
+        <span className="text-[11px] text-rt-text-muted">当サイトはアフィリエイトプログラムに参加しています</span>
       </div>
 
       <header className="mb-4">
-        <h2 className="text-lg font-bold text-zinc-100">{title}</h2>
+        <h2 className="text-lg font-bold text-rt-text-primary">{title}</h2>
         {leadText ? (
-          <p className="text-sm text-zinc-400 mt-2 leading-relaxed">{leadText}</p>
+          <p className="text-sm text-rt-text-secondary mt-2 leading-relaxed">{leadText}</p>
         ) : null}
       </header>
 

@@ -4,15 +4,78 @@
 @tailwind components;
 @tailwind utilities;
 
+/**
+ * テーマ用 CSS 変数（docs/MONETIZATION.md §5）
+ *
+ * ライトをデフォルトにして :root にもバインド（data-theme 属性が未設定でもライトになる）。
+ * data-theme="dark" でオーバーライド。
+ *
+ * 使用範囲:
+ *   テーマ切替対象 — トップページ / タイマー表示画面 / Footer / AffiliateCard / AffiliateSection
+ *   テーマ切替対象外 — コラム / ポリシー / 管理画面（従来の bg-zinc-* をそのまま使用）
+ */
+:root,
+[data-theme="light"] {
+  --bg-base: #fafafa;           /* zinc-50 */
+  --bg-card: #ffffff;
+  --bg-elevated: #f4f4f5;       /* zinc-100 — 入力欄・控えめなサーフェス */
+  --border-default: #e4e4e7;    /* zinc-200 */
+  --border-strong: #d4d4d8;     /* zinc-300 */
+  --text-primary: #18181b;      /* zinc-900 */
+  --text-secondary: #52525b;    /* zinc-600 */
+  --text-tertiary: #71717a;     /* zinc-500 */
+  --text-muted: #a1a1aa;        /* zinc-400 */
+
+  --accent-bg: #fef2f2;         /* red-50 */
+  --accent-border: #fecaca;     /* red-200 */
+  --accent-text: #dc2626;       /* red-600 — ライト背景で視認性◎ */
+
+  --success-bg: #f0fdf4;        /* green-50 */
+  --success-border: #bbf7d0;    /* green-200 */
+  --success-text: #16a34a;      /* green-600 */
+
+  /* CTA 色はテーマに依らず同一（赤アクセントはブランド色として固定） */
+  --accent-cta: #dc2626;        /* red-600 */
+  --accent-cta-hover: #b91c1c;  /* red-700 */
+  --success-cta: #16a34a;       /* green-600 */
+  --success-cta-hover: #15803d; /* green-700 */
+}
+
+[data-theme="dark"] {
+  --bg-base: #09090b;           /* zinc-950 */
+  --bg-card: #18181b;           /* zinc-900 */
+  --bg-elevated: #27272a;       /* zinc-800 */
+  --border-default: #27272a;    /* zinc-800 */
+  --border-strong: #3f3f46;     /* zinc-700 */
+  --text-primary: #f4f4f5;      /* zinc-100 */
+  --text-secondary: #a1a1aa;    /* zinc-400 */
+  --text-tertiary: #71717a;     /* zinc-500 */
+  --text-muted: #52525b;        /* zinc-600 */
+
+  --accent-bg: rgba(127, 29, 29, 0.4);      /* red-950/40 */
+  --accent-border: rgba(153, 27, 27, 0.5);  /* red-900/50 */
+  --accent-text: #f87171;                   /* red-400 — ダーク背景で視認性◎ */
+
+  --success-bg: rgba(22, 101, 52, 0.4);     /* green-800/40 */
+  --success-border: #16a34a;                /* green-600 */
+  --success-text: #4ade80;                  /* green-400 */
+
+  --accent-cta: #dc2626;
+  --accent-cta-hover: #b91c1c;
+  --success-cta: #16a34a;
+  --success-cta-hover: #15803d;
+}
+
 @layer base {
   * { box-sizing: border-box; }
   body {
-    background: #09090b;
-    color: #f4f4f5;
+    background: var(--bg-base);
+    color: var(--text-primary);
+    transition: background-color 150ms ease, color 150ms ease;
   }
   select option {
-    background: #27272a;
-    color: #f4f4f5;
+    background: var(--bg-elevated);
+    color: var(--text-primary);
   }
 }
 
@@ -23,27 +86,27 @@
   }
 
   .btn-primary {
-    @apply bg-red-600 hover:bg-red-500 active:bg-red-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-150 shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed;
+    @apply bg-rt-accent-cta hover:bg-rt-accent-cta-hover active:bg-rt-accent-cta-hover text-white font-bold py-3 px-6 rounded-xl transition-all duration-150 shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed;
   }
 
   .btn-success {
-    @apply bg-green-600 hover:bg-green-500 active:bg-green-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-150 shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed;
+    @apply bg-rt-success-cta hover:bg-rt-success-cta-hover active:bg-rt-success-cta-hover text-white font-bold py-3 px-6 rounded-xl transition-all duration-150 shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
-    @apply bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-600 text-zinc-200 font-semibold py-3 px-6 rounded-xl border border-zinc-700 transition-all duration-150;
+    @apply bg-rt-elevated hover:opacity-80 active:opacity-70 text-rt-text-primary font-semibold py-3 px-6 rounded-xl border border-rt-border-strong transition-all duration-150;
   }
 
   .card {
-    @apply bg-zinc-900 rounded-2xl border border-zinc-800;
+    @apply bg-rt-card rounded-2xl border border-rt-border;
   }
 
   .input-field {
-    @apply w-full px-4 py-3 rounded-xl border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all bg-zinc-800 focus:bg-zinc-800 text-zinc-100 placeholder:text-zinc-500;
+    @apply w-full px-4 py-3 rounded-xl border border-rt-border-strong focus:outline-none focus:ring-2 focus:ring-rt-accent-cta focus:border-transparent transition-all bg-rt-elevated text-rt-text-primary placeholder:text-rt-text-tertiary;
   }
 
   .label {
-    @apply block text-sm font-semibold text-zinc-400 mb-1.5;
+    @apply block text-sm font-semibold text-rt-text-secondary mb-1.5;
   }
 }
 

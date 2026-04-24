@@ -49,15 +49,15 @@ function CelebrationOverlay({
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-      <div className="bg-zinc-900 border border-zinc-700 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl animate-slide-up">
+      <div className="bg-rt-card border border-rt-border-strong rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl animate-slide-up">
         <div className="text-6xl mb-4">🎉</div>
-        <h2 className="text-2xl font-black text-green-400 mb-1">返済おめでとう！</h2>
-        {entryName && <p className="text-zinc-500 text-sm mb-1">{entryName}</p>}
-        <p className="text-zinc-500 text-sm mb-6">素晴らしい一歩です。この調子で！</p>
+        <h2 className="text-2xl font-black text-rt-success-text mb-1">返済おめでとう！</h2>
+        {entryName && <p className="text-rt-text-tertiary text-sm mb-1">{entryName}</p>}
+        <p className="text-rt-text-tertiary text-sm mb-6">素晴らしい一歩です。この調子で！</p>
 
-        <div className="bg-green-950/40 border border-green-800 rounded-2xl p-4 mb-4">
-          <p className="text-xs text-green-600 font-semibold mb-1">返済金額</p>
-          <p className="text-3xl font-black text-green-400">{formatCurrency(amount)}</p>
+        <div className="bg-rt-success-bg border border-rt-success-border rounded-2xl p-4 mb-4">
+          <p className="text-xs text-rt-success-text font-semibold mb-1">返済金額</p>
+          <p className="text-3xl font-black text-rt-success-text">{formatCurrency(amount)}</p>
           {(breakdown.interest_paid > 0 || breakdown.principal_paid > 0) && (
             <div className="flex justify-center gap-4 mt-2 text-xs">
               {breakdown.interest_paid > 0 && (
@@ -71,13 +71,13 @@ function CelebrationOverlay({
         </div>
 
         {newBalance > 0 ? (
-          <div className="bg-red-950/30 border border-red-800/50 rounded-2xl p-4 mb-6">
-            <p className="text-xs text-red-500 font-semibold mb-1">この項目の残高</p>
-            <p className="text-2xl font-bold text-red-400">{formatCurrency(newBalance)}</p>
+          <div className="bg-rt-accent-bg border border-rt-accent-border rounded-2xl p-4 mb-6">
+            <p className="text-xs text-rt-accent-text font-semibold mb-1">この項目の残高</p>
+            <p className="text-2xl font-bold text-rt-accent-text">{formatCurrency(newBalance)}</p>
           </div>
         ) : (
-          <div className="bg-emerald-950/40 border border-emerald-700 rounded-2xl p-4 mb-6">
-            <p className="text-2xl font-bold text-emerald-400">🏆 この項目を完済！</p>
+          <div className="bg-rt-success-bg border border-rt-success-border rounded-2xl p-4 mb-6">
+            <p className="text-2xl font-bold text-rt-success-text">🏆 この項目を完済！</p>
           </div>
         )}
 
@@ -103,7 +103,7 @@ function BalanceTicker({ balance, large }: { balance: number; large?: boolean })
 
   const text = large ? formatCurrencyWithDecimal(balance) : formatCurrency(balance);
   return (
-    <span className={`balance-display transition-colors duration-300 ${bump ? 'text-red-300' : 'text-red-400'}`}>
+    <span className={`balance-display transition-colors duration-300 ${bump ? 'text-rt-accent-text' : 'text-rt-accent-text'}`}>
       {text}
     </span>
   );
@@ -152,7 +152,7 @@ function AddEntryForm({ slug, editToken, onAdded }: { slug: string; editToken: s
     return (
       <button
         onClick={() => setOpen(true)}
-        className="w-full py-3 rounded-xl border-2 border-dashed border-zinc-700 text-zinc-500 hover:border-red-700 hover:text-red-400 font-semibold text-sm transition-all duration-150"
+        className="w-full py-3 rounded-xl border-2 border-dashed border-rt-border-strong text-rt-text-tertiary hover:border-rt-accent-border hover:text-rt-accent-text font-semibold text-sm transition-all duration-150"
       >
         + 元金を追加
       </button>
@@ -160,10 +160,10 @@ function AddEntryForm({ slug, editToken, onAdded }: { slug: string; editToken: s
   }
 
   return (
-    <div className="card p-5 border-zinc-700">
+    <div className="card p-5 border-rt-border-strong">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-bold text-zinc-300 text-sm">新しい元金を追加</h3>
-        <button onClick={() => setOpen(false)} className="text-zinc-600 hover:text-zinc-400 text-xl">×</button>
+        <h3 className="font-bold text-rt-text-primary text-sm">新しい元金を追加</h3>
+        <button onClick={() => setOpen(false)} className="text-rt-text-muted hover:text-rt-text-secondary text-xl">×</button>
       </div>
       <form onSubmit={submit} className="space-y-3">
         <div>
@@ -172,20 +172,20 @@ function AddEntryForm({ slug, editToken, onAdded }: { slug: string; editToken: s
             placeholder="例：追加借入" className="input-field" maxLength={50} />
         </div>
         <div>
-          <label className="label">元金 <span className="text-red-400">*</span></label>
+          <label className="label">元金 <span className="text-rt-accent-text">*</span></label>
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 font-semibold">¥</span>
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-rt-text-tertiary font-semibold">¥</span>
             <input type="number" value={form.principal} onChange={(e) => update('principal', e.target.value)}
               placeholder="500,000" className="input-field pl-8" required min="1" step="1" />
           </div>
         </div>
         <div>
-          <label className="label">金利 <span className="text-red-400">*</span></label>
+          <label className="label">金利 <span className="text-rt-accent-text">*</span></label>
           <div className="flex gap-2">
             <div className="relative flex-1">
               <input type="number" value={form.interest_rate} onChange={(e) => update('interest_rate', e.target.value)}
                 placeholder="18.0" className="input-field pr-8" required min="0" step="0.01" />
-              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 font-semibold">%</span>
+              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-rt-text-tertiary font-semibold">%</span>
             </div>
             <select value={form.rate_type} onChange={(e) => update('rate_type', e.target.value)}
               className="input-field w-24 flex-shrink-0">
@@ -202,8 +202,8 @@ function AddEntryForm({ slug, editToken, onAdded }: { slug: string; editToken: s
               <button key={k} type="button" onClick={() => update('interest_type', k)}
                 className={`flex-1 py-2.5 rounded-xl font-semibold text-sm border transition-all ${
                   form.interest_type === k
-                    ? 'bg-red-600 text-white border-red-600'
-                    : 'bg-zinc-800 text-zinc-400 border-zinc-700 hover:border-zinc-600'
+                    ? 'bg-rt-accent-cta text-white border-rt-accent-cta'
+                    : 'bg-rt-elevated text-rt-text-secondary border-rt-border-strong hover:border-rt-border-strong'
                 }`}>
                 {k === 'compound' ? '複利' : '単利'}
               </button>
@@ -215,7 +215,7 @@ function AddEntryForm({ slug, editToken, onAdded }: { slug: string; editToken: s
           <input type="datetime-local" value={form.started_at} onChange={(e) => update('started_at', e.target.value)}
             className="input-field" />
         </div>
-        {err && <div className="bg-red-950/40 border border-red-800 rounded-xl p-3 text-sm text-red-400">{err}</div>}
+        {err && <div className="bg-rt-accent-bg border border-rt-accent-border rounded-xl p-3 text-sm text-rt-accent-text">{err}</div>}
         <button type="submit" disabled={loading} className="btn-primary w-full">
           {loading ? '追加中...' : '追加する'}
         </button>
@@ -310,11 +310,11 @@ function RepaymentForm({
 
   return (
     <div className="card p-5">
-      <h2 className="font-bold text-zinc-200 mb-4">💸 返済を記録する</h2>
+      <h2 className="font-bold text-rt-text-primary mb-4">💸 返済を記録する</h2>
       <form onSubmit={submit} className="space-y-3">
         {/* Entry selector */}
         <div>
-          <label className="label">返済する項目 <span className="text-red-400">*</span></label>
+          <label className="label">返済する項目 <span className="text-rt-accent-text">*</span></label>
           <select value={form.entry_id} onChange={(e) => update('entry_id', e.target.value)} className="input-field">
             {activeEntries.map((e) => (
               <option key={e.id} value={e.id}>
@@ -336,13 +336,13 @@ function RepaymentForm({
                     ? t === 'interest'
                       ? 'bg-orange-500 text-white border-orange-500'
                       : 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-zinc-800 text-zinc-400 border-zinc-700 hover:border-zinc-600'
+                    : 'bg-rt-elevated text-rt-text-secondary border-rt-border-strong hover:border-rt-border-strong'
                 }`}>
                 {t === 'interest' ? '利息から（推奨）' : '元本から'}
               </button>
             ))}
           </div>
-          <p className="text-xs text-zinc-600 mt-1.5">
+          <p className="text-xs text-rt-text-muted mt-1.5">
             {form.repayment_target === 'interest'
               ? `利息を優先して返済します。現在の発生利息: ${formatCurrency(selectedInterest)}`
               : '利息に充当せず、元本を直接減らします。利息は引き続き発生します。'}
@@ -351,9 +351,9 @@ function RepaymentForm({
 
         {/* Amount */}
         <div>
-          <label className="label">返済金額 <span className="text-red-400">*</span></label>
+          <label className="label">返済金額 <span className="text-rt-accent-text">*</span></label>
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 font-semibold">¥</span>
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-rt-text-tertiary font-semibold">¥</span>
             <input type="number" value={form.amount} onChange={(e) => update('amount', e.target.value)}
               placeholder={Math.ceil(selectedBalance).toString()} className="input-field pl-8"
               required min="1" step="1" />
@@ -361,13 +361,13 @@ function RepaymentForm({
           {selectedBalance > 0 && (
             <button type="button"
               onClick={() => update('amount', Math.ceil(selectedBalance).toString())}
-              className="mt-1.5 text-xs text-red-400 hover:text-red-300 font-semibold">
+              className="mt-1.5 text-xs text-rt-accent-text hover:text-rt-accent-text font-semibold">
               → 残高全額 {formatCurrency(selectedBalance)} を入力
             </button>
           )}
           {previewBreakdown && (previewBreakdown.interest_paid > 0 || previewBreakdown.principal_paid > 0) && (
-            <div className="mt-2 flex gap-3 text-xs bg-zinc-800 rounded-lg px-3 py-2 border border-zinc-700">
-              <span className="text-zinc-500">充当内訳:</span>
+            <div className="mt-2 flex gap-3 text-xs bg-rt-elevated rounded-lg px-3 py-2 border border-rt-border-strong">
+              <span className="text-rt-text-tertiary">充当内訳:</span>
               {previewBreakdown.interest_paid > 0 && (
                 <span className="text-orange-400 font-semibold">利息 {formatCurrency(previewBreakdown.interest_paid)}</span>
               )}
@@ -396,7 +396,7 @@ function RepaymentForm({
             className="input-field" />
         </div>
 
-        {err && <div className="bg-red-950/40 border border-red-800 rounded-xl p-3 text-sm text-red-400">{err}</div>}
+        {err && <div className="bg-rt-accent-bg border border-rt-accent-border rounded-xl p-3 text-sm text-rt-accent-text">{err}</div>}
 
         <button type="submit" disabled={loading} className="btn-success w-full text-base">
           {loading ? '処理中...' : '✅ 返済する'}
@@ -468,10 +468,10 @@ function EditEntryModal({
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-zinc-900 border border-zinc-700 rounded-3xl p-6 max-w-sm w-full shadow-2xl">
+      <div className="bg-rt-card border border-rt-border-strong rounded-3xl p-6 max-w-sm w-full shadow-2xl">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-bold text-zinc-200">元金を編集</h2>
-          <button onClick={onClose} className="text-zinc-600 hover:text-zinc-400 text-xl">×</button>
+          <h2 className="font-bold text-rt-text-primary">元金を編集</h2>
+          <button onClick={onClose} className="text-rt-text-muted hover:text-rt-text-secondary text-xl">×</button>
         </div>
         <form onSubmit={submit} className="space-y-3">
           <div>
@@ -480,20 +480,20 @@ function EditEntryModal({
               placeholder="例：追加借入" className="input-field" maxLength={50} />
           </div>
           <div>
-            <label className="label">元金 <span className="text-red-400">*</span></label>
+            <label className="label">元金 <span className="text-rt-accent-text">*</span></label>
             <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 font-semibold">¥</span>
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-rt-text-tertiary font-semibold">¥</span>
               <input type="number" value={form.principal} onChange={(e) => update('principal', e.target.value)}
                 placeholder="500,000" className="input-field pl-8" required min="1" step="1" />
             </div>
           </div>
           <div>
-            <label className="label">金利 <span className="text-red-400">*</span></label>
+            <label className="label">金利 <span className="text-rt-accent-text">*</span></label>
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <input type="number" value={form.interest_rate} onChange={(e) => update('interest_rate', e.target.value)}
                   placeholder="18.0" className="input-field pr-8" required min="0" step="0.01" />
-                <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 font-semibold">%</span>
+                <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-rt-text-tertiary font-semibold">%</span>
               </div>
               <select value={form.rate_type} onChange={(e) => update('rate_type', e.target.value)}
                 className="input-field w-24 flex-shrink-0">
@@ -510,8 +510,8 @@ function EditEntryModal({
                 <button key={k} type="button" onClick={() => update('interest_type', k)}
                   className={`flex-1 py-2.5 rounded-xl font-semibold text-sm border transition-all ${
                     form.interest_type === k
-                      ? 'bg-red-600 text-white border-red-600'
-                      : 'bg-zinc-800 text-zinc-400 border-zinc-700 hover:border-zinc-600'
+                      ? 'bg-rt-accent-cta text-white border-rt-accent-cta'
+                      : 'bg-rt-elevated text-rt-text-secondary border-rt-border-strong hover:border-rt-border-strong'
                   }`}>
                   {k === 'compound' ? '複利' : '単利'}
                 </button>
@@ -523,7 +523,7 @@ function EditEntryModal({
             <input type="datetime-local" value={form.started_at} onChange={(e) => update('started_at', e.target.value)}
               className="input-field" />
           </div>
-          {err && <div className="bg-red-950/40 border border-red-800 rounded-xl p-3 text-sm text-red-400">{err}</div>}
+          {err && <div className="bg-rt-accent-bg border border-rt-accent-border rounded-xl p-3 text-sm text-rt-accent-text">{err}</div>}
           <div className="flex gap-2">
             <button type="button" onClick={onClose} className="btn-secondary flex-1">キャンセル</button>
             <button type="submit" disabled={loading} className="btn-primary flex-1">
@@ -567,14 +567,14 @@ function EntryCard({
   const isPaid = balance <= 0;
 
   return (
-    <div className={`card p-4 ${isPaid ? 'border-emerald-800/60 bg-emerald-950/20' : ''}`}>
+    <div className={`card p-4 ${isPaid ? 'border-rt-success-border bg-rt-success-bg' : ''}`}>
       <div className="flex items-start justify-between mb-3">
         <div>
-          <span className="text-xs font-bold text-zinc-600 uppercase tracking-wide">元金 {index + 1}</span>
-          <h3 className="font-bold text-zinc-200 leading-tight">
+          <span className="text-xs font-bold text-rt-text-muted uppercase tracking-wide">元金 {index + 1}</span>
+          <h3 className="font-bold text-rt-text-primary leading-tight">
             {entry.name || `項目 ${index + 1}`}
           </h3>
-          <p className="text-xs text-zinc-600 mt-0.5">
+          <p className="text-xs text-rt-text-muted mt-0.5">
             {entry.interest_rate}%&nbsp;{rateTypeLabel(entry.rate_type)}&nbsp;/&nbsp;
             {interestTypeLabel(entry.interest_type)}
             &nbsp;・&nbsp;開始: {formatDate(entry.started_at)}
@@ -582,14 +582,14 @@ function EntryCard({
         </div>
         <div className="flex flex-col items-end gap-1.5 ml-3 flex-shrink-0">
           {isPaid ? (
-            <span className="text-emerald-400 font-black text-sm">🏆 完済</span>
+            <span className="text-rt-success-text font-black text-sm">🏆 完済</span>
           ) : (
             <BalanceTicker balance={balance} />
           )}
           {canEdit && (
             <button
               onClick={() => onEditClick(entry)}
-              className="text-xs text-zinc-500 hover:text-zinc-300 px-2 py-0.5 rounded-lg border border-zinc-700 hover:border-zinc-500 transition-colors"
+              className="text-xs text-rt-text-tertiary hover:text-rt-text-primary px-2 py-0.5 rounded-lg border border-rt-border-strong hover:border-rt-text-tertiary transition-colors"
             >
               編集
             </button>
@@ -601,24 +601,24 @@ function EntryCard({
         <>
           <div className="flex gap-3 text-xs mb-3">
             <div>
-              <span className="text-zinc-600">元金</span>{' '}
-              <span className="font-bold text-zinc-300">{formatCurrency(entry.principal)}</span>
+              <span className="text-rt-text-muted">元金</span>{' '}
+              <span className="font-bold text-rt-text-primary">{formatCurrency(entry.principal)}</span>
             </div>
             <div>
-              <span className="text-zinc-600">利息</span>{' '}
+              <span className="text-rt-text-muted">利息</span>{' '}
               <span className="font-bold text-orange-400">{formatCurrency(interest)}</span>
             </div>
             {totalRepaid > 0 && (
               <div>
-                <span className="text-zinc-600">返済済</span>{' '}
-                <span className="font-bold text-green-400">{formatCurrency(totalRepaid)}</span>
+                <span className="text-rt-text-muted">返済済</span>{' '}
+                <span className="font-bold text-rt-success-text">{formatCurrency(totalRepaid)}</span>
               </div>
             )}
           </div>
           {canEdit && (
             <button
               onClick={() => onRepayClick(entry.id)}
-              className="w-full py-2 rounded-lg bg-green-950/30 hover:bg-green-950/50 text-green-400 font-semibold text-sm border border-green-800/50 transition-colors"
+              className="w-full py-2 rounded-lg bg-rt-success-bg hover:bg-rt-success-bg text-rt-success-text font-semibold text-sm border border-rt-success-border transition-colors"
             >
               この項目を返済する
             </button>
@@ -627,7 +627,7 @@ function EntryCard({
       )}
 
       {isPaid && totalRepaid > 0 && (
-        <p className="text-xs text-emerald-600">合計返済額: {formatCurrency(totalRepaid)}</p>
+        <p className="text-xs text-rt-success-text">合計返済額: {formatCurrency(totalRepaid)}</p>
       )}
     </div>
   );
@@ -695,17 +695,17 @@ function EditRepaymentModal({
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-zinc-900 border border-zinc-700 rounded-3xl p-6 max-w-sm w-full shadow-2xl">
+      <div className="bg-rt-card border border-rt-border-strong rounded-3xl p-6 max-w-sm w-full shadow-2xl">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-bold text-zinc-200">返済履歴を編集</h2>
-          <button onClick={onClose} className="text-zinc-600 hover:text-zinc-400 text-xl">×</button>
+          <h2 className="font-bold text-rt-text-primary">返済履歴を編集</h2>
+          <button onClick={onClose} className="text-rt-text-muted hover:text-rt-text-secondary text-xl">×</button>
         </div>
-        <p className="text-xs text-zinc-500 mb-4">{entryName}</p>
+        <p className="text-xs text-rt-text-tertiary mb-4">{entryName}</p>
         <form onSubmit={submit} className="space-y-3">
           <div>
-            <label className="label">返済金額 <span className="text-red-400">*</span></label>
+            <label className="label">返済金額 <span className="text-rt-accent-text">*</span></label>
             <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 font-semibold">¥</span>
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-rt-text-tertiary font-semibold">¥</span>
               <input type="number" value={form.amount} onChange={(e) => update('amount', e.target.value)}
                 className="input-field pl-8" required min="1" step="1" />
             </div>
@@ -718,7 +718,7 @@ function EditRepaymentModal({
                   className={`flex-1 py-2.5 rounded-xl font-semibold text-sm border transition-all duration-150 ${
                     form.repayment_target === t
                       ? t === 'interest' ? 'bg-orange-500 text-white border-orange-500' : 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-zinc-800 text-zinc-400 border-zinc-700 hover:border-zinc-600'
+                      : 'bg-rt-elevated text-rt-text-secondary border-rt-border-strong hover:border-rt-border-strong'
                   }`}>
                   {t === 'interest' ? '利息から' : '元本から'}
                 </button>
@@ -740,7 +740,7 @@ function EditRepaymentModal({
             <input type="datetime-local" value={form.repaid_at} onChange={(e) => update('repaid_at', e.target.value)}
               className="input-field" />
           </div>
-          {err && <div className="bg-red-950/40 border border-red-800 rounded-xl p-3 text-sm text-red-400">{err}</div>}
+          {err && <div className="bg-rt-accent-bg border border-rt-accent-border rounded-xl p-3 text-sm text-rt-accent-text">{err}</div>}
           <div className="flex gap-2">
             <button type="button" onClick={onClose} className="btn-secondary flex-1">キャンセル</button>
             <button type="submit" disabled={loading} className="btn-primary flex-1">
@@ -899,13 +899,13 @@ export function TimerClient({ timer, initialEntries, editToken }: TimerClientPro
           {/* Header */}
           <div className="flex items-start justify-between">
             <div>
-              <a href="/" className="text-xs text-zinc-600 hover:text-zinc-400 mb-1 inline-block transition-colors">
+              <a href="/" className="text-xs text-rt-text-muted hover:text-rt-text-secondary mb-1 inline-block transition-colors">
                 ← ホームに戻る
               </a>
-              <h1 className="text-xl font-black text-zinc-100">
+              <h1 className="text-xl font-black text-rt-text-primary">
                 {timer.name || '利息タイマー'}
               </h1>
-              <p className="text-xs text-zinc-600 mt-0.5">開始: {formatDate(timer.created_at)}</p>
+              <p className="text-xs text-rt-text-muted mt-0.5">開始: {formatDate(timer.created_at)}</p>
             </div>
             <div className="flex flex-col items-end gap-2 flex-shrink-0">
               <button onClick={handleCopyUrl} className="btn-secondary text-xs py-2 px-3">
@@ -913,8 +913,8 @@ export function TimerClient({ timer, initialEntries, editToken }: TimerClientPro
               </button>
               <span className={`text-xs px-2 py-0.5 rounded-full border ${
                 canEdit
-                  ? 'bg-green-950/40 text-green-400 border-green-800/60'
-                  : 'bg-zinc-900 text-zinc-500 border-zinc-700'
+                  ? 'bg-rt-success-bg text-rt-success-text border-rt-success-border'
+                  : 'bg-rt-card text-rt-text-tertiary border-rt-border-strong'
               }`}>
                 {canEdit ? '🔓 編集モード' : '🔒 閲覧のみ'}
               </span>
@@ -922,16 +922,16 @@ export function TimerClient({ timer, initialEntries, editToken }: TimerClientPro
           </div>
 
           {/* Total balance */}
-          <div className={`card p-6 text-center ${allPaid ? 'border-emerald-800/60 bg-emerald-950/20' : ''}`}>
+          <div className={`card p-6 text-center ${allPaid ? 'border-rt-success-border bg-rt-success-bg' : ''}`}>
             {allPaid ? (
               <>
                 <p className="text-5xl mb-2">🏆</p>
-                <h2 className="text-2xl font-black text-emerald-400 mb-1">全項目完済！</h2>
-                <p className="text-emerald-600 text-sm">おめでとうございます！</p>
+                <h2 className="text-2xl font-black text-rt-success-text mb-1">全項目完済！</h2>
+                <p className="text-rt-success-text text-sm">おめでとうございます！</p>
               </>
             ) : (
               <>
-                <p className="text-xs font-semibold text-zinc-600 uppercase tracking-widest mb-2">
+                <p className="text-xs font-semibold text-rt-text-muted uppercase tracking-widest mb-2">
                   合計残高（全項目）
                 </p>
                 <div className="text-4xl sm:text-5xl font-black mb-3 leading-none">
@@ -939,18 +939,18 @@ export function TimerClient({ timer, initialEntries, editToken }: TimerClientPro
                 </div>
                 <div className="flex justify-center gap-6 text-sm">
                   <div className="text-center">
-                    <p className="text-zinc-600 text-xs mb-0.5">元金合計</p>
-                    <p className="font-bold text-zinc-300">
+                    <p className="text-rt-text-muted text-xs mb-0.5">元金合計</p>
+                    <p className="font-bold text-rt-text-primary">
                       {formatCurrency(entries.reduce((s, e) => s + e.principal, 0))}
                     </p>
                   </div>
                   <div className="text-center">
-                    <p className="text-zinc-600 text-xs mb-0.5">返済済合計</p>
-                    <p className="font-bold text-green-400">{formatCurrency(totalRepaid)}</p>
+                    <p className="text-rt-text-muted text-xs mb-0.5">返済済合計</p>
+                    <p className="font-bold text-rt-success-text">{formatCurrency(totalRepaid)}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-zinc-600 text-xs mb-0.5">項目数</p>
-                    <p className="font-bold text-zinc-300">{entries.length}件</p>
+                    <p className="text-rt-text-muted text-xs mb-0.5">項目数</p>
+                    <p className="font-bold text-rt-text-primary">{entries.length}件</p>
                   </div>
                 </div>
               </>
@@ -959,7 +959,7 @@ export function TimerClient({ timer, initialEntries, editToken }: TimerClientPro
 
           {/* Entry cards */}
           <div className="space-y-2">
-            <h2 className="font-bold text-zinc-500 text-sm px-1">元金一覧</h2>
+            <h2 className="font-bold text-rt-text-tertiary text-sm px-1">元金一覧</h2>
             {entries.map((entry, idx) => (
               <EntryCard key={entry.id} entry={entry} index={idx} canEdit={canEdit} onRepayClick={handleRepayClick} onEditClick={setEditingEntry} />
             ))}
@@ -984,19 +984,19 @@ export function TimerClient({ timer, initialEntries, editToken }: TimerClientPro
           {/* Repayment history */}
           {allRepayments.length > 0 && (
             <div className="card p-5">
-              <h2 className="font-bold text-zinc-200 mb-3">
+              <h2 className="font-bold text-rt-text-primary mb-3">
                 📋 返済履歴（{allRepayments.length}件）
               </h2>
               <div className="space-y-2">
                 {allRepayments.map((r) => (
                   <div
                     key={r.id}
-                    className="flex items-start justify-between bg-green-950/20 rounded-xl p-3 border border-green-900/40"
+                    className="flex items-start justify-between bg-rt-success-bg rounded-xl p-3 border border-rt-success-border"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <p className="font-bold text-green-400 text-sm">{r.item_name || '返済'}</p>
-                        <span className="text-xs bg-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded-full border border-zinc-700">
+                        <p className="font-bold text-rt-success-text text-sm">{r.item_name || '返済'}</p>
+                        <span className="text-xs bg-rt-elevated text-rt-text-secondary px-1.5 py-0.5 rounded-full border border-rt-border-strong">
                           {r.entryName}
                         </span>
                         <span className={`text-xs px-1.5 py-0.5 rounded-full border ${
@@ -1015,24 +1015,24 @@ export function TimerClient({ timer, initialEntries, editToken }: TimerClientPro
                           <span className="text-xs text-blue-500">元本 {formatCurrency(r.breakdown.principal_paid)}</span>
                         )}
                       </div>
-                      {r.note && <p className="text-xs text-zinc-600 mt-0.5 truncate">{r.note}</p>}
-                      <p className="text-xs text-zinc-700 mt-0.5">{formatDate(r.repaid_at)}</p>
+                      {r.note && <p className="text-xs text-rt-text-muted mt-0.5 truncate">{r.note}</p>}
+                      <p className="text-xs text-rt-text-muted mt-0.5">{formatDate(r.repaid_at)}</p>
                     </div>
                     <div className="flex flex-col items-end gap-1.5 ml-3 flex-shrink-0">
-                      <p className="font-black text-green-400">
+                      <p className="font-black text-rt-success-text">
                         {formatCurrency(r.amount)}
                       </p>
                       {canEdit && (
                         <div className="flex gap-1">
                           <button
                             onClick={() => setEditingRepayment(r)}
-                            className="text-xs text-zinc-500 hover:text-zinc-300 px-2 py-0.5 rounded-lg border border-zinc-700 hover:border-zinc-500 transition-colors"
+                            className="text-xs text-rt-text-tertiary hover:text-rt-text-primary px-2 py-0.5 rounded-lg border border-rt-border-strong hover:border-rt-text-tertiary transition-colors"
                           >
                             編集
                           </button>
                           <button
                             onClick={() => handleDeleteRepayment(r.id, r.entry_id)}
-                            className="text-xs text-red-700 hover:text-red-400 px-2 py-0.5 rounded-lg border border-red-900/50 hover:border-red-700 transition-colors"
+                            className="text-xs text-rt-accent-text hover:text-rt-accent-text px-2 py-0.5 rounded-lg border border-rt-accent-border hover:border-rt-accent-border transition-colors"
                           >
                             削除
                           </button>
@@ -1042,15 +1042,15 @@ export function TimerClient({ timer, initialEntries, editToken }: TimerClientPro
                   </div>
                 ))}
               </div>
-              <div className="mt-3 pt-3 border-t border-zinc-800 flex justify-between text-sm">
-                <span className="text-zinc-500 font-medium">合計返済額</span>
-                <span className="font-black text-green-400">{formatCurrency(totalRepaid)}</span>
+              <div className="mt-3 pt-3 border-t border-rt-border flex justify-between text-sm">
+                <span className="text-rt-text-tertiary font-medium">合計返済額</span>
+                <span className="font-black text-rt-success-text">{formatCurrency(totalRepaid)}</span>
               </div>
             </div>
           )}
 
           {allRepayments.length === 0 && (
-            <div className="card p-5 text-center text-zinc-600">
+            <div className="card p-5 text-center text-rt-text-muted">
               <p className="text-sm">まだ返済の記録がありません</p>
             </div>
           )}

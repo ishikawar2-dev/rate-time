@@ -7,6 +7,28 @@ const config: Config = {
       fontFamily: {
         sans: ['Noto Sans JP', 'system-ui', 'sans-serif'],
       },
+      colors: {
+        // テーマ切替対象の rt-* トークン（src/app/globals.css の CSS 変数を参照）
+        'rt-bg': 'var(--bg-base)',
+        'rt-card': 'var(--bg-card)',
+        'rt-elevated': 'var(--bg-elevated)',
+        'rt-border': 'var(--border-default)',
+        'rt-border-strong': 'var(--border-strong)',
+        'rt-text-primary': 'var(--text-primary)',
+        'rt-text-secondary': 'var(--text-secondary)',
+        'rt-text-tertiary': 'var(--text-tertiary)',
+        'rt-text-muted': 'var(--text-muted)',
+        'rt-accent-bg': 'var(--accent-bg)',
+        'rt-accent-border': 'var(--accent-border)',
+        'rt-accent-text': 'var(--accent-text)',
+        'rt-accent-cta': 'var(--accent-cta)',
+        'rt-accent-cta-hover': 'var(--accent-cta-hover)',
+        'rt-success-bg': 'var(--success-bg)',
+        'rt-success-border': 'var(--success-border)',
+        'rt-success-text': 'var(--success-text)',
+        'rt-success-cta': 'var(--success-cta)',
+        'rt-success-cta-hover': 'var(--success-cta-hover)',
+      },
       animation: {
         'count-up': 'count-up 0.3s ease-out',
         'fade-in': 'fade-in 0.5s ease-out',
