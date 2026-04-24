@@ -387,6 +387,30 @@ Claude Code は最初に以下の実験を定義する。
 
 ### 4.5 バリアント割当ロジック
 
+**source of truth について**:
+
+- **コード（`experiments.ts`）** は実験の**設計図**（id / variants / weight / config）のみを持つ。
+- **DB の `experiments` テーブル** が実験の**運用状態**（status / started_at / ended_at）の唯一の真実。
+- 管理画面 `/admin/experiments` から status を操作する。
+- middleware は `getActiveExperiment()` を通じて DB から active 実験を読み取る。
+
+**キャッシュと反映ラグについて**:
+
+`getActiveExperiment()` はモジュールスコープで **30 秒 TTL のインメモリキャッシュ**を持つ。
+これは middleware を毎リクエスト DB に問い合わせさせないための措置。
+
+- 管理画面から実験の status を変更した場合、変更したインスタンス上の API は明示的にキャッシュを失効する（`invalidateActiveExperimentCache()`）
+- 他のインスタンス（別リージョン・別プロセス）は最大 30 秒のタイムラグで反映される
+- A/B テストの実施上この遅延は許容範囲（1実験は数日〜数週単位で走らせる想定）
+- 即時反映が必要な場合は Vercel 側でサーバーを再デプロイ・再起動する
+
+**Cookie の寿命挙動**:
+
+- 実験が `active → paused` に遷移: 既存の `rt_exp_<id>` Cookie はそのまま残るが middleware から触られない
+- `paused → active` に戻る: 既存 Cookie が有効な variantId ならそのまま維持（同一訪問者の一貫性を保持）
+- 別の実験が `active` になる: 新しい Cookie 名で別途発行される（旧 Cookie は 90 日後に失効）
+- `completed`: キャッシュ失効後は Cookie は参照されない
+
 **ファイル**: `src/middleware.ts`
 
 ```ts
@@ -538,22 +562,62 @@ useEffect(() => {
   - 期間指定フィルタ
 - ユニークビジタ数（`DISTINCT visitor_id`）も併記
 
-**集計クエリ例**:
+**集計クエリ**:
+
+※ 当初この文書に記載されていた単一クエリで impressions/clicks を LEFT JOIN する方式は、N×M の直積が発生してカウントが過大になるバグがある。
+実装は CTE で事前集計してから JOIN する形に修正済み（`src/lib/admin-queries.ts` の `getVariantStats` 参照）。
 
 ```sql
+WITH imp AS (
+  SELECT variant_id, COUNT(*) AS cnt, COUNT(DISTINCT visitor_id) AS uniq
+  FROM impressions
+  WHERE experiment_id = $1 [AND 期間・ページフィルタ]
+  GROUP BY variant_id
+),
+clk AS (
+  SELECT variant_id, COUNT(*) AS cnt
+  FROM clicks
+  WHERE experiment_id = $1 [AND 期間・オファー・ページフィルタ]
+  GROUP BY variant_id
+)
 SELECT
-  v.id AS variant_id,
-  v.name AS variant_name,
-  COUNT(DISTINCT i.visitor_id) AS unique_visitors,
-  COUNT(i.id) AS impressions,
-  COUNT(c.id) AS clicks,
-  ROUND(COUNT(c.id)::numeric / NULLIF(COUNT(i.id), 0) * 100, 2) AS ctr_percent
+  v.id, v.name, v.weight,
+  COALESCE(imp.uniq, 0) AS unique_visitors,
+  COALESCE(imp.cnt, 0) AS impressions,
+  COALESCE(clk.cnt, 0) AS clicks,
+  CASE WHEN COALESCE(imp.cnt, 0) > 0
+    THEN ROUND(COALESCE(clk.cnt, 0)::numeric / imp.cnt * 100, 2)
+    ELSE NULL
+  END AS ctr
 FROM variants v
-LEFT JOIN impressions i ON i.variant_id = v.id
-LEFT JOIN clicks c ON c.variant_id = v.id
+LEFT JOIN imp ON imp.variant_id = v.id
+LEFT JOIN clk ON clk.variant_id = v.id
 WHERE v.experiment_id = $1
-GROUP BY v.id, v.name
 ORDER BY v.name;
+```
+
+**SQL 検証の TODO（Phase 5 で実施）**:
+
+Phase 4 時点では実データがまだ入っていないため、集計クエリは Phase 5 で ASP 契約・実データ投入後に以下の手順で手動検証する。
+
+```sql
+-- 1. テストデータ投入（既存 variant に紐付ける）
+INSERT INTO impressions (experiment_id, variant_id, placement, visitor_id, page_path, recorded_at)
+SELECT 'timer-placement-v1', 'timer-placement-v1__control', 'test',
+       'v' || g::text, '/', EXTRACT(EPOCH FROM NOW()) * 1000
+FROM generate_series(1, 100) g;
+
+INSERT INTO clicks (experiment_id, variant_id, placement, offer_id, visitor_id, page_path, recorded_at)
+SELECT 'timer-placement-v1', 'timer-placement-v1__control', 'test', 'o1',
+       'v' || g::text, '/', EXTRACT(EPOCH FROM NOW()) * 1000
+FROM generate_series(1, 5) g;
+
+-- 2. /admin/experiments/timer-placement-v1 を開き、control バリアント行で
+--    impressions=100 / clicks=5 / CTR=5.00% が表示されることを確認
+
+-- 3. 検証後のクリーンアップ
+DELETE FROM impressions WHERE placement = 'test';
+DELETE FROM clicks WHERE placement = 'test';
 ```
 
 **統計的有意性について**:
