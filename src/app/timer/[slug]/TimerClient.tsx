@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   Timer,
   Entry,
@@ -18,6 +18,8 @@ import {
   interestTypeLabel,
 } from '@/lib/interest';
 import { AffiliateSection } from '@/components/affiliate/AffiliateSection';
+import { StickyFooterBanner } from '@/components/affiliate/StickyFooterBanner';
+import { getOffersByCategory, type AffiliateCategory } from '@/lib/affiliates';
 import { formatDateOnly, toLocalDateString } from '@/lib/interest';
 
 // ─── Celebration overlay ───────────────────────────────────────────
@@ -851,6 +853,36 @@ export function TimerClient({
 
   const repayFormRef = useRef<HTMLDivElement>(null);
 
+  // ── ad-format-v1 実験によるバリアント判定（docs/MONETIZATION.md §13） ──
+  const adFormatVariant =
+    experimentId === 'ad-format-v1' && variantId?.startsWith('ad-format-v1__')
+      ? variantId.slice('ad-format-v1__'.length)
+      : null;
+  const adFormat = {
+    showTextCards:
+      adFormatVariant === null ||
+      adFormatVariant === 'text-only' ||
+      adFormatVariant === 'text-and-banner',
+    showBanner: adFormatVariant === 'banner-only' || adFormatVariant === 'text-and-banner',
+  };
+
+  // バナーのカテゴリ: タイマー内容に応じて選択
+  const bannerCategory: AffiliateCategory =
+    entries.length >= 2 ? 'loan-consolidation' : 'debt-consolidation';
+
+  // 表示するバナーオファー: slug 由来の決定的ハッシュで 1 つ選ぶ
+  //   （同じ slug = 同じバナー、リロードしても安定）
+  const bannerOffer = useMemo(() => {
+    if (!adFormat.showBanner) return null;
+    const candidates = getOffersByCategory(bannerCategory).filter((o) => o.banner);
+    if (candidates.length === 0) return null;
+    let h = 0;
+    for (let i = 0; i < timer.slug.length; i++) {
+      h = (h * 31 + timer.slug.charCodeAt(i)) | 0;
+    }
+    return candidates[Math.abs(h) % candidates.length];
+  }, [adFormat.showBanner, bannerCategory, timer.slug]);
+
   useEffect(() => {
     const update = () => setTotalBalance(calculateTotalBalance(entries));
     update();
@@ -1133,8 +1165,11 @@ export function TimerClient({
           )}
         </div>
 
-        {/* アフィリエイトセクション（docs/MONETIZATION.md §6.1） */}
-        {entries.length >= 2 && (
+        {/*
+          アフィリエイトセクション（docs/MONETIZATION.md §6.1）
+          ad-format-v1 実験のバリアントに応じてテキストカード/バナーの表示を切り替える（§13）。
+        */}
+        {adFormat.showTextCards && entries.length >= 2 && (
           <AffiliateSection
             category="loan-consolidation"
             title="複数の借金をまとめて金利を下げる"
@@ -1144,15 +1179,28 @@ export function TimerClient({
             variantId={variantId}
           />
         )}
-        <AffiliateSection
-          category="debt-consolidation"
-          title="返済が厳しい方へ：無料の借金相談"
-          leadText="利息が膨らみ返済が困難な場合、弁護士・司法書士への相談で解決できるケースがあります。相談は無料です。"
-          placement="timer-debt-consolidation"
+        {adFormat.showTextCards && (
+          <AffiliateSection
+            category="debt-consolidation"
+            title="返済が厳しい方へ：無料の借金相談"
+            leadText="利息が膨らみ返済が困難な場合、弁護士・司法書士への相談で解決できるケースがあります。相談は無料です。"
+            placement="timer-debt-consolidation"
+            experimentId={experimentId}
+            variantId={variantId}
+          />
+        )}
+      </main>
+
+      {/* スティッキーフッターバナー（banner-only / text-and-banner バリアントのみ） */}
+      {adFormat.showBanner && bannerOffer && (
+        <StickyFooterBanner
+          key={bannerOffer.id}
+          offer={bannerOffer}
+          placement={`timer-footer-banner-${bannerCategory}`}
           experimentId={experimentId}
           variantId={variantId}
         />
-      </main>
+      )}
     </>
   );
 }

@@ -482,10 +482,12 @@ export function placementToCategory(placement: string): AffiliateCategory | null
   if (COLUMN_PLACEMENT_TO_CATEGORY[placement]) {
     return COLUMN_PLACEMENT_TO_CATEGORY[placement];
   }
-  const match = placement.match(/^timer-(.+)$/);
-  if (match) {
-    const cat = match[1] as AffiliateCategory;
-    if (VALID_CATEGORIES.includes(cat)) return cat;
+  // 対応する prefix:
+  //   'timer-<category>' （タイマー画面のテキストカード）
+  //   'timer-footer-banner-<category>' （§13 スティッキーフッターバナー）
+  const stripped = placement.replace(/^timer-(?:footer-banner-)?/, '');
+  if (VALID_CATEGORIES.includes(stripped as AffiliateCategory)) {
+    return stripped as AffiliateCategory;
   }
   return null;
 }
