@@ -75,3 +75,88 @@ interface EntryFormStartDate {
 （参照: [MONETIZATION.md §5](./MONETIZATION.md#5-テーマ機能ダークライト)）
 
 タイマー作成時に light/dark を選択し、`timers.theme` カラムに保存。URL 共有先でも同じテーマで表示される。
+
+---
+
+## 3. 複数プロジェクト共通 Routines API
+
+Claude Routines 等の外部サービスから各プロジェクトの日次 KPI を取得するための共通 API 仕様。rate-time を皮切りに、将来別プロジェクトでも同じスキーマを踏襲する前提で設計する。
+
+### 3.1 エンドポイント契約
+
+```
+GET /api/admin/report/daily?date=YYYY-MM-DD
+Authorization: Bearer <ROUTINE_API_TOKEN>
+```
+
+### 3.2 共通レスポンス JSON スキーマ
+
+全プロジェクト共通のトップレベル構造:
+
+```ts
+interface DailyReport {
+  project: string;            // プロジェクト識別子（例 "rate-time"）
+  date: string;               // 集計対象日 YYYY-MM-DD（JST）
+  generated_at: string;       // ISO 8601 UTC
+
+  kpis: {
+    impressions: number;
+    clicks: number;
+    ctr: number;              // 0.0001 精度の小数
+    unique_visitors: number;
+  };
+
+  experiments: Array<{
+    id: string;
+    name: string;
+    status: 'draft' | 'active' | 'paused' | 'completed';
+    variants: Array<{
+      id: string;
+      weight: number;
+      impressions: number;
+      clicks: number;
+      ctr: number;
+      unique_visitors: number;
+    }>;
+  }>;
+
+  offers: Array<{
+    id: string;
+    category: string;         // プロジェクト固有のカテゴリ識別子
+    advertiser: string | null;
+    impressions: number;
+    clicks: number;
+    ctr: number;
+  }>;
+
+  anomalies: Array<{
+    type: string;             // 'impressions_drop' | 'no_clicks' | 'variant_no_impressions' | （将来拡張）
+    severity: 'low' | 'medium' | 'high';
+    message: string;          // 人間が読める説明（プロジェクトのロケール）
+    context: Record<string, unknown>;
+  }>;
+
+  comparison_to_yesterday: {
+    impressions_delta_pct: number;
+    clicks_delta_pct: number;
+    ctr_delta_pct: number;
+  };
+}
+```
+
+### 3.3 プロジェクト固有の拡張方針
+
+- `offers[].category` はプロジェクト固有の値が入る（rate-time では債務整理カテゴリ等）
+- `anomalies[].type` は新しい検知ルールを追加する場合に拡張可能。Routines 側は未知の type を unknown として扱う
+- `experiments[].status` は共通の 4 値（draft/active/paused/completed）に揃える
+
+### 3.4 認証仕様
+
+- 環境変数 `ROUTINE_API_TOKEN` を各プロジェクトで個別に発行
+- `Authorization: Bearer <token>` ヘッダで送信
+- 定数時間比較で照合、未設定時は 404、不一致は 401
+- Basic 認証の `/admin/*` とは別系統（併用可能）
+
+### 3.5 実装詳細（rate-time 固有）
+
+実装詳細は [MONETIZATION.md §12](./MONETIZATION.md#12-claude-routines-連携-api日次レポート) を参照。
