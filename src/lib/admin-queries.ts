@@ -24,6 +24,7 @@
 import { getSql } from './db';
 import type { ExperimentStatus } from './experiments';
 import type { AffiliateCategory } from './affiliates';
+import type { DailyReportRow, ReportPayload } from '@/types/report';
 
 export interface ExperimentSummary {
   id: string;
@@ -490,6 +491,113 @@ export function placementToCategory(placement: string): AffiliateCategory | null
     return stripped as AffiliateCategory;
   }
   return null;
+}
+
+// ─── 日次レポートの履歴保存（daily_reports テーブル） ────────────────
+
+function toReportRow(r: Record<string, unknown>): DailyReportRow {
+  return {
+    id: Number(r.id),
+    project: r.project as string,
+    date: r.date as string,
+    generated_at: new Date(r.generated_at as string | Date).toISOString(),
+    report_json: r.report_json as ReportPayload,
+    created_at: new Date(r.created_at as string | Date).toISOString(),
+  };
+}
+
+/**
+ * 日次レポートを保存 or 更新（UPSERT）。
+ * ON CONFLICT (project, date) DO UPDATE で同日 2 回目以降は上書き。
+ */
+export async function saveDailyReport(
+  project: string,
+  date: string,
+  generatedAt: string,
+  reportJson: unknown,
+): Promise<{ id: number; savedAt: Date }> {
+  const rows = await getSql()`
+    INSERT INTO daily_reports (project, date, generated_at, report_json)
+    VALUES (${project}, ${date}, ${generatedAt}, ${JSON.stringify(reportJson)}::jsonb)
+    ON CONFLICT (project, date) DO UPDATE SET
+      generated_at = EXCLUDED.generated_at,
+      report_json = EXCLUDED.report_json,
+      created_at = NOW()
+    RETURNING id, created_at
+  `;
+  const row = rows[0];
+  return { id: Number(row.id), savedAt: new Date(row.created_at as string | Date) };
+}
+
+/** 期間（YYYY-MM-DD inclusive）内の日次レポートを日付降順で取得 */
+export async function getDailyReports(
+  project: string,
+  from: string,
+  to: string,
+): Promise<DailyReportRow[]> {
+  const rows = await getSql()`
+    SELECT id, project,
+      TO_CHAR(date, 'YYYY-MM-DD') AS date,
+      generated_at, report_json, created_at
+    FROM daily_reports
+    WHERE project = ${project}
+      AND date >= ${from}::date
+      AND date <= ${to}::date
+    ORDER BY date DESC
+  `;
+  return rows.map(toReportRow);
+}
+
+/** 特定日の日次レポートを取得 */
+export async function getDailyReportByDate(
+  project: string,
+  date: string,
+): Promise<DailyReportRow | null> {
+  const rows = await getSql()`
+    SELECT id, project,
+      TO_CHAR(date, 'YYYY-MM-DD') AS date,
+      generated_at, report_json, created_at
+    FROM daily_reports
+    WHERE project = ${project} AND date = ${date}::date
+    LIMIT 1
+  `;
+  return rows.length === 0 ? null : toReportRow(rows[0]);
+}
+
+export interface ReportRangeSummary {
+  totalImpressions: number;
+  totalClicks: number;
+  averageCtr: number;       // 0.0001 精度
+  anomalyDays: number;
+  reportCount: number;
+}
+
+/** 期間内の集計サマリ（管理画面の上部カード用） */
+export async function getReportSummary(
+  project: string,
+  from: string,
+  to: string,
+): Promise<ReportRangeSummary> {
+  const reports = await getDailyReports(project, from, to);
+  let totalImpressions = 0;
+  let totalClicks = 0;
+  let anomalyDays = 0;
+  for (const r of reports) {
+    totalImpressions += r.report_json.kpis?.impressions ?? 0;
+    totalClicks += r.report_json.kpis?.clicks ?? 0;
+    if ((r.report_json.anomalies ?? []).length > 0) anomalyDays++;
+  }
+  const averageCtr =
+    totalImpressions > 0
+      ? Math.round((totalClicks / totalImpressions) * 10000) / 10000
+      : 0;
+  return {
+    totalImpressions,
+    totalClicks,
+    averageCtr,
+    anomalyDays,
+    reportCount: reports.length,
+  };
 }
 
 /**

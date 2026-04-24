@@ -25,6 +25,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               >
                 実験一覧
               </Link>
+              <Link
+                href="/admin/reports"
+                className="text-zinc-400 hover:text-zinc-100 transition-colors"
+              >
+                日次レポート
+              </Link>
             </nav>
           </div>
           <Link
