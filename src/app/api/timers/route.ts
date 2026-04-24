@@ -11,14 +11,24 @@ function slug(): string {
 
 const VALID_RATE = ['annual', 'monthly', 'daily'];
 const VALID_INTEREST = ['simple', 'compound'];
+const VALID_THEME = ['light', 'dark'] as const;
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { name, entries } = body;
+    const { name, entries, theme } = body;
 
     if (!Array.isArray(entries) || entries.length === 0) {
       return NextResponse.json({ error: 'エントリーを1つ以上追加してください' }, { status: 400 });
+    }
+
+    // theme は未指定なら 'light' をデフォルト、指定ありなら 'light' | 'dark' 以外を 400 で拒否
+    let timerTheme: 'light' | 'dark' = 'light';
+    if (theme !== undefined && theme !== null) {
+      if (!VALID_THEME.includes(theme)) {
+        return NextResponse.json({ error: 'テーマは light か dark のみ指定できます' }, { status: 400 });
+      }
+      timerTheme = theme as 'light' | 'dark';
     }
 
     for (const e of entries) {
@@ -41,6 +51,7 @@ export async function POST(req: NextRequest) {
       id: randomUUID(),
       slug: slug(),
       name: name?.trim() || null,
+      theme: timerTheme,
       created_at: now,
     };
 

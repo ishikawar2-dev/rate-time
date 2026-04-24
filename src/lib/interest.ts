@@ -1,7 +1,10 @@
+export type TimerTheme = 'light' | 'dark';
+
 export interface Timer {
   id: string;
   slug: string;
   name: string | null;
+  theme: TimerTheme;
   created_at: number;
 }
 

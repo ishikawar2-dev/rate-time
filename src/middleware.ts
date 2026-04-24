@@ -35,6 +35,16 @@ export async function middleware(req: NextRequest) {
   return await handlePublicPaths(req);
 }
 
+/**
+ * root layout で headers() から pathname を読めるようにするためのヘッダを注入する。
+ * Phase 6 でテーマ SSR 決定に使う。
+ */
+function withPathnameHeader(req: NextRequest): Headers {
+  const h = new Headers(req.headers);
+  h.set('x-pathname', req.nextUrl.pathname);
+  return h;
+}
+
 function handleAdminAuth(req: NextRequest): NextResponse {
   const user = process.env.ADMIN_USER;
   const pass = process.env.ADMIN_PASSWORD;
@@ -45,7 +55,8 @@ function handleAdminAuth(req: NextRequest): NextResponse {
   }
 
   if (verifyAdminBasicAuth(req.headers.get('authorization'), user, pass)) {
-    return NextResponse.next();
+    // 認証成功時も root layout の SSR テーマ判定用に x-pathname を渡す
+    return NextResponse.next({ request: { headers: withPathnameHeader(req) } });
   }
 
   return new NextResponse('Unauthorized', {
@@ -55,7 +66,7 @@ function handleAdminAuth(req: NextRequest): NextResponse {
 }
 
 async function handlePublicPaths(req: NextRequest): Promise<NextResponse> {
-  const res = NextResponse.next();
+  const res = NextResponse.next({ request: { headers: withPathnameHeader(req) } });
 
   let visitorId = req.cookies.get(VISITOR_COOKIE)?.value;
   if (!visitorId) {
@@ -93,6 +104,9 @@ export const config = {
     '/',
     '/timer/:path*',
     '/column/:path*',
+    '/privacy',
+    '/terms',
+    '/disclosure',
     '/admin/:path*',
     '/api/admin/:path*',
   ],

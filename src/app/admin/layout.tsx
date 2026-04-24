@@ -9,8 +9,11 @@ export const metadata = {
  * /admin/* 共通レイアウト。認証は middleware 側で完了している前提。
  */
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  // root layout でも /admin は 'dark' 決定になるが、万一の不整合に備えて防御的に固定する。
+  // 管理画面は既存の zinc-* クラスで完結しており rt-* には依存しないため、この data-theme 指定は
+  // Footer などの共通部品と body 背景が明るく浮かないことを保証する用途。
   return (
-    <div className="min-h-screen text-zinc-100">
+    <div data-theme="dark" className="min-h-screen text-zinc-100">
       <header className="border-b border-zinc-800 bg-zinc-900/50 backdrop-blur">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
