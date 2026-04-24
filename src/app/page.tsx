@@ -92,13 +92,13 @@ export default function Page() {
         <HomeClient />
 
         {/* SEO コンテンツセクション */}
-        <article className="max-w-2xl mx-auto px-4 pb-24 text-zinc-400">
-          <section className="border-t border-zinc-800 pt-12 mb-12">
-            <h2 className="text-xl font-bold text-zinc-200 mb-4">利息タイマーとは？</h2>
+        <article className="max-w-2xl mx-auto px-4 pb-24 text-rt-text-secondary">
+          <section className="border-t border-rt-border pt-12 mb-12">
+            <h2 className="text-xl font-bold text-rt-text-primary mb-4">利息タイマーとは？</h2>
             <p className="text-sm leading-relaxed mb-3">
-              利息タイマーは、<strong className="text-zinc-300">借金・カードローン・消費者金融・友人間の貸し借り</strong>
+              利息タイマーは、<strong className="text-rt-text-primary">借金・カードローン・消費者金融・友人間の貸し借り</strong>
               などの利息をリアルタイムで計算・可視化する無料のWebツールです。
-              「<strong className="text-zinc-300">借金タイマー</strong>」「<strong className="text-zinc-300">利息時計</strong>」「<strong className="text-zinc-300">借金時計</strong>」とも呼ばれており、
+              「<strong className="text-rt-text-primary">借金タイマー</strong>」「<strong className="text-rt-text-primary">利息時計</strong>」「<strong className="text-rt-text-primary">借金時計</strong>」とも呼ばれており、
               元金と金利を入力するだけで、今この瞬間に積み上がっている利息を秒単位で確認できます。
             </p>
             <p className="text-sm leading-relaxed">
@@ -108,7 +108,7 @@ export default function Page() {
           </section>
 
           <section className="mb-12">
-            <h2 className="text-xl font-bold text-zinc-200 mb-4">使い方</h2>
+            <h2 className="text-xl font-bold text-rt-text-primary mb-4">使い方</h2>
             <ol className="text-sm space-y-4 list-none">
               {(
                 [
@@ -119,12 +119,12 @@ export default function Page() {
                 ] as [string, string][]
               ).map(([title, desc], i) => (
                 <li key={i} className="flex gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-red-900/60 border border-red-800 text-xs flex items-center justify-center text-red-400 font-bold mt-0.5">
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-rt-accent-bg border border-rt-accent-border text-xs flex items-center justify-center text-rt-accent-text font-bold mt-0.5">
                     {i + 1}
                   </span>
                   <div>
-                    <strong className="text-zinc-300">{title}</strong>
-                    <span className="text-zinc-500"> — {desc}</span>
+                    <strong className="text-rt-text-primary">{title}</strong>
+                    <span className="text-rt-text-tertiary"> — {desc}</span>
                   </div>
                 </li>
               ))}
@@ -132,36 +132,36 @@ export default function Page() {
           </section>
 
           <section className="mb-12">
-            <h2 className="text-xl font-bold text-zinc-200 mb-4">利息シミュレーター・借金時計として使う</h2>
+            <h2 className="text-xl font-bold text-rt-text-primary mb-4">利息シミュレーター・借金時計として使う</h2>
             <p className="text-sm leading-relaxed mb-3">
-              利息タイマーは<strong className="text-zinc-300">利息シミュレーター</strong>としても利用できます。
+              利息タイマーは<strong className="text-rt-text-primary">利息シミュレーター</strong>としても利用できます。
               開始日・元金・金利を入力することで、将来の利息がどのように増加するかを事前にシミュレーションし、
               返済計画を立てるのに役立てられます。
             </p>
             <p className="text-sm leading-relaxed mb-3">
-              また、<strong className="text-zinc-300">借金時計</strong>・<strong className="text-zinc-300">利息時計</strong>として、
+              また、<strong className="text-rt-text-primary">借金時計</strong>・<strong className="text-rt-text-primary">利息時計</strong>として、
               リアルタイムで増え続ける利息を視覚的に確認できます。返済が遅れるほど利息が積み上がる現実を
               数値と時間の経過で体感できるため、早期返済の強い動機づけになります。
             </p>
             <p className="text-sm leading-relaxed">
-              友人・家族への貸し借りでも使える<strong className="text-zinc-300">借金タイマー</strong>として、
+              友人・家族への貸し借りでも使える<strong className="text-rt-text-primary">借金タイマー</strong>として、
               URLを共有するだけで双方がリアルタイムの返済額を確認できます。
             </p>
           </section>
 
           <section className="mb-12">
-            <h2 className="text-xl font-bold text-zinc-200 mb-4">単利と複利の違い</h2>
+            <h2 className="text-xl font-bold text-rt-text-primary mb-4">単利と複利の違い</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-              <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
-                <h3 className="font-bold text-zinc-200 mb-2">単利</h3>
-                <p className="text-zinc-500 leading-relaxed">
+              <div className="bg-rt-card border border-rt-border rounded-xl p-4">
+                <h3 className="font-bold text-rt-text-primary mb-2">単利</h3>
+                <p className="text-rt-text-tertiary leading-relaxed">
                   元金に対してのみ利息が発生します。100万円を年利10%で借りた場合、毎年10万円の利息が一定で発生します。
                   計算がシンプルで、短期の貸し借りや一部のフリーローンで使われます。
                 </p>
               </div>
-              <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
-                <h3 className="font-bold text-zinc-200 mb-2">複利</h3>
-                <p className="text-zinc-500 leading-relaxed">
+              <div className="bg-rt-card border border-rt-border rounded-xl p-4">
+                <h3 className="font-bold text-rt-text-primary mb-2">複利</h3>
+                <p className="text-rt-text-tertiary leading-relaxed">
                   元金と発生した利息の合計に対して利息が発生します。長期になるほど利息が雪だるま式に膨らみます。
                   カードローン・消費者金融は多くが複利計算です。
                 </p>
@@ -170,7 +170,7 @@ export default function Page() {
           </section>
 
           <section className="mb-12">
-            <h2 className="text-xl font-bold text-zinc-200 mb-4">対応している金利タイプ</h2>
+            <h2 className="text-xl font-bold text-rt-text-primary mb-4">対応している金利タイプ</h2>
             <dl className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
               {(
                 [
@@ -179,21 +179,21 @@ export default function Page() {
                   ['日利', '1日ごとに発生する利息の割合。超短期の借入や一部の商品で使われます。'],
                 ] as [string, string][]
               ).map(([term, def]) => (
-                <div key={term} className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
-                  <dt className="font-bold text-zinc-200 mb-1">{term}</dt>
-                  <dd className="text-zinc-500 leading-relaxed">{def}</dd>
+                <div key={term} className="bg-rt-card border border-rt-border rounded-xl p-4">
+                  <dt className="font-bold text-rt-text-primary mb-1">{term}</dt>
+                  <dd className="text-rt-text-tertiary leading-relaxed">{def}</dd>
                 </div>
               ))}
             </dl>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-zinc-200 mb-6">よくある質問</h2>
+            <h2 className="text-xl font-bold text-rt-text-primary mb-6">よくある質問</h2>
             <dl className="space-y-6 text-sm">
               {jsonLdFaq.mainEntity.map(({ name, acceptedAnswer }) => (
                 <div key={name}>
-                  <dt className="font-bold text-zinc-300 mb-1">Q. {name}</dt>
-                  <dd className="text-zinc-500 leading-relaxed pl-4 border-l border-zinc-700">
+                  <dt className="font-bold text-rt-text-primary mb-1">Q. {name}</dt>
+                  <dd className="text-rt-text-tertiary leading-relaxed pl-4 border-l border-rt-border-strong">
                     A. {acceptedAnswer.text}
                   </dd>
                 </div>
