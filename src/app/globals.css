@@ -89,7 +89,7 @@
   --success-cta: #16a34a;
   --success-cta-hover: #15803d;
 
-  /* 元本・利息（ダーク） — Phase 6 以前の blue-*/orange-* ハードコードと視覚互換 */
+  /* 元本・利息（ダーク） — Phase 6 以前の blue / orange ハードコードと視覚互換 */
   --principal-bg: rgba(30, 58, 138, 0.3);    /* blue-900/30 */
   --principal-border: rgba(30, 64, 175, 0.5); /* blue-800/50 */
   --principal-text: #60a5fa;                  /* blue-400 */
