@@ -28,6 +28,19 @@ const config: Config = {
         'rt-success-text': 'var(--success-text)',
         'rt-success-cta': 'var(--success-cta)',
         'rt-success-cta-hover': 'var(--success-cta-hover)',
+        'rt-bg-subtle': 'var(--bg-subtle)',
+        // 元本（principal）= ネイビーブルー
+        'rt-principal-bg': 'var(--principal-bg)',
+        'rt-principal-border': 'var(--principal-border)',
+        'rt-principal-text': 'var(--principal-text)',
+        'rt-principal-cta': 'var(--principal-cta)',
+        'rt-principal-cta-hover': 'var(--principal-cta-hover)',
+        // 利息（interest）= 深アンバー
+        'rt-interest-bg': 'var(--interest-bg)',
+        'rt-interest-border': 'var(--interest-border)',
+        'rt-interest-text': 'var(--interest-text)',
+        'rt-interest-cta': 'var(--interest-cta)',
+        'rt-interest-cta-hover': 'var(--interest-cta-hover)',
       },
       animation: {
         'count-up': 'count-up 0.3s ease-out',

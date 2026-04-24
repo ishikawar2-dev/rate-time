@@ -80,22 +80,15 @@ export const metadata: Metadata = {
  *
  * - `/`（トップ）: 'light' をデフォルトで返す。クライアント側のトグルで書き換え可能
  * - `/timer/[slug]`: DB から timer.theme を取得して返す（作成者のテーマで固定表示）
- * - `/admin/*` / `/column/*` / `/privacy` / `/terms` / `/disclosure`: 'dark' を返す
- *   これらのページは rt-* クラス化していないため既存の zinc-* デザイン（ダーク）で描画されるが、
- *   body の背景および Footer を整合させるため data-theme を 'dark' に設定する
+ * - `/column/*` / `/privacy` / `/terms` / `/disclosure`: 'light' を返す（§5.6）
+ * - `/admin/*`: 'dark' を返す（管理画面は既存の zinc-* ダーク UI を維持）
  * - x-pathname が無い（middleware matcher 外など）: 'light' をフォールバック
  */
 async function resolveTheme(): Promise<'light' | 'dark'> {
   const h = await headers();
   const pathname = h.get('x-pathname') ?? '';
 
-  if (
-    pathname.startsWith('/admin') ||
-    pathname.startsWith('/column/') ||
-    pathname === '/privacy' ||
-    pathname === '/terms' ||
-    pathname === '/disclosure'
-  ) {
+  if (pathname.startsWith('/admin')) {
     return 'dark';
   }
 
@@ -105,7 +98,7 @@ async function resolveTheme(): Promise<'light' | 'dark'> {
       const timer = await getTimerBySlug(timerMatch[1]);
       if (timer) return timer.theme;
     } catch {
-      // DB 到達不能時はライトにフォールバック（404 でも何でも light）
+      // DB 到達不能時はライトにフォールバック
     }
     return 'light';
   }

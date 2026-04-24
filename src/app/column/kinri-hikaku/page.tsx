@@ -104,18 +104,18 @@ export default function KinriHikakuPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFaq) }}
       />
 
-      <article className="text-zinc-300">
+      <article className="text-rt-text-secondary">
         <div className="max-w-2xl mx-auto px-4 py-12">
           <Link
             href="/"
-            className="text-sm text-zinc-400 hover:text-zinc-200 transition-colors inline-block mb-6"
+            className="text-sm text-rt-text-tertiary hover:text-rt-text-primary transition-colors inline-block mb-6"
           >
             ← 利息タイマーに戻る
           </Link>
-          <h1 className="text-2xl sm:text-3xl font-bold text-zinc-100 mb-3 leading-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-rt-text-primary mb-3 leading-tight">
             カードローン金利の仕組みと利息を減らす方法
           </h1>
-          <p className="text-xs text-zinc-500 mb-8">
+          <p className="text-xs text-rt-text-muted mb-8">
             本ページにはプロモーションが含まれます / 最終更新: 2026-04-24
           </p>
 
@@ -130,7 +130,7 @@ export default function KinriHikakuPage() {
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-bold text-zinc-100 mb-3">カードローンの金利は、実際いくらなのか</h2>
+            <h2 className="text-xl font-bold text-rt-text-primary mb-3">カードローンの金利は、実際いくらなのか</h2>
             <p className="text-sm leading-relaxed mb-3">
               カードローンの金利帯は、提供元によって幅がある。大手消費者金融は年3〜18%、銀行カードローンは年1〜15%程度が一般的な表示だ。ただし「3%〜」のような下限は、借入限度額が高額のケース（多くは500万円以上）で適用される金利で、一般的な借入（数十万円〜100万円程度）では上限金利に近い水準、つまり年18%前後が適用されることが実際には多い。
             </p>
@@ -143,7 +143,7 @@ export default function KinriHikakuPage() {
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-bold text-zinc-100 mb-3">金利と「実質年率」は何が違うのか</h2>
+            <h2 className="text-xl font-bold text-rt-text-primary mb-3">金利と「実質年率」は何が違うのか</h2>
             <p className="text-sm leading-relaxed mb-3">
               広告やサイトで見かけるのは「実質年率 3.0%〜18.0%」のような表記だ。貸金業法は広告で金利を表示する際、実質年率で示すことを義務付けている。実質年率には、純粋な利息だけでなく、借入に付随する事務手数料・保証料などの費用が年利換算で含まれる。
             </p>
@@ -156,12 +156,12 @@ export default function KinriHikakuPage() {
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-bold text-zinc-100 mb-3">利息はこうやって計算される</h2>
+            <h2 className="text-xl font-bold text-rt-text-primary mb-3">利息はこうやって計算される</h2>
             <p className="text-sm leading-relaxed mb-3">
               カードローンの利息は、多くの場合日割りで計算される。基本の式はシンプルだ。
             </p>
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 mb-4">
-              <p className="text-sm text-zinc-300 font-mono">
+            <div className="bg-rt-card border border-rt-border rounded-xl p-4 mb-4">
+              <p className="text-sm text-rt-text-secondary font-mono">
                 利息 = 借入残高 × 実質年率 ÷ 365 × 経過日数
               </p>
             </div>
@@ -174,7 +174,7 @@ export default function KinriHikakuPage() {
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-bold text-zinc-100 mb-3">単利と複利 — カードローンはどちら？</h2>
+            <h2 className="text-xl font-bold text-rt-text-primary mb-3">単利と複利 — カードローンはどちら？</h2>
             <p className="text-sm leading-relaxed mb-3">
               利息の計算方式には「単利」と「複利」がある。単利は元金に対してのみ利息がつく方式で、100万円を年10%の単利で5年借りると、利息は毎年10万円で一定、5年で50万円。計算がシンプルで、主に住宅ローンや一部のフリーローンで使われる。
             </p>
@@ -195,26 +195,26 @@ export default function KinriHikakuPage() {
           />
 
           <section className="mb-10">
-            <h2 className="text-xl font-bold text-zinc-100 mb-3">利息を実際に減らす、4つの実務</h2>
+            <h2 className="text-xl font-bold text-rt-text-primary mb-3">利息を実際に減らす、4つの実務</h2>
             <p className="text-sm leading-relaxed mb-3">
               利息を減らす方法は、どれも「元金をどれだけ早く、どれだけ低い金利で返すか」に集約される。実務で効く順に見ていく。
             </p>
             <p className="text-sm leading-relaxed mb-3">
-              <strong className="text-zinc-200">1. 繰上返済を積み上げる</strong> — 最も即効性があるのは、余裕のある月に毎月の約定返済とは別に追加返済することだ。前述の通り、利息は残高に対して日割りで発生するので、元金を減らせばその瞬間から毎日の利息が減る。ボーナスなど大きな入金があったときに迷わず繰上返済に回すのが、総支払額を抑える基本になる。
+              <strong className="text-rt-text-primary">1. 繰上返済を積み上げる</strong> — 最も即効性があるのは、余裕のある月に毎月の約定返済とは別に追加返済することだ。前述の通り、利息は残高に対して日割りで発生するので、元金を減らせばその瞬間から毎日の利息が減る。ボーナスなど大きな入金があったときに迷わず繰上返済に回すのが、総支払額を抑える基本になる。
             </p>
             <p className="text-sm leading-relaxed mb-3">
-              <strong className="text-zinc-200">2. 金利の低い商品に借り換える</strong> — 複数社から年18%で借りているなら、銀行系のおまとめローンや低金利カードローンへの借り換えで、実効金利を大きく下げられる余地がある。借入条件と信用情報次第で通る通らないは変わるが、借入が100万円を超える規模では金利差の影響が大きく、検討する価値はある。
+              <strong className="text-rt-text-primary">2. 金利の低い商品に借り換える</strong> — 複数社から年18%で借りているなら、銀行系のおまとめローンや低金利カードローンへの借り換えで、実効金利を大きく下げられる余地がある。借入条件と信用情報次第で通る通らないは変わるが、借入が100万円を超える規模では金利差の影響が大きく、検討する価値はある。
             </p>
             <p className="text-sm leading-relaxed mb-3">
-              <strong className="text-zinc-200">3. 無利息期間をうまく使う</strong> — 大手の消費者金融は「初回30日無利息」のような商品を用意している。30日以内に全額返済できる見込みがあるなら、利息ゼロで借りられる。ただし期限を過ぎれば通常の金利（年18%前後）が適用されるので、長期借入を前提とするなら金利そのものが低い商品を選んだ方が合理的だ。
+              <strong className="text-rt-text-primary">3. 無利息期間をうまく使う</strong> — 大手の消費者金融は「初回30日無利息」のような商品を用意している。30日以内に全額返済できる見込みがあるなら、利息ゼロで借りられる。ただし期限を過ぎれば通常の金利（年18%前後）が適用されるので、長期借入を前提とするなら金利そのものが低い商品を選んだ方が合理的だ。
             </p>
             <p className="text-sm leading-relaxed">
-              <strong className="text-zinc-200">4. 返済額を増やす</strong> — 約定の最低返済額は利息＋ごくわずかな元金で設定されているケースが多い。返済可能な範囲で月々の額を増やせば、元金の減りが速くなり、総利息も減る。アプリやATMで任意の額を追加入金できる商品も多い。
+              <strong className="text-rt-text-primary">4. 返済額を増やす</strong> — 約定の最低返済額は利息＋ごくわずかな元金で設定されているケースが多い。返済可能な範囲で月々の額を増やせば、元金の減りが速くなり、総利息も減る。アプリやATMで任意の額を追加入金できる商品も多い。
             </p>
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-bold text-zinc-100 mb-3">どうしても返済が追いつかないなら</h2>
+            <h2 className="text-xl font-bold text-rt-text-primary mb-3">どうしても返済が追いつかないなら</h2>
             <p className="text-sm leading-relaxed mb-3">
               金利の見直しや繰上返済を工夫しても、収入と支出のバランス的にどうしても返済が追いつかない、というケースはある。月の返済額が収入の3割を超えている、延滞が一度でも発生している、複数社で借りては返すを繰り返している — そういう状態だと、利息を小さく削る努力より、そもそもの構造を作り変える方が現実的だ。
             </p>
@@ -224,12 +224,12 @@ export default function KinriHikakuPage() {
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-bold text-zinc-100 mb-6">よくある質問</h2>
+            <h2 className="text-xl font-bold text-rt-text-primary mb-6">よくある質問</h2>
             <dl className="space-y-5 text-sm">
               {jsonLdFaq.mainEntity.map(({ name, acceptedAnswer }) => (
                 <div key={name}>
-                  <dt className="font-bold text-zinc-200 mb-1.5">Q. {name}</dt>
-                  <dd className="text-zinc-400 leading-relaxed pl-4 border-l border-zinc-700">
+                  <dt className="font-bold text-rt-text-primary mb-1.5">Q. {name}</dt>
+                  <dd className="text-rt-text-tertiary leading-relaxed pl-4 border-l border-rt-border-strong">
                     A. {acceptedAnswer.text}
                   </dd>
                 </div>
@@ -245,32 +245,32 @@ export default function KinriHikakuPage() {
             motivationText="金利を下げる工夫を重ねても元金が減らない、毎月の返済で生活が回らない、そんな段階では債務整理という選択肢も視野に入れておきたい。法律事務所の無料相談では、借入内容を伝えるだけで、任意整理で解決できる規模なのか、個人再生や自己破産を検討すべき規模なのかの目安が得られる。話した内容は守秘義務で守られるため、情報収集のつもりで聞くだけでも意味がある。"
           />
 
-          <section className="mb-10 border-t border-zinc-800 pt-8">
-            <h2 className="text-lg font-bold text-zinc-100 mb-4">関連記事</h2>
+          <section className="mb-10 border-t border-rt-border pt-8">
+            <h2 className="text-lg font-bold text-rt-text-primary mb-4">関連記事</h2>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/column/omatome-loan" className="text-zinc-300 hover:text-zinc-100 underline underline-offset-4 decoration-zinc-600">
+                <Link href="/column/omatome-loan" className="text-rt-text-secondary hover:text-rt-text-primary underline underline-offset-4 decoration-rt-border-strong">
                   おまとめローンの仕組みとメリット・デメリット
                 </Link>
-                <span className="text-zinc-500"> — 複数社借入を1本化して金利を下げる</span>
+                <span className="text-rt-text-muted"> — 複数社借入を1本化して金利を下げる</span>
               </li>
               <li>
-                <Link href="/column/saimu-seiri" className="text-zinc-300 hover:text-zinc-100 underline underline-offset-4 decoration-zinc-600">
+                <Link href="/column/saimu-seiri" className="text-rt-text-secondary hover:text-rt-text-primary underline underline-offset-4 decoration-rt-border-strong">
                   債務整理とは？種類・費用・デメリットを解説
                 </Link>
-                <span className="text-zinc-500"> — 任意整理・個人再生・自己破産の使い分け</span>
+                <span className="text-rt-text-muted"> — 任意整理・個人再生・自己破産の使い分け</span>
               </li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-zinc-100 mb-3">自分の借入で利息を計算してみる</h2>
-            <p className="text-sm leading-relaxed mb-4 text-zinc-400">
+            <h2 className="text-lg font-bold text-rt-text-primary mb-3">自分の借入で利息を計算してみる</h2>
+            <p className="text-sm leading-relaxed mb-4 text-rt-text-tertiary">
               元金・金利・返済条件を入力すると、今この瞬間にも発生している利息を秒単位で表示できる。実際の金額で見ると、金利差や返済ペースの意味が体感しやすくなる。
             </p>
             <Link
               href="/"
-              className="inline-block bg-red-600 hover:bg-red-500 text-white font-bold text-sm py-2.5 px-5 rounded-lg transition-colors"
+              className="inline-block bg-rt-accent-cta hover:bg-rt-accent-cta-hover text-white font-bold text-sm py-2.5 px-5 rounded-lg transition-colors"
             >
               利息タイマーで確認する →
             </Link>
