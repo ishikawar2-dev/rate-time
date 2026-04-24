@@ -701,24 +701,10 @@ export interface Timer {
 
 CSS 変数方式を採用。既存の Tailwind クラスを大幅書き換えせずに、`<html data-theme="...">` の付与だけでテーマ切替が反映される。
 
-**ライトテーマの配色コンセプト**: 落ち着いた弁護士・司法書士サイト風。温かみのあるオフホワイト本体 + 深紅アクセント + カードは深いネイビー。長文読み物で疲れず、ブランドの厳格さを保つ。
+**ライトテーマの配色コンセプト**:
+落ち着いた弁護士・司法書士サイト風。温かみのあるオフホワイトの本体に、純白のカードが軽く浮き上がる。長文読み物で疲れず、ブランドの厳格さを保つ配色。
 
-**カード階層の扱い（重要）**:
-ライトテーマではカードが深いネイビー (`slate-800`) になるため、カード内部のテキスト・アクセントは本体とは別の配色を使う必要がある。これを **CSS 変数のスコープ再定義** で自動化する:
-
-```css
-.card,
-.bg-rt-card {
-  --text-primary: var(--text-on-card);       /* 本体=墨 → カード内=slate-100 */
-  --accent-cta: var(--accent-cta-on-card);   /* 本体=red-800 → カード内=red-600 */
-  --principal-text: var(--principal-on-card);/* 本体=blue-700 → カード内=blue-400 */
-  --interest-text: var(--interest-on-card);  /* 本体=amber-800 → カード内=amber-400 */
-  /* ... 他の意味論トークンも同様に差し替え ... */
-  color: var(--text-primary);
-}
-```
-
-この結果、カード内部で `text-rt-text-primary` などの既存 Tailwind クラスを書き換えなくても、CSS 変数の値が on-card 系に差し替わるため、可読なテキスト・視認できるアクセントに自動解決される。
+カードの階層感は背景色差（`#faf8f4` → `#ffffff`）とわずかな暖色グレーの境界線 (`#e2dccf`) で作る。ネイビーカードなど濃色カードは圧迫感があり操作性を損なうため採用しない。
 
 **実装例**:
 
@@ -728,49 +714,38 @@ CSS 変数方式を採用。既存の Tailwind クラスを大幅書き換えせ
 [data-theme="light"] {
   /* 本体（オフホワイト基調） */
   --bg-base: #faf8f4;          /* 温かみのあるオフホワイト */
-  --bg-elevated: #f2ede2;
-  --border-default: #e2dccf;
+  --bg-card: #ffffff;          /* 純白のカード */
+  --bg-elevated: #f2ede2;      /* 入力欄・段差のあるサーフェス */
+  --border-default: #e2dccf;   /* カードの境界線（暖色グレー） */
+  --border-strong: #cec7b7;
+
   --text-primary: #1a1815;     /* 見出し（ほぼ墨） */
   --text-secondary: #3f3c36;   /* 本文（長文で疲れない、AAA 10:1） */
-  --text-tertiary: #6b6860;
+  --text-tertiary: #6b6860;    /* 補助 */
+  --text-muted: #96928a;
+
   --accent-text: #991b1b;      /* red-800 深紅（AA 9.4:1 on #ffffff） */
   --accent-cta: #991b1b;
   --accent-cta-hover: #7f1d1d; /* red-900 */
   --principal-text: #1d4ed8;   /* 元本=blue-700 */
   --interest-text: #92400e;    /* 利息=amber-800 */
   --success-text: #15803d;     /* green-700 */
-
-  /* カード（ネイビー） */
-  --bg-card: #1e293b;          /* slate-800 */
-  --bg-card-elevated: #334155; /* slate-700 */
-  --text-on-card: #f1f5f9;           /* slate-100 */
-  --text-on-card-secondary: #cbd5e1; /* slate-300 */
-  --text-on-card-tertiary: #94a3b8;  /* slate-400 */
-  --border-on-card: #475569;         /* slate-600 */
-  --accent-cta-on-card: #dc2626;     /* red-600（深紅よりカード上で映える） */
-  --principal-on-card: #60a5fa;      /* blue-400 */
-  --interest-on-card: #fbbf24;       /* amber-400 */
-  --success-on-card: #4ade80;        /* green-400 */
 }
 
 [data-theme="dark"] {
   /* 本体=zinc-950、カード=zinc-900 */
   --bg-base: #09090b;
   --bg-card: #18181b;
+  --bg-elevated: #27272a;
   --border-default: #27272a;
   --text-primary: #f4f4f5;
   --text-secondary: #a1a1aa;
   --accent-text: #f87171;       /* red-400 */
   --accent-cta: #dc2626;
   --accent-cta-hover: #b91c1c;
-  /* ダークではカードも本体と同階層のため on-card 変数は本体と同値に揃える */
-  --text-on-card: #f4f4f5;
-  --text-on-card-secondary: #a1a1aa;
-  --border-on-card: #27272a;
-  --accent-cta-on-card: #dc2626;
-  --principal-on-card: #60a5fa;
-  --interest-on-card: #fb923c;
-  /* ... */
+  --principal-text: #60a5fa;    /* blue-400 */
+  --interest-text: #fb923c;     /* orange-400 */
+  --success-text: #4ade80;      /* green-400 */
 }
 
 body {
@@ -779,6 +754,12 @@ body {
   transition: background-color 150ms, color 150ms;
 }
 ```
+
+**設計上の注意点**:
+- ライトテーマとダークテーマで「カードの階層性」は同じ方向（カード背景が本体より明るい／本体より暗い）ではなく、**どちらも本体よりわずかに明るい or 同階層**で設計する。
+  - ライト: 本体 `#faf8f4`（オフホワイト） → カード `#ffffff`（純白）で軽く浮き上がる
+  - ダーク: 本体 `#09090b`（zinc-950） → カード `#18181b`（zinc-900）で軽く浮き上がる
+- ライトテーマで濃色カード（ネイビー等）を使うと、カード内で text-primary を on-card 系に差し替える必要が出て実装が複雑化する。白カードならこの切替は不要で、同じ rt-* 意味論トークンがそのまま使える。
 
 Tailwind 側では `arbitrary value` で CSS 変数を使う、もしくは以下のように拡張:
 
