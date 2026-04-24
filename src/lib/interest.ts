@@ -140,6 +140,27 @@ export function formatDate(timestamp: number): string {
   }).format(new Date(timestamp));
 }
 
+/**
+ * 日付のみのフォーマット（開始日・作成日などで時刻を表示したくない箇所で使う）。
+ * 返済日時など時刻が意味を持つ場面では formatDate を使い続ける。
+ */
+export function formatDateOnly(timestamp: number): string {
+  return new Intl.DateTimeFormat('ja-JP', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(new Date(timestamp));
+}
+
+/** YYYY-MM-DD 形式（date input の value / 今日の日付取得用） */
+export function toLocalDateString(timestamp: number): string {
+  const d = new Date(timestamp);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 export function rateTypeLabel(rateType: 'annual' | 'monthly' | 'daily'): string {
   switch (rateType) {
     case 'annual': return '年利';
