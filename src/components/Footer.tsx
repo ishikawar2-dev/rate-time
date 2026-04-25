@@ -10,15 +10,32 @@ export function Footer() {
           <p className="text-xs font-semibold text-rt-text-secondary uppercase tracking-wide mb-2">
             コラム
           </p>
-          <nav aria-label="コラム記事" className="flex flex-col sm:flex-row flex-wrap gap-y-2 gap-x-5">
-            <Link href="/column/saimu-seiri" className="text-sm text-rt-text-secondary hover:text-rt-text-primary transition-colors">
-              債務整理ガイド
+          <nav aria-label="コラム記事" className="flex flex-col sm:flex-row flex-wrap gap-y-2 gap-x-5 mb-3">
+            <Link href="/column/kinri-keisan" className="text-sm text-rt-text-secondary hover:text-rt-text-primary transition-colors">
+              金利計算の方法
             </Link>
-            <Link href="/column/omatome-loan" className="text-sm text-rt-text-secondary hover:text-rt-text-primary transition-colors">
-              おまとめローン比較
+            <Link href="/column/shakkin-heranai" className="text-sm text-rt-text-secondary hover:text-rt-text-primary transition-colors">
+              借金が減らない理由
             </Link>
             <Link href="/column/kinri-hikaku" className="text-sm text-rt-text-secondary hover:text-rt-text-primary transition-colors">
               カードローン金利入門
+            </Link>
+            <Link href="/column/omatome-loan" className="text-sm text-rt-text-secondary hover:text-rt-text-primary transition-colors">
+              おまとめローン
+            </Link>
+            <Link href="/column/saimu-seiri" className="text-sm text-rt-text-secondary hover:text-rt-text-primary transition-colors">
+              債務整理ガイド
+            </Link>
+          </nav>
+          <nav aria-label="コラム記事（サブ）" className="flex flex-col sm:flex-row flex-wrap gap-y-1 gap-x-5">
+            <Link href="/column/jisshitsu-nenritsu" className="text-xs text-rt-text-muted hover:text-rt-text-tertiary transition-colors">
+              実質年率とは
+            </Link>
+            <Link href="/column/fukuri-tanri-chigai" className="text-xs text-rt-text-muted hover:text-rt-text-tertiary transition-colors">
+              複利と単利の違い
+            </Link>
+            <Link href="/column/timer-katsuyou" className="text-xs text-rt-text-muted hover:text-rt-text-tertiary transition-colors">
+              利息タイマーの使い方
             </Link>
           </nav>
         </div>
