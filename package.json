@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
+    "@notionhq/client": "^5.20.0",
     "canvas-confetti": "^1.9.2",
     "next": "^15.5.15",
     "react": "^18",

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDailyReportPayload, saveDailyReport } from '@/lib/admin-queries';
 import { getJSTYesterday } from '@/lib/date-utils';
+import { upsertDailyReportToNotion } from '@/lib/notion-client';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -26,13 +27,52 @@ export async function GET(req: NextRequest) {
 
   try {
     const payload = await getDailyReportPayload(date);
+
+    // 1. DB に保存（既存）
     const { id, savedAt } = await saveDailyReport(
       payload.project,
       date,
       payload.generated_at,
       payload,
     );
-    return NextResponse.json({ ok: true, date, id, saved_at: savedAt.toISOString() });
+
+    // 2. Notion に書き込み（失敗しても DB 保存は成功扱い）
+    let notionResult: { ok: boolean; created?: boolean; error?: string } = { ok: false };
+
+    if (process.env.NOTION_TOKEN && process.env.NOTION_DB_ID) {
+      try {
+        const result = await upsertDailyReportToNotion(process.env.NOTION_DB_ID, {
+          date,
+          project: payload.project,
+          impressions: payload.kpis.impressions,
+          clicks: payload.kpis.clicks,
+          ctr: payload.kpis.ctr,
+          anomalies: payload.anomalies.length,
+          detailUrl: `https://rate-time.com/admin/reports/${date}`,
+        });
+        notionResult = { ok: true, created: result.created };
+        console.log('[api/cron/daily-report] Notion sync:', notionResult);
+      } catch (notionErr) {
+        console.error('[api/cron/daily-report] Notion sync failed:', notionErr);
+        notionResult = {
+          ok: false,
+          error: notionErr instanceof Error ? notionErr.message : 'unknown',
+        };
+      }
+    } else {
+      console.log('[api/cron/daily-report] Notion env vars not set, skipping');
+      notionResult = { ok: false, error: 'env_not_configured' };
+    }
+
+    console.log('[api/cron/daily-report] Success:', {
+      date,
+      impressions: payload.kpis.impressions,
+      clicks: payload.kpis.clicks,
+      anomalies: payload.anomalies.length,
+      notion: notionResult,
+    });
+
+    return NextResponse.json({ ok: true, date, id, saved_at: savedAt.toISOString(), notion: notionResult });
   } catch (err) {
     console.error('[api/cron/daily-report]', err);
     return NextResponse.json({ error: 'failed' }, { status: 500 });

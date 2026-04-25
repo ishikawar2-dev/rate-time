@@ -345,7 +345,7 @@ export function ReportsListClient({ project, from, to, reports, summary }: Props
           </div>
         )}
         <p className="px-5 py-3 text-xs text-zinc-600 bg-zinc-950/30 border-t border-zinc-800">
-          保存は POST /api/admin/report/save で Claude Routines から送信されます。最新の保存時刻は各行の詳細ページで確認できます。
+          保存は POST /api/admin/report/save で Vercel Cron から送信されます。最新の保存時刻は各行の詳細ページで確認できます。
         </p>
       </section>
 
