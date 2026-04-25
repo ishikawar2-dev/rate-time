@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { getDailyReportPayload, saveDailyReport } from '@/lib/admin-queries';
 import { getJSTYesterday } from '@/lib/date-utils';
@@ -19,7 +20,15 @@ export async function GET(req: NextRequest) {
     return new NextResponse('Not Found', { status: 404 });
   }
 
-  if (req.headers.get('authorization') !== `Bearer ${secret}`) {
+  const authHeader = req.headers.get('authorization');
+  if (!authHeader) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  }
+
+  const expected = `Bearer ${secret}`;
+  const a = Buffer.from(authHeader);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length || !timingSafeEqual(a, b)) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 
@@ -72,7 +81,16 @@ export async function GET(req: NextRequest) {
       notion: notionResult,
     });
 
-    return NextResponse.json({ ok: true, date, id, saved_at: savedAt.toISOString(), notion: notionResult });
+    return NextResponse.json({
+      ok: true,
+      date,
+      id,
+      saved_at: savedAt.toISOString(),
+      notion: {
+        ok: notionResult.ok,
+        ...(notionResult.ok && { created: notionResult.created }),
+      },
+    });
   } catch (err) {
     console.error('[api/cron/daily-report]', err);
     return NextResponse.json({ error: 'failed' }, { status: 500 });

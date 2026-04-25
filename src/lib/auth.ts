@@ -3,7 +3,7 @@ import { createHmac, timingSafeEqual } from 'crypto';
 export function generateEditToken(slug: string): string {
   const secret = process.env.EDIT_SECRET;
   if (!secret) throw new Error('EDIT_SECRET is not set');
-  return createHmac('sha256', secret).update(slug).digest('hex').slice(0, 24);
+  return createHmac('sha256', secret).update(slug).digest('hex').slice(0, 32);
 }
 
 export function verifyEditToken(slug: string, token: string | null | undefined): boolean {
@@ -21,11 +21,19 @@ export function verifyEditToken(slug: string, token: string | null | undefined):
     } catch { /* fall through to slug-specific check */ }
   }
 
-  // slug 固有トークンチェック
+  // slug 固有トークンチェック（32文字・24文字の両方を許可して互換性を維持）
   try {
-    const expected = generateEditToken(slug);
-    if (expected.length !== token.length) return false;
-    return timingSafeEqual(Buffer.from(expected), Buffer.from(token));
+    const secret = process.env.EDIT_SECRET;
+    if (!secret) return false;
+
+    if (token.length !== 24 && token.length !== 32) return false;
+
+    const fullHmac = createHmac('sha256', secret).update(slug).digest('hex');
+    const expected = fullHmac.slice(0, token.length);
+
+    const a = Buffer.from(token);
+    const b = Buffer.from(expected);
+    return timingSafeEqual(a, b);
   } catch {
     return false;
   }
