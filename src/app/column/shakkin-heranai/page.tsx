@@ -128,7 +128,7 @@ export default async function ShakkinHeranaiPage() {
               2年前に借りた50万円、毎月2万円以上返しているのに残高が30万円台から動かない。明細を見ると「利息：7,400円」「元金充当：12,600円」と書いてある。2万円返して元金が1.2万円しか減っていない——そういう状況に気づいて「なぜこんなに遅いのか」と検索している人は多い。
             </p>
             <p className="text-sm leading-relaxed">
-              結論から言えば、カードローンの最低返済額は「利息をほぼ全額払って元金をわずかに減らす」ように設計されていることが多い。この仕組みを理解せずに最低返済額だけを払い続けると、完済まで何年もかかることになる。以下では最低返済額の構造、あと何年かかるかの計算、そして元金を速く減らすための実践を整理していく。
+              結論から言えば、最低返済額は「利息をほぼ全額払って元金をわずかに減らす」水準に設計されていることが多い。この構造を知らずに最低を払い続けると、完済まで10年以上かかることもある。
             </p>
           </section>
 
@@ -220,16 +220,13 @@ export default async function ShakkinHeranaiPage() {
           <section className="mb-10">
             <h2 className="text-xl font-bold text-rt-text-primary mb-3">元金を減らすための3つの実践</h2>
             <p className="text-sm leading-relaxed mb-3">
-              元金の減りを速めるための方法は「元金が減るペースを上げる」か「利息の発生を止める」かのどちらかに集約される。
+              <strong className="text-rt-text-primary">月々の返済額を増やす</strong> — 最低返済額を「下限」として認識し、余力のある月は上積みして返済する。カードローンやリボ払いは任意の金額を追加返済できることが多い。月々5,000〜1万円の上積みでも、前節の試算のとおり総利息と完済期間が大きく変わる。
             </p>
             <p className="text-sm leading-relaxed mb-3">
-              <strong className="text-rt-text-primary">1. 月々の返済額を増やす</strong> — 最も確実な方法だ。最低返済額を「下限」として認識し、余力のある月は上積みして返済する。カードローンやリボ払いは任意の金額を追加返済できることが多い。月々5,000〜1万円の上積みでも、前述の通り総利息と完済期間が大きく変わる。
-            </p>
-            <p className="text-sm leading-relaxed mb-3">
-              <strong className="text-rt-text-primary">2. 繰上返済を積み上げる</strong> — ボーナスや臨時収入が入ったタイミングで、まとめて元金を返済する。利息は残高に対して日割りで発生するため、元金を減らした瞬間から毎日の利息が減る。1年後より今返すほうが、「利息を払わずに済む期間」が1年長くなる計算だ。
+              <strong className="text-rt-text-primary">繰上返済を積み上げる</strong> — ボーナスや臨時収入が入ったタイミングで、まとめて元金を返済する。利息は残高に対して日割りで発生するため、元金を減らした瞬間から毎日の利息が減る。1年後に返すより今返すほうが、「利息を払わずに済む期間」が1年長くなる。
             </p>
             <p className="text-sm leading-relaxed">
-              <strong className="text-rt-text-primary">3. 金利の低い商品に借り換える</strong> — 複数社から年18%前後で借りているなら、銀行系おまとめローンや低金利カードローンへの借り換えで実効金利を下げられる余地がある。金利差は直接「毎月の利息発生額の差」に現れるため、借入が100万円以上ある規模では検討する価値が高い。
+              <strong className="text-rt-text-primary">金利の低い商品に借り換える</strong> — 複数社から年18%前後で借りているなら、銀行系おまとめローンや低金利カードローンへの借り換えで実効金利を下げられる余地がある。金利差は毎月の利息発生額の差に直結するため、借入が100万円を超える規模では一度試算してみる価値がある。
             </p>
           </section>
 
@@ -242,7 +239,7 @@ export default async function ShakkinHeranaiPage() {
               現在延滞がなく毎月の返済は続けられているなら、まずおまとめローンで金利と1本化を試みる価値がある。<Link href="/column/omatome-loan" className="text-rt-text-secondary underline underline-offset-4 decoration-rt-border-strong hover:text-rt-text-primary">おまとめローンの仕組みとメリット・デメリット</Link>で詳しく解説しているが、金利が下がれば毎月の元金充当分が増え、完済期間が縮む。
             </p>
             <p className="text-sm leading-relaxed">
-              すでに延滞が始まっている・収入から見て返済が追いつかない・複数社の借入が収入の3分の1を超えている、という状況では、任意整理で将来利息をカットして元金だけ3〜5年で返す選択肢がある。借入総額が大きければ個人再生で元金を大幅に圧縮することも可能だ。<Link href="/column/saimu-seiri" className="text-rt-text-secondary underline underline-offset-4 decoration-rt-border-strong hover:text-rt-text-primary">債務整理とは？</Link>でそれぞれの手続きを整理している。どの手段が適しているかは個別の状況によるため、専門家への相談で確認するのが確実だ。
+              すでに延滞が始まっている・収入から見て返済が追いつかない・複数社の借入が収入の3分の1を超えている、という状況では、任意整理で将来利息をカットして元金だけ3〜5年で返す選択肢がある。借入総額が大きければ個人再生で元金を大幅に圧縮することも可能だ。<Link href="/column/saimu-seiri" className="text-rt-text-secondary underline underline-offset-4 decoration-rt-border-strong hover:text-rt-text-primary">債務整理とは？</Link>でそれぞれの手続きを整理している。どれが合うかは借入総額と収入次第で変わるため、一度無料相談で確かめるのが最短ルートだ。
             </p>
           </section>
 

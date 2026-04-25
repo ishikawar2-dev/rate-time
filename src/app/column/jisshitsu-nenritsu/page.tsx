@@ -128,7 +128,7 @@ export default async function JisshitsuNenritsuPage() {
               カードローンの広告には「実質年率 3.0%〜18.0%」のような表記が並んでいる。その下には「ご利用限度額や審査結果によって異なります」という注記があって、結局自分は何%で借りているのかわかりにくい。そもそも「実質年率」というのは何を意味するのか、「金利」と何が違うのか——金融商品を比べようとすると、この疑問にぶつかることが多い。
             </p>
             <p className="text-sm leading-relaxed">
-              以下では、実質年率と名目金利の違い、貸金業法が定める広告義務の背景、カードローンで両者がほぼ一致する理由、そして実質年率が低くても注意が必要なケースを整理していく。
+              「3.0%〜18.0%」という表記の意味が分かれば、商品選びの判断軸が一本通る。
             </p>
           </section>
 
@@ -197,16 +197,16 @@ export default async function JisshitsuNenritsuPage() {
           <section className="mb-10">
             <h2 className="text-xl font-bold text-rt-text-primary mb-3">実質年率が低くても注意すべきケース</h2>
             <p className="text-sm leading-relaxed mb-3">
-              実質年率は金融商品を比較する上で重要な指標だが、それだけを見て判断すると見落としが生まれることがある。
+              実質年率は比較の出発点として信頼できるが、それだけで決めると抜けが出る。
             </p>
             <p className="text-sm leading-relaxed mb-3">
-              1つ目は「返済期間の設定」による落とし穴だ。実質年率が低くても、返済期間を長くとれば総支払額は増える。月々の返済額が小さく見えても、10年かけて返す設定では総利息が膨らむ。実質年率と合わせて「総返済額」を必ず確認することが重要だ。<Link href="/column/kinri-keisan" className="text-rt-text-secondary underline underline-offset-4 decoration-rt-border-strong hover:text-rt-text-primary">金利計算の方法</Link>で具体的な試算を確認できる。
+              まず「返済期間」だ。実質年率が低くても期間を伸ばせば総利息は増える。月々の額が小さく見えても、10年返済に引き伸ばせば利息の総額は膨らむ。<Link href="/column/kinri-keisan" className="text-rt-text-secondary underline underline-offset-4 decoration-rt-border-strong hover:text-rt-text-primary">金利計算の方法</Link>で試算できるので、総返済額まで確認した上で比べてほしい。
             </p>
             <p className="text-sm leading-relaxed mb-3">
-              2つ目は「繰上返済の条件」だ。実質年率が低い商品でも、繰上返済に手数料や違約金が設定されている場合、余剰資金で早期完済しようとするとコストがかかる。残高が多いうちに大きく繰上返済したいと考えているなら、繰上返済の条件も事前に確認しておくべきだ。
+              次に「繰上返済の条件」。実質年率が低い商品でも、繰上返済に手数料や違約金が設定されていれば、余剰資金で早期完済しようとするとコストがかかる。残高が大きいうちにまとめて返せる状況なら、事前に確認しておく価値がある。
             </p>
             <p className="text-sm leading-relaxed">
-              3つ目は「適用金利の範囲」だ。「年3%〜18%」のような幅のある表示では、自分の借入に実際に何%が適用されるかが申し込みの結果まで分からない。一般的に、借入限度額が高くなるほど低い金利が適用されやすく、少額の借入では上限に近い金利が適用されることが多い。申し込み前に「自分は何%になるか」の目安を確認する手段として、仮審査や事前照会を活用するとよい。
+              「年3%〜18%」という幅の広い表示に対して、自分に実際に何%が適用されるかは申し込んでみるまで分からない。少額の借入では上限に近い金利が適用されることが多く、「3%で借りられる」と期待して申し込むのは禁物だ。仮審査や事前照会で目安を確かめてから動くほうが無難だ。
             </p>
           </section>
 

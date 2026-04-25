@@ -125,10 +125,10 @@ export default async function FukuriTanriChigaiPage() {
 
           <section className="mb-10">
             <p className="text-sm leading-relaxed mb-4">
-              「カードローンは複利で膨らむから怖い」——Web上でこの説明を目にしたことがある人は多いと思う。返済しているのに元金が減らず、利息が次の利息を生むように見える。感覚的には「複利のようだ」と感じるのは理解できる。しかし、これは正確ではない。
+              「カードローンは複利で膨らむから怖い」——ネット上でよく目にする説明だ。返済しているのに元金が減らず、利息が利息を呼んでいるように見える。だが実際には違う。
             </p>
             <p className="text-sm leading-relaxed">
-              カードローンは法律上、単利計算が義務付けられている。複利——つまり発生した利息にさらに利息がつく仕組み——は、日本のカードローンには適用されない。それでも借金が「雪だるま式」に見える理由は別のところにある。以下では単利と複利の正確な違いを計算で示した上で、「雪だるまの正体」を解説する。
+              カードローンは法律上、単利計算が義務付けられている。発生した利息にさらに利息をつける「複利」は、日本のカードローンには適用されない。それでも雪だるま式に見えるのは別の理由がある。計算で確かめながら整理していく。
             </p>
           </section>
 
@@ -200,7 +200,7 @@ export default async function FukuriTanriChigaiPage() {
               残高が減るにつれ最低返済額も下がっていく（残高スライド型）ため、さらに元金の減りが鈍化する。この構造の中では、「返しているのに残高がほとんど変わらない」という状態が何年も続く。これを見て「複利のように増えている」と感じる人が多いが、正確には「単利の利息が元金の減りより速いペースで発生し続けている状態」だ。
             </p>
             <p className="text-sm leading-relaxed">
-              解決策は元金を速く減らすことに尽きる。月々の返済額を増やすか、繰上返済で元金を減らせば、その日から毎日の利息発生額は下がる。詳しくは「<Link href="/column/shakkin-heranai" className="text-rt-text-secondary underline underline-offset-4 decoration-rt-border-strong hover:text-rt-text-primary">借金が全然減らない理由</Link>」で元金を減らす実践法を整理している。
+              打ち手は元金を速く減らすこと、それだけだ。月々の返済額を増やすか繰上返済で元金を削れば、その日から毎日の利息が減る。具体的な方法は「<Link href="/column/shakkin-heranai" className="text-rt-text-secondary underline underline-offset-4 decoration-rt-border-strong hover:text-rt-text-primary">借金が全然減らない理由</Link>」でまとめている。
             </p>
           </section>
 
@@ -228,7 +228,7 @@ export default async function FukuriTanriChigaiPage() {
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-bold text-rt-text-primary mb-3">では「複利」が出てくるのはどこか</h2>
+            <h2 className="text-xl font-bold text-rt-text-primary mb-3">複利が意味を持つのは資産形成の話</h2>
             <p className="text-sm leading-relaxed mb-3">
               複利の概念が重要になるのは主に資産形成の文脈だ。投資信託や積立NISA・iDeCoでは、運用益が元本に加算されてさらに運用されるため、長期で保有すると複利効果によって資産が加速度的に増えていく。
             </p>
