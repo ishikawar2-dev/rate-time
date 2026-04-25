@@ -35,7 +35,7 @@ export function Footer() {
 
         {/* アフィリエイト表記（ステマ規制対応） */}
         <p className="text-xs text-rt-text-muted leading-relaxed">
-          ※当サイトには広告（アフィリエイト）が含まれます。
+          ※当サイトには広告が含まれます。
         </p>
 
         {/* ツール免責 */}
