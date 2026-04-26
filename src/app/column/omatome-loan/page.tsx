@@ -38,7 +38,9 @@ const jsonLdArticle = {
   description: DESCRIPTION,
   mainEntityOfPage: URL,
   inLanguage: 'ja',
-  author: { '@type': 'Organization', name: '利息タイマー' },
+  datePublished: '2026-04-24',
+  dateModified: '2026-04-24',
+  author: { '@type': 'Person', name: 'AKASHI' },
   publisher: {
     '@type': 'Organization',
     name: '利息タイマー',
