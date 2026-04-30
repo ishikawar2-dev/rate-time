@@ -80,6 +80,25 @@ export const affiliateOffers: AffiliateOffer[] = [
     active: true,
   },
   {
+    id: 'sakura-chuo-horitsu',
+    category: 'debt-consolidation',
+    name: 'さくら中央法律事務所',
+    tagline: '借金の悩みを無料診断（弁護士・司法書士対応）',
+    description:
+      '任意整理・個人再生・自己破産など、借金問題の解決方法を無料で診断。相談から手続きまで一貫してサポートします。',
+    href: 'https://px.a8.net/svt/ejp?a8mat=4B1SPX+32QQDU+5T5G+5YJRM',
+    bullets: ['無料診断・相談実施中', '任意整理から自己破産まで対応', '秘密厳守・全国対応'],
+    ctaText: '無料で診断する',
+    advertiser: 'さくら中央法律事務所',
+    banner: {
+      href: 'https://px.a8.net/svt/ejp?a8mat=4B1SPX+32QQDU+5T5G+5ZMCH',
+      imageUrl: 'https://www23.a8.net/svt/bgt?aid=260424357186&wid=005&eno=01&mid=s00000027106001006000&mc=1',
+      width: 100,
+      height: 60,
+    },
+    active: true,
+  },
+  {
     id: 'earth-shihoshoshi',
     category: 'debt-consolidation',
     name: 'アース司法書士事務所',
